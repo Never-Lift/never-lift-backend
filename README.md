@@ -14,7 +14,7 @@ Este é um jogo novo. O protótipo anterior serve somente como referência de se
 
 ## Executar localmente
 
-Pré-requisito: JDK 21. Não é necessário instalar Maven separadamente.
+Pré-requisito: JDK 21 com `JAVA_HOME` configurada. Não é necessário instalar Maven separadamente.
 
 O projeto usa um banco H2 em memória somente como fallback de desenvolvimento, então a fundação e o healthcheck sobem sem configuração externa:
 
@@ -56,6 +56,7 @@ Resposta esperada:
 | `DATABASE_PASSWORD` | Em produção | Senha do PostgreSQL/Neon |
 | `APP_VERSION` | Não | Versão exposta pelo healthcheck; por padrão usa a versão do `pom.xml` |
 | `PORT` | Não | Porta HTTP; padrão local `8080` e injetada automaticamente pelo Render |
+| `CORS_ALLOWED_ORIGIN` | Em produção | Origem do frontend autorizada a acessar `/api/**`; padrão local `http://localhost:5173` |
 
 Nenhuma credencial possui valor padrão no código. O H2 é usado apenas quando `DATABASE_URL` não está definida.
 
@@ -76,7 +77,7 @@ O `Dockerfile` na raiz é a configuração de build. O painel do Render precisa 
 3. Configure **Branch** como `main`, **Root Directory** em branco e **Runtime** como `Docker`.
 4. Mantenha **Dockerfile Path** como `./Dockerfile` e ative **Auto-Deploy: On Commit**.
 5. Não preencha um comando customizado de build ou start. O comando efetivo de start já está no Dockerfile: `java -jar /app/app.jar`.
-6. Em **Environment**, defina `DATABASE_URL`, `DATABASE_USERNAME` e `DATABASE_PASSWORD` com os dados do Neon. A URL deve estar no formato JDBC, por exemplo `jdbc:postgresql://HOST/neondb?sslmode=require`. Não defina `PORT`; o Render fornece essa variável.
+6. Em **Environment**, defina `DATABASE_URL`, `DATABASE_USERNAME` e `DATABASE_PASSWORD` com os dados do Neon e `CORS_ALLOWED_ORIGIN` com a origem pública exata do frontend, sem barra final. A URL do banco deve estar no formato JDBC, por exemplo `jdbc:postgresql://HOST/neondb?sslmode=require`. Não defina `PORT`; o Render fornece essa variável.
 7. Em **Health Check Path**, use `/api/health` e crie o serviço.
 
 Depois dessa configuração, cada atualização da `main` dispara um deploy. Quando o deploy terminar, valide `https://SEU-SERVICO.onrender.com/api/health` e confirme o HTTP 200. O serviço gratuito pode levar cerca de um minuto para despertar depois de ficar inativo.
