@@ -1,39 +1,64 @@
 # Never Lift
 
-API REST + motor de corrida autoritativo (Java/Spring Boot) do Never Lift.
+API REST e futuro motor de corrida autoritativo do Never Lift, construídos com Java 21 e Spring Boot.
 
-Este é um **jogo novo**. Existe um protótipo anterior (mesmo conceito, feito com uma arquitetura de rede sem autoridade nenhuma) — ele serve só como referência de sensação e comportamento esperado do jogo, não como base de código.
+Este é um jogo novo. O protótipo anterior serve somente como referência de sensação e comportamento; ele não é uma base de código para conversão.
 
-## Stack
+## Stack do Módulo 0
 
-- Java 21 (LTS) + Spring Boot 3.x
+- Java 21 e Spring Boot 3.5.16
+- Spring Web, Data JPA e Validation
 - PostgreSQL (Neon em produção)
-- WebSocket para o motor de corrida em tempo real, REST para conta/social/recordes
-- Deploy: Render (Web Service, tier free)
+- Maven Wrapper
+- Docker e Render para deploy
 
-## Documentação
+## Executar localmente
 
-- [`docs/plano-implementacao-backend.md`](docs/plano-implementacao-backend.md) — arquitetura completa, protocolo de tempo real, modelo de dados e todos os módulos. Leia antes de começar qualquer módulo.
-- [`AGENTS.md`](AGENTS.md) — resumo de convenções pro Codex (e pra qualquer humano entrando no projeto).
+Pré-requisito: JDK 21 com `JAVA_HOME` configurada. Não é necessário instalar Maven separadamente.
 
-## Rodando localmente
-
-Pré-requisitos: JDK 21, o wrapper `./mvnw` (incluso no repo), acesso a um Postgres (Neon ou local via Docker).
+O projeto usa um banco H2 em memória somente como fallback de desenvolvimento, então a fundação e o healthcheck sobem sem configuração externa:
 
 ```bash
-cp .env.example .env   # preencher DATABASE_URL e JWT_SECRET
 ./mvnw spring-boot:run
 ```
 
-API sobe em `http://localhost:8080`. Healthcheck: `GET /api/health`.
+No Windows PowerShell, use:
+
+```powershell
+.\mvnw.cmd spring-boot:run
+```
+
+Para desenvolver contra PostgreSQL, copie `.env.example` para `.env`, substitua os valores e execute o mesmo comando. O arquivo `.env` é carregado automaticamente e não é versionado.
+
+```bash
+cp .env.example .env
+./mvnw spring-boot:run
+```
+
+O endereço padrão é `http://localhost:8080`. Verifique a aplicação com:
+
+```bash
+curl http://localhost:8080/api/health
+```
+
+Resposta esperada:
+
+```json
+{"status":"UP","version":"0.1.0-SNAPSHOT"}
+```
 
 ## Variáveis de ambiente
 
-| Nome | Descrição |
-|---|---|
-| `DATABASE_URL` | connection string do Postgres |
-| `JWT_SECRET` | segredo usado pra assinar os tokens de autenticação |
-| `CORS_ALLOWED_ORIGIN` | URL do frontend em produção, pra liberar CORS |
+| Nome | Obrigatória | Descrição |
+|---|---:|---|
+| `DATABASE_URL` | Em produção | URL JDBC do PostgreSQL, começando por `jdbc:postgresql://` |
+| `DATABASE_USERNAME` | Em produção | Usuário do PostgreSQL/Neon |
+| `DATABASE_PASSWORD` | Em produção | Senha do PostgreSQL/Neon |
+| `APP_VERSION` | Não | Versão exposta pelo healthcheck; por padrão usa a versão do `pom.xml` |
+| `PORT` | Não | Porta HTTP; padrão local `8080` e injetada automaticamente pelo Render |
+| `CORS_ALLOWED_ORIGIN` | Em produção | Origem do frontend autorizada a acessar `/api/**`; padrão local `http://localhost:5173` |
+
+Nenhuma credencial possui valor padrão no código. O H2 é usado apenas quando `DATABASE_URL` não está definida.
 
 ## Testes
 
@@ -41,19 +66,24 @@ API sobe em `http://localhost:8080`. Healthcheck: `GET /api/health`.
 ./mvnw test
 ```
 
-Nenhum módulo do plano de implementação é considerado pronto sem testes automatizados cobrindo suas regras de negócio (ver seção 5 do plano) — não é opcional.
+A suíte inclui um teste de integração do `GET /api/health`, validando HTTP 200 e os campos `status` e `version`.
 
-## Estrutura sugerida
+## Deploy automático no Render
 
-```
-src/main/java/.../
-  auth/           # Módulo 1 — usuários e autenticação
-  race/           # Módulos 2-3-4-5 — motor local, autoritativo online, ambiente, dano/nitro/pits
-  championship/   # Módulo 6
-  social/         # Módulo 7 — amigos e notificações
-  profile/        # Módulo 8 — estatísticas, recordes, histórico
-```
+O `Dockerfile` na raiz é a configuração de build. O painel do Render precisa ser configurado uma vez:
 
-## Deploy
+1. Envie esta feature por pull request para `develop` e depois promova `develop` por pull request para `main`.
+2. No Render, escolha **New > Web Service** e conecte `Never-Lift/never-lift-backend`.
+3. Configure **Branch** como `main`, **Root Directory** em branco e **Runtime** como `Docker`.
+4. Mantenha **Dockerfile Path** como `./Dockerfile` e ative **Auto-Deploy: On Commit**.
+5. Não preencha um comando customizado de build ou start. O comando efetivo de start já está no Dockerfile: `java -jar /app/app.jar`.
+6. Em **Environment**, defina `DATABASE_URL`, `DATABASE_USERNAME` e `DATABASE_PASSWORD` com os dados do Neon e `CORS_ALLOWED_ORIGIN` com a origem pública exata do frontend, sem barra final. A URL do banco deve estar no formato JDBC, por exemplo `jdbc:postgresql://HOST/neondb?sslmode=require`. Não defina `PORT`; o Render fornece essa variável.
+7. Em **Health Check Path**, use `/api/health` e crie o serviço.
 
-Push na branch principal aciona deploy automático no Render. O serviço free hiberna após 15 min sem tráfego (~1 min pra acordar na próxima conexão) — normal, não é bug.
+Depois dessa configuração, cada atualização da `main` dispara um deploy. Quando o deploy terminar, valide `https://SEU-SERVICO.onrender.com/api/health` e confirme o HTTP 200. O serviço gratuito pode levar cerca de um minuto para despertar depois de ficar inativo.
+
+## Documentação
+
+- [`docs/backend-implementation-plan.md`](docs/backend-implementation-plan.md) — arquitetura, protocolo e módulos do backend.
+- [`docs/frontend-implementation-plan.md`](docs/frontend-implementation-plan.md) — referência do consumidor da API e do WebSocket.
+- [`AGENTS.md`](AGENTS.md) — regras de arquitetura, testes e status dos módulos.
