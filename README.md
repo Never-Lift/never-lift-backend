@@ -104,6 +104,8 @@ Depois dessa configuração, cada atualização da `main` dispara um deploy. Qua
 
 ## Documentação
 
+Os Módulos 0–9 formam o MVP planejado. A expansão pós-MVP aprovada está registrada nos Módulos 10–16: progressão e carros por conquista, contrarrelógio com fantasmas, controles personalizáveis (frontend-only), espectadores, equipes, torneios automáticos e conduta esportiva.
+
 - [`docs/backend-implementation-plan.md`](docs/backend-implementation-plan.md) — arquitetura, protocolo e módulos do backend.
 - [`docs/frontend-implementation-plan.md`](docs/frontend-implementation-plan.md) — referência do consumidor da API e do WebSocket.
 - [`AGENTS.md`](AGENTS.md) — regras de arquitetura, testes e status dos módulos.

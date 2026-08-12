@@ -3,7 +3,7 @@
 ## O que é este projeto
 Jogo de corrida 2D multiplayer (top-down, estilo drift). Existe um protótipo anterior do mesmo autor — **este é um jogo novo, não uma versão dele.** O protótipo serve só como referência de sensação/comportamento esperado, nunca como código a converter ou reaproveitar diretamente. Este repositório é o **backend**; o frontend vive num repositório separado — o contrato entre os dois está documentado abaixo e em `docs/`.
 
-## Arquitetura (resumo — detalhe completo em `docs/plano-implementacao-backend.md`)
+## Arquitetura (resumo — detalhe completo em `docs/backend-implementation-plan.md`)
 - Dois planos: REST (conta, social, campeonato, recordes) e tempo real (WebSocket, um socket por sala — o motor de corrida).
 - O **servidor é a única autoridade** sobre a corrida: roda a física, decide colisão, valida progresso. Clientes enviam só `input` (intenção), nunca posição — isso corrige deliberadamente um bug do protótipo antigo, onde cada cliente simulava sozinho e a colisão divergia entre telas.
 - Loop de simulação de passo fixo (tick), independente do FPS de qualquer cliente ou da rede.
@@ -15,11 +15,11 @@ Envelope: `{ "type": "...", "payload": {...} }`.
 - Cliente → Servidor: `join_room`, `select_loadout`, `ready`, `input { throttle, brake, steer, nitro, clientSeq, clientTimestamp }`.
 - Servidor → Cliente: `room_state`, `countdown`, `state_snapshot`, `race_event`, `race_result`, `error`.
 
-Detalhe completo de cada payload: `docs/plano-implementacao-backend.md`, seção 3.
+Detalhe completo de cada payload: `docs/backend-implementation-plan.md`, seção 3.
 
 ## Documentação
-- `docs/plano-implementacao-backend.md` — plano deste repositório, módulo a módulo.
-- `docs/plano-implementacao-frontend.md` — plano do repositório frontend, incluído aqui só como referência de quem consome esta API/WebSocket. Não implementar nada daqui.
+- `docs/backend-implementation-plan.md` — plano deste repositório, módulo a módulo.
+- `docs/frontend-implementation-plan.md` — plano do repositório frontend, incluído aqui só como referência de quem consome esta API/WebSocket. Não implementar nada daqui.
 
 ## Stack e convenções deste repositório
 - Java 21, Spring Boot 3.x (Web, WebSocket, Data JPA, Security, Validation).
@@ -37,7 +37,7 @@ Nenhum módulo é considerado pronto sem testes automatizados rigorosos (JUnit 5
 
 ## Ao terminar um módulo
 1. Testes automatizados passando.
-2. Critério de pronto do módulo (ver `docs/plano-implementacao-backend.md`) validado manualmente.
+2. Critério de pronto do módulo (ver `docs/backend-implementation-plan.md`) validado manualmente.
 3. Atualizar a tabela de status abaixo.
 4. Commit isolado, mensagem referenciando o número do módulo.
 
@@ -56,5 +56,12 @@ Antes de começar um módulo, confira se as dependências dele já estão marcad
 | 7 — Social (amigos/notificações) | não iniciado |
 | 8 — Perfil, recordes e histórico | não iniciado |
 | 9 — Polimento | não iniciado |
+| 10 — Progressão, carros e medalhas | não iniciado (pós-MVP) |
+| 11 — Contrarrelógio e fantasmas | não iniciado (pós-MVP) |
+| 12 — Controles personalizáveis | não aplicável (frontend) |
+| 13 — Modo espectador para amigos | não iniciado (pós-MVP) |
+| 14 — Equipes e placar coletivo | não iniciado (pós-MVP) |
+| 15 — Torneios oficiais automáticos | não iniciado (pós-MVP) |
+| 16 — Conduta esportiva e penalidades | não iniciado (pós-MVP) |
 
 > Status do frontend (referência, não sincronizado automaticamente): ver `AGENTS.md` do repositório frontend.
