@@ -78,6 +78,8 @@ Os endpoints protegidos recebem o token no cabeçalho `Authorization: Bearer <to
 | `PATCH` | `/api/account/me` | `{ "currentPassword", "displayName"?, "avatarId"?, "password"? }` |
 | `DELETE` | `/api/account/me` | `{ "currentPassword" }` |
 
+No `PATCH`, omitir `avatarId` preserva o avatar atual; enviar `"avatarId": null` remove o avatar da conta.
+
 O gamertag é único e não aceita espaços. Senhas devem ter pelo menos quatro caracteres e não podem conter espaços; os demais caracteres, incluindo Unicode, são permitidos. As respostas de autenticação contêm `token`, `tokenType`, `expiresIn`, `role` e `subject`.
 
 ## Testes

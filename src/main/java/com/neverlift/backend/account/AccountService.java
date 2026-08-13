@@ -38,7 +38,7 @@ public class AccountService {
         if (request.displayName() != null) {
             user.setDisplayName(request.displayName());
         }
-        if (request.avatarId() != null) {
+        if (request.includesAvatarId()) {
             user.setAvatarId(request.avatarId());
         }
         if (request.password() != null) {

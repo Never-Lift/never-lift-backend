@@ -1,6 +1,7 @@
 package com.neverlift.backend.auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -200,6 +201,46 @@ class AuthenticationIntegrationTest {
 
         User storedUser = userRepository.findByGamertag("account-driver").orElseThrow();
         assertThat(passwordEncoder.matches("n€w!", storedUser.getPasswordHash())).isTrue();
+    }
+
+    @Test
+    void shouldPreserveOmittedAvatarAndClearExplicitNullAvatar() throws Exception {
+        String token = register("avatar-driver", "Avatar Driver", USER_PASSWORD);
+
+        mockMvc.perform(patch("/api/account/me")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(token))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of(
+                                "currentPassword", USER_PASSWORD,
+                                "avatarId", "street-drifter"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.avatarId").value("street-drifter"));
+
+        mockMvc.perform(patch("/api/account/me")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(token))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of(
+                                "currentPassword", USER_PASSWORD,
+                                "displayName", "Avatar Preserved"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.displayName").value("Avatar Preserved"))
+                .andExpect(jsonPath("$.avatarId").value("street-drifter"));
+
+        mockMvc.perform(patch("/api/account/me")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(token))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "currentPassword": "p@ss",
+                                  "avatarId": null
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.avatarId").value(nullValue()));
+
+        User storedUser = userRepository.findByGamertag("avatar-driver").orElseThrow();
+        assertThat(storedUser.getDisplayName()).isEqualTo("Avatar Preserved");
+        assertThat(storedUser.getAvatarId()).isNull();
     }
 
     @Test
