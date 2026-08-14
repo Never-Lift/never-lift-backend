@@ -12,7 +12,7 @@ Jogo de corrida 2D multiplayer (top-down, estilo drift). Existe um protótipo an
 
 ## Protocolo de tempo real (contrato com o frontend — não alterar sem avisar o outro lado)
 Envelope: `{ "type": "...", "payload": {...} }`.
-- Cliente → Servidor: `join_room`, `select_loadout`, `ready`, `input { throttle, brake, steer, nitro, clientSeq, clientTimestamp }`.
+- Cliente → Servidor: `join_room { roomCode, trackCatalogVersion }`, `select_loadout`, `ready`, `input { throttle, brake, steer, nitro, clientSeq, clientTimestamp }`.
 - Servidor → Cliente: `room_state`, `countdown`, `state_snapshot`, `race_event`, `race_result`, `error`.
 
 Detalhe completo de cada payload: `docs/backend-implementation-plan.md`, seção 3.
@@ -20,6 +20,7 @@ Detalhe completo de cada payload: `docs/backend-implementation-plan.md`, seção
 ## Documentação
 - `docs/backend-implementation-plan.md` — plano deste repositório, módulo a módulo.
 - `docs/frontend-implementation-plan.md` — plano do repositório frontend, incluído aqui só como referência de quem consome esta API/WebSocket. Não implementar nada daqui.
+- `docs/game-design-guide.md` — fonte compartilhada das decisões de jogo e apresentação. O backend implementa somente unidades, metadados e contratos explicitamente atribuídos a ele.
 
 ## Stack e convenções deste repositório
 - Java 21, Spring Boot 3.x (Web, WebSocket, Data JPA, Security, Validation).
@@ -31,6 +32,13 @@ Detalhe completo de cada payload: `docs/backend-implementation-plan.md`, seção
 - O motor de corrida (`RaceEngine`, Módulo 3) roda num loop de passo fixo dedicado (ex. `ScheduledExecutorService`), nunca atrelado a thread de request HTTP.
 - O servidor nunca aceita posição enviada pelo cliente como verdade — só `input`. Toda física e toda decisão de colisão/checkpoint/volta acontece aqui.
 - Recordes/estatísticas (Módulo 8) são calculados via query sobre `RaceResult`/`ChampionshipEntry`, não guardados numa tabela paralela.
+- Física, pistas, checkpoints e snapshots usam **1 unidade de mundo = 1 metro**, velocidades em metros por segundo e ângulos na convenção compartilhada do plano. Pixels e escala de câmera nunca entram no domínio do backend.
+- O catálogo de pistas é versionado. Uma sala fixa `trackId` e `trackCatalogVersion`; nunca simular clientes com geometrias divergentes.
+
+## Regra fixa: design e fase
+- `docs/game-design-guide.md` registra decisões globais e futuras, mas não autoriza antecipar entidades ou endpoints pós-MVP.
+- Implementar somente os contratos de backend atribuídos ao módulo em andamento. Câmera, layout, partículas e renderização pertencem ao frontend.
+- Alterações compartilhadas de unidade, pista, física ou protocolo precisam ser sincronizadas nos dois planos e nos dois repositórios no mesmo trabalho.
 
 ## Regra fixa: testes
 Nenhum módulo é considerado pronto sem testes automatizados rigorosos (JUnit 5 + Spring Boot Test) cobrindo suas regras de negócio, além do critério funcional descrito no plano. Vale mesmo pros módulos que parecem simples.
