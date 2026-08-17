@@ -60,7 +60,7 @@ Antes de começar um módulo, confira se as dependências dele já estão marcad
 |---|---|
 | 0 — Fundação e deploy | pronto |
 | 1 — Usuários e autenticação | pronto |
-| 2 — Suporte a corrida local | não iniciado (contratos v1 e catálogo 2026.1 definidos) |
+| 2 — Suporte a corrida local | pronto |
 | 3 — Motor autoritativo online | não iniciado |
 | 4 — Ambiente e modo caos | não iniciado |
 | 5 — Corrida completa (dano/nitro/pits) | não iniciado |
