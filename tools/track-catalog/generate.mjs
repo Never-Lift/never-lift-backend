@@ -326,7 +326,8 @@ async function writeOrCheck(path, content) {
     return
   }
   const existing = await readFile(path, 'utf8')
-  if (existing !== content) throw new Error(`${path} is not reproducible; run the generator`)
+  const normalizedExisting = existing.replaceAll('\r\n', '\n')
+  if (normalizedExisting !== content) throw new Error(`${path} is not reproducible; run the generator`)
 }
 
 const source = JSON.parse(await readFile(sourcePath, 'utf8'))

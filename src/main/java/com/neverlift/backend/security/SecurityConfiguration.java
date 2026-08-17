@@ -20,6 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
@@ -59,6 +60,7 @@ public class SecurityConfiguration {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/health", "/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/tracks", "/api/tracks/**").permitAll()
                         .requestMatchers("/api/account/**").hasRole("USER")
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())
