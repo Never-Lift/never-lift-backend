@@ -67,6 +67,19 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>contracts/module-2/v1</directory>
+                <targetPath>contracts/module-2/v1</targetPath>
+                <includes>
+                    <include>catalog.json</include>
+                    <include>tracks/*.json</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
