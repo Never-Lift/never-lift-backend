@@ -59,7 +59,8 @@ Resposta esperada:
 | `DATABASE_PASSWORD` | Em produção | Senha do PostgreSQL/Neon |
 | `APP_VERSION` | Não | Versão exposta pelo healthcheck; por padrão usa a versão do `pom.xml` |
 | `PORT` | Não | Porta HTTP; padrão local `8080` e injetada automaticamente pelo Render |
-| `CORS_ALLOWED_ORIGIN` | Em produção | Origem do frontend autorizada a acessar `/api/**`; padrão local `http://localhost:5173` |
+| `CORS_ALLOWED_ORIGINS` | Em produção | Lista de origens explícitas, separadas por vírgula, autorizadas a acessar `/api/**`; padrão local `http://localhost:5173` |
+| `CORS_ALLOWED_ORIGIN` | Não | Compatibilidade com a configuração anterior de uma única origem; usada somente quando `CORS_ALLOWED_ORIGINS` não está definida |
 | `JWT_SECRET` | Sim | Chave usada para assinar e validar JWTs; use um valor aleatório exclusivo com pelo menos 32 bytes UTF-8 |
 | `JWT_EXPIRATION_SECONDS` | Não | Validade dos JWTs em segundos; padrão `3600` (uma hora) |
 
@@ -136,7 +137,7 @@ O `Dockerfile` na raiz é a configuração de build. O painel do Render precisa 
 3. Configure **Branch** como `main`, **Root Directory** em branco e **Runtime** como `Docker`.
 4. Mantenha **Dockerfile Path** como `./Dockerfile` e ative **Auto-Deploy: On Commit**.
 5. Não preencha um comando customizado de build ou start. O comando efetivo de start já está no Dockerfile: `java -jar /app/app.jar`.
-6. Em **Environment**, defina `DATABASE_URL`, `DATABASE_USERNAME` e `DATABASE_PASSWORD` com os dados do Neon, `CORS_ALLOWED_ORIGIN` com a origem pública exata do frontend sem barra final e `JWT_SECRET` com um segredo aleatório exclusivo de pelo menos 32 bytes. A URL do banco deve estar no formato JDBC, por exemplo `jdbc:postgresql://HOST/neondb?sslmode=require`. `JWT_EXPIRATION_SECONDS` é opcional e vale `3600` por padrão. Não defina `PORT`; o Render fornece essa variável.
+6. Em **Environment**, defina `DATABASE_URL`, `DATABASE_USERNAME` e `DATABASE_PASSWORD` com os dados do Neon, `CORS_ALLOWED_ORIGINS` com as origens públicas exatas do frontend separadas por vírgula e sem barra final, e `JWT_SECRET` com um segredo aleatório exclusivo de pelo menos 32 bytes. Para validar a `develop` sem promover o frontend, use `https://never-lift-frontend.vercel.app,https://never-lift-frontend-git-develop-matheuseichendorf15s-projects.vercel.app`. A URL do banco deve estar no formato JDBC, por exemplo `jdbc:postgresql://HOST/neondb?sslmode=require`. `JWT_EXPIRATION_SECONDS` é opcional e vale `3600` por padrão. Não defina `PORT`; o Render fornece essa variável.
 7. Em **Health Check Path**, use `/api/health` e crie o serviço.
 
 Depois dessa configuração, cada atualização da `main` dispara um deploy. Quando o deploy terminar, valide `https://SEU-SERVICO.onrender.com/api/health` e confirme o HTTP 200. O serviço gratuito pode levar cerca de um minuto para despertar depois de ficar inativo.
