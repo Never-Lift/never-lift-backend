@@ -75,7 +75,7 @@
                 <directory>contracts/module-2/v1</directory>
                 <targetPath>contracts/module-2/v1</targetPath>
                 <includes>
-                    <include>catalog.json</include>
+                    <include>*.json</include>
                     <include>tracks/*.json</include>
                 </includes>
             </resource>
