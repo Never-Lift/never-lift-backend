@@ -31,8 +31,8 @@ class TrackCatalogIntegrationTest {
     void shouldExposeTheCanonicalPublicCatalogInRoundOrder() throws Exception {
         mockMvc.perform(get("/api/tracks"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.schemaVersion").value("1.0.0"))
-                .andExpect(jsonPath("$.catalogVersion").value("2026.1"))
+                .andExpect(jsonPath("$.schemaVersion").value("1.1.0"))
+                .andExpect(jsonPath("$.catalogVersion").value("2026.2"))
                 .andExpect(jsonPath("$.seasonReference").value(2026))
                 .andExpect(jsonPath("$.calendarPolicy").value("original-24-round-freeze"))
                 .andExpect(jsonPath("$.tracks.length()").value(24))
@@ -52,8 +52,8 @@ class TrackCatalogIntegrationTest {
 
         for (Track track : trackRepository.findAll()) {
             JsonNode definition = objectMapper.readTree(track.getDefinitionJson());
-            assertThat(definition.path("schemaVersion").asText()).isEqualTo("1.0.0");
-            assertThat(definition.path("catalogVersion").asText()).isEqualTo("2026.1");
+            assertThat(definition.path("schemaVersion").asText()).isEqualTo("1.1.0");
+            assertThat(definition.path("catalogVersion").asText()).isEqualTo("2026.2");
             assertThat(definition.path("id").asText()).isEqualTo(track.getId());
             assertThat(definition.path("lengthMeters").asInt()).isEqualTo(track.getLengthMeters());
 
@@ -81,7 +81,31 @@ class TrackCatalogIntegrationTest {
             assertThat(definition.path("startFinish").isObject()).isTrue();
             assertThat(definition.path("pitLane").path("path").size()).isGreaterThanOrEqualTo(2);
             assertThat(definition.path("sceneryLayout").isObject()).isTrue();
+            assertThat(definition.path("trackLimits").path("runoffWidthMeters").asInt()).isEqualTo(10);
+
+            JsonNode limitSegments = definition.path("trackLimits").path("segments");
+            assertThat(limitSegments.isArray()).isTrue();
+            assertThat(limitSegments).isNotEmpty();
+            assertThat(limitSegments.get(0).path("fromDistanceMeters").asDouble()).isZero();
+            assertThat(limitSegments.get(limitSegments.size() - 1).path("toDistanceMeters").asDouble())
+                    .isCloseTo(track.getLengthMeters(), within(0.001));
         }
+    }
+
+    @Test
+    void shouldExposeWalledAndMixedCircuitLimits() throws Exception {
+        mockMvc.perform(get("/api/tracks/monaco"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.trackLimits.runoffWidthMeters").value(10))
+                .andExpect(jsonPath("$.trackLimits.segments.length()").value(1))
+                .andExpect(jsonPath("$.trackLimits.segments[0].left").value("barrier"))
+                .andExpect(jsonPath("$.trackLimits.segments[0].right").value("barrier"));
+
+        mockMvc.perform(get("/api/tracks/interlagos"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.trackLimits.segments[0].left").value("barrier"))
+                .andExpect(jsonPath("$.trackLimits.segments[1].left").value("runoff"))
+                .andExpect(jsonPath("$.trackLimits.segments[1].right").value("runoff"));
     }
 
     @Test

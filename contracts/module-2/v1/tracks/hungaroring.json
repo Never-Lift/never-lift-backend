@@ -1,6 +1,6 @@
 {
-  "schemaVersion": "1.0.0",
-  "catalogVersion": "2026.1",
+  "schemaVersion": "1.1.0",
+  "catalogVersion": "2026.2",
   "id": "hungaroring",
   "name": "Hungaroring",
   "countryCode": "HU",
@@ -2873,6 +2873,60 @@
     "offTrack": "grass",
     "pitLane": "pit-lane"
   },
+  "trackLimits": {
+    "runoffWidthMeters": 10,
+    "segments": [
+      {
+        "index": 0,
+        "fromDistanceMeters": 0,
+        "toDistanceMeters": 350.48,
+        "left": "barrier",
+        "right": "runoff"
+      },
+      {
+        "index": 1,
+        "fromDistanceMeters": 350.48,
+        "toDistanceMeters": 1314.3,
+        "left": "runoff",
+        "right": "runoff"
+      },
+      {
+        "index": 2,
+        "fromDistanceMeters": 1314.3,
+        "toDistanceMeters": 1664.78,
+        "left": "barrier",
+        "right": "runoff"
+      },
+      {
+        "index": 3,
+        "fromDistanceMeters": 1664.78,
+        "toDistanceMeters": 2540.98,
+        "left": "runoff",
+        "right": "runoff"
+      },
+      {
+        "index": 4,
+        "fromDistanceMeters": 2540.98,
+        "toDistanceMeters": 2891.46,
+        "left": "runoff",
+        "right": "barrier"
+      },
+      {
+        "index": 5,
+        "fromDistanceMeters": 2891.46,
+        "toDistanceMeters": 4074.33,
+        "left": "runoff",
+        "right": "runoff"
+      },
+      {
+        "index": 6,
+        "fromDistanceMeters": 4074.33,
+        "toDistanceMeters": 4381,
+        "left": "barrier",
+        "right": "runoff"
+      }
+    ]
+  },
   "chunks": [
     {
       "index": 0,
@@ -3134,6 +3188,6 @@
     "dataset": "bacinger/f1-circuits",
     "license": "MIT",
     "url": "https://github.com/bacinger/f1-circuits",
-    "transformation": "Equirectangular projection around the first source coordinate, uniform scale to the published circuit length, closed-loop resampling every approximately 20 meters, and generated gameplay metadata."
+    "transformation": "Equirectangular projection around the first source coordinate, uniform scale to the published circuit length, closed-loop resampling every approximately 20 meters, generated gameplay metadata, and gameplay-oriented boundary profiles selected by circuit character."
   }
 }

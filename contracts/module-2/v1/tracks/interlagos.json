@@ -1,6 +1,6 @@
 {
-  "schemaVersion": "1.0.0",
-  "catalogVersion": "2026.1",
+  "schemaVersion": "1.1.0",
+  "catalogVersion": "2026.2",
   "id": "interlagos",
   "name": "Autódromo José Carlos Pace - Interlagos",
   "countryCode": "BR",
@@ -2825,6 +2825,60 @@
     "offTrack": "grass",
     "pitLane": "pit-lane"
   },
+  "trackLimits": {
+    "runoffWidthMeters": 10,
+    "segments": [
+      {
+        "index": 0,
+        "fromDistanceMeters": 0,
+        "toDistanceMeters": 344.72,
+        "left": "barrier",
+        "right": "runoff"
+      },
+      {
+        "index": 1,
+        "fromDistanceMeters": 344.72,
+        "toDistanceMeters": 1292.7,
+        "left": "runoff",
+        "right": "runoff"
+      },
+      {
+        "index": 2,
+        "fromDistanceMeters": 1292.7,
+        "toDistanceMeters": 1637.42,
+        "left": "barrier",
+        "right": "runoff"
+      },
+      {
+        "index": 3,
+        "fromDistanceMeters": 1637.42,
+        "toDistanceMeters": 2499.22,
+        "left": "runoff",
+        "right": "runoff"
+      },
+      {
+        "index": 4,
+        "fromDistanceMeters": 2499.22,
+        "toDistanceMeters": 2843.94,
+        "left": "runoff",
+        "right": "barrier"
+      },
+      {
+        "index": 5,
+        "fromDistanceMeters": 2843.94,
+        "toDistanceMeters": 4007.37,
+        "left": "runoff",
+        "right": "runoff"
+      },
+      {
+        "index": 6,
+        "fromDistanceMeters": 4007.37,
+        "toDistanceMeters": 4309,
+        "left": "barrier",
+        "right": "runoff"
+      }
+    ]
+  },
   "chunks": [
     {
       "index": 0,
@@ -3086,6 +3140,6 @@
     "dataset": "bacinger/f1-circuits",
     "license": "MIT",
     "url": "https://github.com/bacinger/f1-circuits",
-    "transformation": "Equirectangular projection around the first source coordinate, uniform scale to the published circuit length, closed-loop resampling every approximately 20 meters, and generated gameplay metadata."
+    "transformation": "Equirectangular projection around the first source coordinate, uniform scale to the published circuit length, closed-loop resampling every approximately 20 meters, generated gameplay metadata, and gameplay-oriented boundary profiles selected by circuit character."
   }
 }
