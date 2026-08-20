@@ -1,6 +1,6 @@
 {
-  "schemaVersion": "1.0.0",
-  "catalogVersion": "2026.1",
+  "schemaVersion": "1.1.0",
+  "catalogVersion": "2026.2",
   "id": "jeddah",
   "name": "Jeddah Corniche Circuit",
   "countryCode": "SA",
@@ -3941,6 +3941,18 @@
     "offTrack": "grass",
     "pitLane": "pit-lane"
   },
+  "trackLimits": {
+    "runoffWidthMeters": 10,
+    "segments": [
+      {
+        "index": 0,
+        "fromDistanceMeters": 0,
+        "toDistanceMeters": 6175,
+        "left": "barrier",
+        "right": "barrier"
+      }
+    ]
+  },
   "chunks": [
     {
       "index": 0,
@@ -4279,6 +4291,6 @@
     "dataset": "bacinger/f1-circuits",
     "license": "MIT",
     "url": "https://github.com/bacinger/f1-circuits",
-    "transformation": "Equirectangular projection around the first source coordinate, uniform scale to the published circuit length, closed-loop resampling every approximately 20 meters, and generated gameplay metadata."
+    "transformation": "Equirectangular projection around the first source coordinate, uniform scale to the published circuit length, closed-loop resampling every approximately 20 meters, generated gameplay metadata, and gameplay-oriented boundary profiles selected by circuit character."
   }
 }

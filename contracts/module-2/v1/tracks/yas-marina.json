@@ -1,6 +1,6 @@
 {
-  "schemaVersion": "1.0.0",
-  "catalogVersion": "2026.1",
+  "schemaVersion": "1.1.0",
+  "catalogVersion": "2026.2",
   "id": "yas-marina",
   "name": "Yas Marina Circuit",
   "countryCode": "AE",
@@ -3413,6 +3413,60 @@
     "offTrack": "grass",
     "pitLane": "pit-lane"
   },
+  "trackLimits": {
+    "runoffWidthMeters": 10,
+    "segments": [
+      {
+        "index": 0,
+        "fromDistanceMeters": 0,
+        "toDistanceMeters": 633.72,
+        "left": "barrier",
+        "right": "barrier"
+      },
+      {
+        "index": 1,
+        "fromDistanceMeters": 633.72,
+        "toDistanceMeters": 1478.68,
+        "left": "runoff",
+        "right": "runoff"
+      },
+      {
+        "index": 2,
+        "fromDistanceMeters": 1478.68,
+        "toDistanceMeters": 2218.02,
+        "left": "barrier",
+        "right": "runoff"
+      },
+      {
+        "index": 3,
+        "fromDistanceMeters": 2218.02,
+        "toDistanceMeters": 2904.55,
+        "left": "barrier",
+        "right": "barrier"
+      },
+      {
+        "index": 4,
+        "fromDistanceMeters": 2904.55,
+        "toDistanceMeters": 3696.7,
+        "left": "runoff",
+        "right": "barrier"
+      },
+      {
+        "index": 5,
+        "fromDistanceMeters": 3696.7,
+        "toDistanceMeters": 4647.28,
+        "left": "runoff",
+        "right": "runoff"
+      },
+      {
+        "index": 6,
+        "fromDistanceMeters": 4647.28,
+        "toDistanceMeters": 5281,
+        "left": "barrier",
+        "right": "barrier"
+      }
+    ]
+  },
   "chunks": [
     {
       "index": 0,
@@ -3718,6 +3772,6 @@
     "dataset": "bacinger/f1-circuits",
     "license": "MIT",
     "url": "https://github.com/bacinger/f1-circuits",
-    "transformation": "Equirectangular projection around the first source coordinate, uniform scale to the published circuit length, closed-loop resampling every approximately 20 meters, and generated gameplay metadata."
+    "transformation": "Equirectangular projection around the first source coordinate, uniform scale to the published circuit length, closed-loop resampling every approximately 20 meters, generated gameplay metadata, and gameplay-oriented boundary profiles selected by circuit character."
   }
 }

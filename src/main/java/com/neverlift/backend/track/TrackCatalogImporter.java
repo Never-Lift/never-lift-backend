@@ -18,8 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class TrackCatalogImporter implements ApplicationRunner {
 
-    public static final String SCHEMA_VERSION = "1.0.0";
-    public static final String CATALOG_VERSION = "2026.1";
+    public static final String SCHEMA_VERSION = "1.1.0";
+    public static final String CATALOG_VERSION = "2026.2";
     public static final int SEASON_REFERENCE = 2026;
     public static final String CALENDAR_POLICY = "original-24-round-freeze";
 
@@ -149,6 +149,52 @@ public class TrackCatalogImporter implements ApplicationRunner {
                 || !definition.path("sceneryLayout").isObject()) {
             throw invalid("required geometry for " + entry.id());
         }
+
+        validateTrackLimits(entry, definition.path("trackLimits"));
+    }
+
+    private void validateTrackLimits(CatalogEntry entry, JsonNode trackLimits) {
+        if (!trackLimits.isObject() || trackLimits.path("runoffWidthMeters").asDouble(-1) != 10) {
+            throw invalid("track limits for " + entry.id());
+        }
+        JsonNode segments = trackLimits.path("segments");
+        if (!segments.isArray() || segments.isEmpty()) {
+            throw invalid("track limit segments for " + entry.id());
+        }
+
+        double expectedFrom = 0;
+        boolean hasBarrier = false;
+        boolean hasRunoff = false;
+        for (int index = 0; index < segments.size(); index++) {
+            JsonNode segment = segments.get(index);
+            double from = segment.path("fromDistanceMeters").asDouble(-1);
+            double to = segment.path("toDistanceMeters").asDouble(-1);
+            String left = segment.path("left").asText();
+            String right = segment.path("right").asText();
+            if (segment.path("index").asInt(-1) != index
+                    || Math.abs(from - expectedFrom) > 0.001
+                    || to <= from
+                    || !isBoundaryType(left)
+                    || !isBoundaryType(right)) {
+                throw invalid("track limit coverage for " + entry.id());
+            }
+            hasBarrier |= "barrier".equals(left) || "barrier".equals(right);
+            hasRunoff |= "runoff".equals(left) || "runoff".equals(right);
+            expectedFrom = to;
+        }
+        if (Math.abs(expectedFrom - entry.lengthMeters()) > 0.001) {
+            throw invalid("track limit length for " + entry.id());
+        }
+        if ("monaco".equals(entry.id()) && hasRunoff) {
+            throw invalid("Monaco must remain fully walled");
+        }
+        if ("interlagos".equals(entry.id()) && (!hasBarrier || !hasRunoff)) {
+            throw invalid("Interlagos must mix barriers and runoff");
+        }
+    }
+
+    private boolean isBoundaryType(String value) {
+        return "barrier".equals(value) || "runoff".equals(value);
     }
 
     private ClassPathResource resource(String relativePath) {

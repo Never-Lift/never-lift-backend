@@ -1,6 +1,6 @@
 {
-  "schemaVersion": "1.0.0",
-  "catalogVersion": "2026.1",
+  "schemaVersion": "1.1.0",
+  "catalogVersion": "2026.2",
   "id": "suzuka",
   "name": "Suzuka International Racing Course",
   "countryCode": "JP",
@@ -3725,6 +3725,60 @@
     "offTrack": "grass",
     "pitLane": "pit-lane"
   },
+  "trackLimits": {
+    "runoffWidthMeters": 10,
+    "segments": [
+      {
+        "index": 0,
+        "fromDistanceMeters": 0,
+        "toDistanceMeters": 464.56,
+        "left": "barrier",
+        "right": "runoff"
+      },
+      {
+        "index": 1,
+        "fromDistanceMeters": 464.56,
+        "toDistanceMeters": 1742.1,
+        "left": "runoff",
+        "right": "runoff"
+      },
+      {
+        "index": 2,
+        "fromDistanceMeters": 1742.1,
+        "toDistanceMeters": 2206.66,
+        "left": "barrier",
+        "right": "runoff"
+      },
+      {
+        "index": 3,
+        "fromDistanceMeters": 2206.66,
+        "toDistanceMeters": 3368.06,
+        "left": "runoff",
+        "right": "runoff"
+      },
+      {
+        "index": 4,
+        "fromDistanceMeters": 3368.06,
+        "toDistanceMeters": 3832.62,
+        "left": "runoff",
+        "right": "barrier"
+      },
+      {
+        "index": 5,
+        "fromDistanceMeters": 3832.62,
+        "toDistanceMeters": 5400.51,
+        "left": "runoff",
+        "right": "runoff"
+      },
+      {
+        "index": 6,
+        "fromDistanceMeters": 5400.51,
+        "toDistanceMeters": 5807,
+        "left": "barrier",
+        "right": "runoff"
+      }
+    ]
+  },
   "chunks": [
     {
       "index": 0,
@@ -4052,6 +4106,6 @@
     "dataset": "bacinger/f1-circuits",
     "license": "MIT",
     "url": "https://github.com/bacinger/f1-circuits",
-    "transformation": "Equirectangular projection around the first source coordinate, uniform scale to the published circuit length, closed-loop resampling every approximately 20 meters, and generated gameplay metadata."
+    "transformation": "Equirectangular projection around the first source coordinate, uniform scale to the published circuit length, closed-loop resampling every approximately 20 meters, generated gameplay metadata, and gameplay-oriented boundary profiles selected by circuit character."
   }
 }

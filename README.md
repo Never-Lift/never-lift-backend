@@ -85,7 +85,7 @@ O gamertag é único e não aceita espaços. Senhas devem ter pelo menos quatro 
 
 ## Pistas e resultados locais
 
-O catálogo público `2026.1` contém as 24 definições métricas canônicas dos contratos v1. As geometrias são validadas e importadas no banco ao iniciar a aplicação; os endpoints não exigem autenticação:
+O catálogo público `2026.2` contém as 24 definições métricas canônicas do schema `1.1.0`. Cada definição inclui limites por trecho e por lado: barreira junto ao asfalto ou 10 m de grama antes da proteção externa. As geometrias são validadas e importadas no banco ao iniciar a aplicação; os endpoints não exigem autenticação:
 
 | Método | Endpoint | Descrição |
 |---|---|---|
@@ -97,7 +97,7 @@ Resultados de corridas simuladas localmente pelo frontend são enviados para `PO
 ```json
 {
   "trackId": "interlagos",
-  "trackCatalogVersion": "2026.1",
+  "trackCatalogVersion": "2026.2",
   "mode": "local",
   "results": [
     {
@@ -148,7 +148,7 @@ Os Módulos 0–9 formam o MVP planejado. A expansão pós-MVP aprovada está re
 
 A direção de jogo e apresentação aprovada está em [`docs/game-design-guide.md`](docs/game-design-guide.md). Para o backend, ela é normativa somente onde define contratos compartilhados: unidade métrica, catálogo de pistas, vetor de velocidade, metadados e campos de entidades. Decisões exclusivamente visuais permanecem responsabilidade do frontend e entram apenas em seus módulos correspondentes.
 
-Os contratos implementados pelo Módulo 2 estão em [`docs/contracts/module-2-shared-contracts.md`](docs/contracts/module-2-shared-contracts.md) e [`contracts/module-2/v1/`](contracts/module-2/v1/). O catálogo `2026.1` contém 24 definições métricas reproduzíveis; rode `node tools/track-catalog/generate.mjs --check` para conferir que os arquivos gerados continuam sincronizados com a fonte versionada.
+Os contratos implementados pelo Módulo 2 estão em [`docs/contracts/module-2-shared-contracts.md`](docs/contracts/module-2-shared-contracts.md) e [`contracts/module-2/v1/`](contracts/module-2/v1/). O catálogo `2026.2` contém 24 definições métricas reproduzíveis com limites segmentados; rode `node tools/track-catalog/generate.mjs --check` para conferir que os arquivos gerados continuam sincronizados com a fonte versionada.
 
 - [`docs/backend-implementation-plan.md`](docs/backend-implementation-plan.md) — arquitetura, protocolo e módulos do backend.
 - [`docs/frontend-implementation-plan.md`](docs/frontend-implementation-plan.md) — referência do consumidor da API e do WebSocket.
