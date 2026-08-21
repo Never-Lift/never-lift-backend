@@ -18,13 +18,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class TrackCatalogImporter implements ApplicationRunner {
 
-    public static final String SCHEMA_VERSION = "1.1.0";
-    public static final String CATALOG_VERSION = "2026.2";
+    public static final String SCHEMA_VERSION = "1.2.0";
+    public static final String CATALOG_VERSION = "2026.3";
     public static final int SEASON_REFERENCE = 2026;
     public static final String CALENDAR_POLICY = "original-24-round-freeze";
 
     private static final int TRACK_COUNT = 24;
     private static final String CONTRACT_ROOT = "contracts/module-2/v1/";
+    private static final Set<String> BARRIER_TYPES = Set.of(
+            "concrete-wall", "guardrail", "tecpro", "tyre-barrier");
+    private static final String FENCE_TYPE = "debris-fence";
 
     private final ObjectMapper objectMapper;
     private final TrackRepository trackRepository;
@@ -121,12 +124,28 @@ public class TrackCatalogImporter implements ApplicationRunner {
         }
         JsonNode first = centerline.get(0);
         JsonNode last = centerline.get(centerline.size() - 1);
+        Set<Integer> elevationLayers = new HashSet<>();
+        for (JsonNode point : centerline) {
+            double halfWidthMeters = point.path("halfWidthMeters").asDouble(-1);
+            JsonNode elevationLayer = point.get("elevationLayer");
+            if (halfWidthMeters < 3.5 || halfWidthMeters > 13
+                    || elevationLayer == null
+                    || !elevationLayer.isIntegralNumber()
+                    || elevationLayer.asInt() < 0
+                    || elevationLayer.asInt() > 3) {
+                throw invalid("centerline width or elevation layer for " + entry.id());
+            }
+            elevationLayers.add(elevationLayer.asInt());
+        }
         if (Double.compare(first.path("x").asDouble(), last.path("x").asDouble()) != 0
                 || Double.compare(first.path("y").asDouble(), last.path("y").asDouble()) != 0) {
             throw invalid("closed centerline for " + entry.id());
         }
         if (Math.abs(last.path("distanceMeters").asDouble() - entry.lengthMeters()) > 0.001) {
             throw invalid("centerline length for " + entry.id());
+        }
+        if ("suzuka".equals(entry.id()) && (!elevationLayers.contains(0) || !elevationLayers.contains(1))) {
+            throw invalid("Suzuka must distinguish its overpass elevation layer");
         }
 
         JsonNode checkpoints = definition.path("checkpoints");
@@ -146,7 +165,8 @@ public class TrackCatalogImporter implements ApplicationRunner {
         if (definition.path("gridSlots").size() != 4
                 || definition.path("racingLine").size() != centerline.size()
                 || definition.path("pitLane").path("path").size() < 2
-                || !definition.path("sceneryLayout").isObject()) {
+                || !definition.path("sceneryLayout").isObject()
+                || definition.path("source").path("environmentReferences").size() < 2) {
             throw invalid("required geometry for " + entry.id());
         }
 
@@ -154,7 +174,7 @@ public class TrackCatalogImporter implements ApplicationRunner {
     }
 
     private void validateTrackLimits(CatalogEntry entry, JsonNode trackLimits) {
-        if (!trackLimits.isObject() || trackLimits.path("runoffWidthMeters").asDouble(-1) != 10) {
+        if (!trackLimits.isObject()) {
             throw invalid("track limits for " + entry.id());
         }
         JsonNode segments = trackLimits.path("segments");
@@ -163,38 +183,54 @@ public class TrackCatalogImporter implements ApplicationRunner {
         }
 
         double expectedFrom = 0;
-        boolean hasBarrier = false;
-        boolean hasRunoff = false;
+        Set<String> surfaces = new HashSet<>();
         for (int index = 0; index < segments.size(); index++) {
             JsonNode segment = segments.get(index);
             double from = segment.path("fromDistanceMeters").asDouble(-1);
             double to = segment.path("toDistanceMeters").asDouble(-1);
-            String left = segment.path("left").asText();
-            String right = segment.path("right").asText();
             if (segment.path("index").asInt(-1) != index
                     || Math.abs(from - expectedFrom) > 0.001
-                    || to <= from
-                    || !isBoundaryType(left)
-                    || !isBoundaryType(right)) {
+                    || to <= from) {
                 throw invalid("track limit coverage for " + entry.id());
             }
-            hasBarrier |= "barrier".equals(left) || "barrier".equals(right);
-            hasRunoff |= "runoff".equals(left) || "runoff".equals(right);
+            validateSideEnvironment(entry, segment.path("left"), surfaces);
+            validateSideEnvironment(entry, segment.path("right"), surfaces);
             expectedFrom = to;
         }
         if (Math.abs(expectedFrom - entry.lengthMeters()) > 0.001) {
             throw invalid("track limit length for " + entry.id());
         }
-        if ("monaco".equals(entry.id()) && hasRunoff) {
-            throw invalid("Monaco must remain fully walled");
+        if ("monaco".equals(entry.id()) && surfaces.stream().anyMatch(surface -> !"asphalt".equals(surface))) {
+            throw invalid("Monaco must use only paved margins before its walls");
         }
-        if ("interlagos".equals(entry.id()) && (!hasBarrier || !hasRunoff)) {
-            throw invalid("Interlagos must mix barriers and runoff");
+        if ("interlagos".equals(entry.id()) && (!surfaces.contains("asphalt") || !surfaces.contains("grass"))) {
+            throw invalid("Interlagos must mix audited asphalt and grass areas");
         }
     }
 
-    private boolean isBoundaryType(String value) {
-        return "barrier".equals(value) || "runoff".equals(value);
+    private void validateSideEnvironment(CatalogEntry entry, JsonNode side, Set<String> surfaces) {
+        JsonNode zones = side.path("zones");
+        if (!side.isObject()
+                || !zones.isArray()
+                || zones.size() > 4
+                || !isBarrierType(side.path("barrier").asText())
+                || (side.has("fence")
+                        && (!side.path("fence").isTextual()
+                                || !FENCE_TYPE.equals(side.path("fence").asText())))) {
+            throw invalid("side environment for " + entry.id());
+        }
+        for (JsonNode zone : zones) {
+            String surface = zone.path("surface").asText();
+            double width = zone.path("widthMeters").asDouble(-1);
+            if (!Set.of("asphalt", "grass", "gravel").contains(surface) || width <= 0 || width > 60) {
+                throw invalid("environment zone for " + entry.id());
+            }
+            surfaces.add(surface);
+        }
+    }
+
+    private boolean isBarrierType(String value) {
+        return BARRIER_TYPES.contains(value);
     }
 
     private ClassPathResource resource(String relativePath) {

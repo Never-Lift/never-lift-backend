@@ -3,6 +3,8 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { trackEnvironmentProfiles } from './track-environments.mjs'
+
 const toolDirectory = dirname(fileURLToPath(import.meta.url))
 const repositoryRoot = resolve(toolDirectory, '..', '..')
 const contractDirectory = resolve(repositoryRoot, 'contracts', 'module-2', 'v1')
@@ -13,36 +15,43 @@ const checkOnly = process.argv.includes('--check')
 const EARTH_RADIUS_METERS = 6_371_008.8
 const SAMPLE_INTERVAL_METERS = 20
 const CHUNK_LENGTH_METERS = 250
-const SCHEMA_VERSION = '1.1.0'
-const CATALOG_VERSION = '2026.2'
-const RUNOFF_WIDTH_METERS = 10
+const WIDTH_TRANSITION_METERS = 40
+const SCHEMA_VERSION = '1.2.0'
+const CATALOG_VERSION = '2026.3'
+const TRACK_BARRIER_TYPES = [
+  'concrete-wall',
+  'guardrail',
+  'tecpro',
+  'tyre-barrier',
+]
+const TRACK_FENCE_TYPE = 'debris-fence'
 
 const trackSpecs = [
-  ['albert-park', 'Albert Park Circuit', 1, 'AU', 'Australia', 'Melbourne', 'park', 7, 'mixed'],
-  ['shanghai', 'Shanghai International Circuit', 2, 'CN', 'China', 'Shanghai', 'classic', 7.5, 'open'],
-  ['suzuka', 'Suzuka International Racing Course', 3, 'JP', 'Japan', 'Suzuka', 'classic', 7, 'open'],
-  ['bahrain', 'Bahrain International Circuit', 4, 'BH', 'Bahrain', 'Sakhir', 'desert', 7.5, 'open'],
-  ['jeddah', 'Jeddah Corniche Circuit', 5, 'SA', 'Saudi Arabia', 'Jeddah', 'coastal', 6.5, 'walled'],
-  ['miami', 'Miami International Autodrome', 6, 'US', 'United States', 'Miami', 'street', 7, 'mixed'],
-  ['montreal', 'Circuit Gilles-Villeneuve', 7, 'CA', 'Canada', 'Montreal', 'park', 6.5, 'mixed'],
-  ['monaco', 'Circuit de Monaco', 8, 'MC', 'Monaco', 'Monaco', 'coastal', 6, 'walled'],
-  ['barcelona', 'Circuit de Barcelona-Catalunya', 9, 'ES', 'Spain', 'Barcelona', 'classic', 7.5, 'open'],
-  ['spielberg', 'Red Bull Ring', 10, 'AT', 'Austria', 'Spielberg', 'classic', 7.5, 'open'],
-  ['silverstone', 'Silverstone Circuit', 11, 'GB', 'United Kingdom', 'Silverstone', 'classic', 8, 'open'],
-  ['spa-francorchamps', 'Circuit de Spa-Francorchamps', 12, 'BE', 'Belgium', 'Spa-Francorchamps', 'classic', 7.5, 'open'],
-  ['hungaroring', 'Hungaroring', 13, 'HU', 'Hungary', 'Budapest', 'classic', 7, 'open'],
-  ['zandvoort', 'Circuit Zandvoort', 14, 'NL', 'Netherlands', 'Zandvoort', 'coastal', 7, 'open'],
-  ['monza', 'Autodromo Nazionale Monza', 15, 'IT', 'Italy', 'Monza', 'park', 7.5, 'open'],
-  ['madrid', 'Circuito de Madring', 16, 'ES', 'Spain', 'Madrid', 'street', 7, 'mixed'],
-  ['baku', 'Baku City Circuit', 17, 'AZ', 'Azerbaijan', 'Baku', 'street', 6.5, 'walled'],
-  ['singapore', 'Marina Bay Street Circuit', 18, 'SG', 'Singapore', 'Singapore', 'night-city', 6.5, 'walled'],
-  ['austin', 'Circuit of the Americas', 19, 'US', 'United States', 'Austin', 'classic', 7.5, 'open'],
-  ['mexico-city', 'Autódromo Hermanos Rodríguez', 20, 'MX', 'Mexico', 'Mexico City', 'classic', 7, 'open'],
-  ['interlagos', 'Autódromo José Carlos Pace - Interlagos', 21, 'BR', 'Brazil', 'São Paulo', 'classic', 7, 'open'],
-  ['las-vegas', 'Las Vegas Street Circuit', 22, 'US', 'United States', 'Las Vegas', 'night-city', 7, 'walled'],
-  ['lusail', 'Losail International Circuit', 23, 'QA', 'Qatar', 'Lusail', 'desert', 7.5, 'open'],
-  ['yas-marina', 'Yas Marina Circuit', 24, 'AE', 'United Arab Emirates', 'Abu Dhabi', 'coastal', 7.5, 'mixed'],
-].map(([id, sourceName, round, countryCode, countryName, locality, sceneryPreset, halfWidthMeters, boundaryProfile]) => ({
+  ['albert-park', 'Albert Park Circuit', 1, 'AU', 'Australia', 'Melbourne', 'park', 7],
+  ['shanghai', 'Shanghai International Circuit', 2, 'CN', 'China', 'Shanghai', 'classic', 7.5],
+  ['suzuka', 'Suzuka International Racing Course', 3, 'JP', 'Japan', 'Suzuka', 'classic', 7],
+  ['bahrain', 'Bahrain International Circuit', 4, 'BH', 'Bahrain', 'Sakhir', 'desert', 7.5],
+  ['jeddah', 'Jeddah Corniche Circuit', 5, 'SA', 'Saudi Arabia', 'Jeddah', 'coastal', 6.5],
+  ['miami', 'Miami International Autodrome', 6, 'US', 'United States', 'Miami', 'street', 7],
+  ['montreal', 'Circuit Gilles-Villeneuve', 7, 'CA', 'Canada', 'Montreal', 'park', 6.5],
+  ['monaco', 'Circuit de Monaco', 8, 'MC', 'Monaco', 'Monaco', 'coastal', 6],
+  ['barcelona', 'Circuit de Barcelona-Catalunya', 9, 'ES', 'Spain', 'Barcelona', 'classic', 7.5, null, 4657],
+  ['spielberg', 'Red Bull Ring', 10, 'AT', 'Austria', 'Spielberg', 'classic', 7.5, null, 4326],
+  ['silverstone', 'Silverstone Circuit', 11, 'GB', 'United Kingdom', 'Silverstone', 'classic', 8],
+  ['spa-francorchamps', 'Circuit de Spa-Francorchamps', 12, 'BE', 'Belgium', 'Spa-Francorchamps', 'classic', 7.5],
+  ['hungaroring', 'Hungaroring', 13, 'HU', 'Hungary', 'Budapest', 'classic', 7],
+  ['zandvoort', 'Circuit Zandvoort', 14, 'NL', 'Netherlands', 'Zandvoort', 'coastal', 7],
+  ['monza', 'Autodromo Nazionale Monza', 15, 'IT', 'Italy', 'Monza', 'park', 7.5],
+  ['madrid', 'Circuito de Madring', 16, 'ES', 'Spain', 'Madrid', 'street', 7],
+  ['baku', 'Baku City Circuit', 17, 'AZ', 'Azerbaijan', 'Baku', 'street', 6.5],
+  ['singapore', 'Marina Bay Street Circuit', 18, 'SG', 'Singapore', 'Singapore', 'night-city', 6.5],
+  ['austin', 'Circuit of the Americas', 19, 'US', 'United States', 'Austin', 'classic', 7.5],
+  ['mexico-city', 'Autódromo Hermanos Rodríguez', 20, 'MX', 'Mexico', 'Mexico City', 'classic', 7],
+  ['interlagos', 'Autódromo José Carlos Pace - Interlagos', 21, 'BR', 'Brazil', 'São Paulo', 'classic', 7],
+  ['las-vegas', 'Las Vegas Street Circuit', 22, 'US', 'United States', 'Las Vegas', 'night-city', 7],
+  ['lusail', 'Losail International Circuit', 23, 'QA', 'Qatar', 'Lusail', 'desert', 7.5, 'Lusail International Circuit', 5419],
+  ['yas-marina', 'Yas Marina Circuit', 24, 'AE', 'United Arab Emirates', 'Abu Dhabi', 'coastal', 7.5],
+].map(([id, sourceName, round, countryCode, countryName, locality, sceneryPreset, halfWidthMeters, officialName, officialLengthMeters]) => ({
   id,
   sourceName,
   round,
@@ -51,30 +60,9 @@ const trackSpecs = [
   locality,
   sceneryPreset,
   halfWidthMeters,
-  boundaryProfile,
+  officialName,
+  officialLengthMeters,
 }))
-
-const boundaryProfiles = {
-  walled: [[0, 1, 'barrier', 'barrier']],
-  mixed: [
-    [0, 0.12, 'barrier', 'barrier'],
-    [0.12, 0.28, 'runoff', 'runoff'],
-    [0.28, 0.42, 'barrier', 'runoff'],
-    [0.42, 0.55, 'barrier', 'barrier'],
-    [0.55, 0.7, 'runoff', 'barrier'],
-    [0.7, 0.88, 'runoff', 'runoff'],
-    [0.88, 1, 'barrier', 'barrier'],
-  ],
-  open: [
-    [0, 0.08, 'barrier', 'runoff'],
-    [0.08, 0.3, 'runoff', 'runoff'],
-    [0.3, 0.38, 'barrier', 'runoff'],
-    [0.38, 0.58, 'runoff', 'runoff'],
-    [0.58, 0.66, 'runoff', 'barrier'],
-    [0.66, 0.93, 'runoff', 'runoff'],
-    [0.93, 1, 'barrier', 'runoff'],
-  ],
-}
 
 const round = (value, decimals = 3) => Number(value.toFixed(decimals))
 const clamp = (value, minimum, maximum) => Math.max(minimum, Math.min(maximum, value))
@@ -109,7 +97,65 @@ function closedLength(points) {
   return total
 }
 
-function resampleClosedPath(points, expectedLengthMeters, halfWidthMeters) {
+function elevationLayerAt(trackId, normalizedDistance) {
+  // Suzuka's back straight crosses above the section after the Degners. The
+  // interval is intentionally wider than the exact XY intersection so cars,
+  // rendering and collision stay on one bridge layer through the approach and
+  // exit rather than flipping at a single sample.
+  return trackId === 'suzuka' && normalizedDistance >= 0.79 && normalizedDistance <= 0.83
+    ? 1
+    : 0
+}
+
+function smoothstep(value) {
+  const normalized = clamp(value, 0, 1)
+  return normalized * normalized * (3 - 2 * normalized)
+}
+
+function halfWidthAt(widthProfile, normalizedDistance, lengthMeters) {
+  const baseline = widthProfile.defaultHalfWidthMeters
+  for (const override of widthProfile.overrides) {
+    if (
+      normalizedDistance < override.from ||
+      normalizedDistance > override.to
+    ) {
+      continue
+    }
+    const transitionFraction = Math.min(
+      WIDTH_TRANSITION_METERS / lengthMeters,
+      (override.to - override.from) / 3,
+    )
+    if (
+      override.from > 0 &&
+      normalizedDistance < override.from + transitionFraction
+    ) {
+      return round(
+        baseline +
+          (override.halfWidthMeters - baseline) *
+            smoothstep(
+              (normalizedDistance - override.from) / transitionFraction,
+            ),
+      )
+    }
+    if (
+      override.to < 1 &&
+      normalizedDistance > override.to - transitionFraction
+    ) {
+      return round(
+        override.halfWidthMeters +
+          (baseline - override.halfWidthMeters) *
+            smoothstep(
+              (normalizedDistance - override.to + transitionFraction) /
+                transitionFraction,
+            ),
+      )
+    }
+    return override.halfWidthMeters
+  }
+  return baseline
+}
+
+function resampleClosedPath(points, expectedLengthMeters, widthProfile, trackId) {
   const segments = []
   let accumulated = 0
   for (let index = 0; index < points.length; index += 1) {
@@ -130,7 +176,12 @@ function resampleClosedPath(points, expectedLengthMeters, halfWidthMeters) {
       x: round(segment.start.x + (segment.end.x - segment.start.x) * ratio),
       y: round(segment.start.y + (segment.end.y - segment.start.y) * ratio),
       distanceMeters: round(expectedLengthMeters * index / sampleCount),
-      halfWidthMeters,
+      halfWidthMeters: halfWidthAt(
+        widthProfile,
+        index / sampleCount,
+        expectedLengthMeters,
+      ),
+      elevationLayer: elevationLayerAt(trackId, index / sampleCount),
     })
   }
 
@@ -235,7 +286,7 @@ function boundsForPoints(points, margin = 0) {
   }
 }
 
-function createChunks(centerline, lengthMeters, halfWidthMeters) {
+function createChunks(centerline, lengthMeters, maximumTrackMarginMeters) {
   const chunkCount = Math.ceil(lengthMeters / CHUNK_LENGTH_METERS)
   return Array.from({ length: chunkCount }, (_, index) => {
     const from = index * CHUNK_LENGTH_METERS
@@ -246,7 +297,7 @@ function createChunks(centerline, lengthMeters, halfWidthMeters) {
       index,
       fromDistanceMeters: from,
       toDistanceMeters: to,
-      bounds: boundsForPoints(points, halfWidthMeters + 25),
+      bounds: boundsForPoints(points, maximumTrackMarginMeters),
     }
   })
 }
@@ -292,28 +343,109 @@ function createSceneryLayout(centerline, lengthMeters, preset) {
   }
 }
 
-function createTrackLimits(lengthMeters, profile) {
-  const segments = boundaryProfiles[profile]
-  if (!segments) throw new Error(`Unknown boundary profile: ${profile}`)
+function sideEnvironmentAt(profile, fraction, side) {
+  let environment = profile.default[side]
+  for (const override of profile.overrides) {
+    if (fraction >= override.from && fraction < override.to && override[side]) {
+      environment = override[side]
+    }
+  }
   return {
-    runoffWidthMeters: RUNOFF_WIDTH_METERS,
-    segments: segments.map(([from, to, left, right], index) => ({
+    zones: structuredClone(environment.zones),
+    barrier: environment.barrier,
+    ...(environment.fence === undefined
+      ? {}
+      : { fence: environment.fence }),
+  }
+}
+
+function createTrackLimits(lengthMeters, profile) {
+  if (!profile || !profile.default?.left || !profile.default?.right) {
+    throw new Error('Every track needs an explicit audited environment profile')
+  }
+  const breakpoints = [...new Set([
+    0,
+    1,
+    ...profile.overrides.flatMap(({ from, to }) => [from, to]),
+  ])].sort((left, right) => left - right)
+  if (breakpoints[0] !== 0 || breakpoints.at(-1) !== 1) {
+    throw new Error('Environment profile must cover the full normalized lap')
+  }
+
+  const rawSegments = breakpoints.slice(0, -1).map((from, index) => {
+    const to = breakpoints[index + 1]
+    const midpoint = (from + to) / 2
+    return {
+      from,
+      to,
+      left: sideEnvironmentAt(profile, midpoint, 'left'),
+      right: sideEnvironmentAt(profile, midpoint, 'right'),
+    }
+  })
+  const merged = []
+  for (const segment of rawSegments) {
+    const previous = merged.at(-1)
+    if (
+      previous &&
+      JSON.stringify(previous.left) === JSON.stringify(segment.left) &&
+      JSON.stringify(previous.right) === JSON.stringify(segment.right)
+    ) {
+      previous.to = segment.to
+    } else {
+      merged.push(segment)
+    }
+  }
+
+  return {
+    segments: merged.map((segment, index) => ({
       index,
-      fromDistanceMeters: round(from * lengthMeters),
-      toDistanceMeters: round(to * lengthMeters),
-      left,
-      right,
+      fromDistanceMeters: index === 0 ? 0 : round(segment.from * lengthMeters),
+      toDistanceMeters: index === merged.length - 1 ? lengthMeters : round(segment.to * lengthMeters),
+      left: segment.left,
+      right: segment.right,
     })),
   }
 }
 
+function sideEnvironmentWidth(side) {
+  return side.zones.reduce((sum, zone) => sum + zone.widthMeters, 0)
+}
+
+function maximumEnvironmentWidth(trackLimits) {
+  return Math.max(
+    ...trackLimits.segments.flatMap((segment) => [
+      sideEnvironmentWidth(segment.left),
+      sideEnvironmentWidth(segment.right),
+    ]),
+  )
+}
+
 function assertTrack(track) {
   if (distance(track.centerline[0], track.centerline.at(-1)) > 0.01) throw new Error(`${track.id}: centerline is not closed`)
+  for (const point of track.centerline) {
+    if (
+      point.halfWidthMeters < 3.5 ||
+      point.halfWidthMeters > 13 ||
+      !Number.isInteger(point.elevationLayer) ||
+      point.elevationLayer < 0 ||
+      point.elevationLayer > 3
+    ) {
+      throw new Error(`${track.id}: invalid centerline width or elevation layer`)
+    }
+  }
+  const elevationLayers = new Set(
+    track.centerline.map((point) => point.elevationLayer),
+  )
+  if (
+    track.id === 'suzuka' &&
+    (!elevationLayers.has(0) || !elevationLayers.has(1))
+  ) {
+    throw new Error('suzuka: expected explicit overpass elevation layer')
+  }
   if (track.checkpoints.length !== 8) throw new Error(`${track.id}: expected 8 checkpoints`)
   if (track.gridSlots.length !== 4) throw new Error(`${track.id}: expected 4 grid slots`)
   if (Math.abs(track.centerline.at(-1).distanceMeters - track.lengthMeters) > 0.01) throw new Error(`${track.id}: length mismatch`)
   if (track.chunks.at(-1).toDistanceMeters !== track.lengthMeters) throw new Error(`${track.id}: chunk coverage mismatch`)
-  if (track.trackLimits.runoffWidthMeters !== RUNOFF_WIDTH_METERS) throw new Error(`${track.id}: runoff width mismatch`)
   if (track.trackLimits.segments[0].fromDistanceMeters !== 0) throw new Error(`${track.id}: boundary coverage must start at zero`)
   if (track.trackLimits.segments.at(-1).toDistanceMeters !== track.lengthMeters) throw new Error(`${track.id}: boundary coverage must end at track length`)
   for (let index = 0; index < track.trackLimits.segments.length; index += 1) {
@@ -322,26 +454,60 @@ function assertTrack(track) {
     if (index > 0 && segment.fromDistanceMeters !== track.trackLimits.segments[index - 1].toDistanceMeters) {
       throw new Error(`${track.id}: boundary segments must be contiguous`)
     }
+    for (const side of [segment.left, segment.right]) {
+      if (
+        !Array.isArray(side.zones) ||
+        side.zones.length > 4 ||
+        side.zones.some(
+          (zone) =>
+            !['asphalt', 'grass', 'gravel'].includes(zone.surface) ||
+            zone.widthMeters <= 0 ||
+            zone.widthMeters > 60,
+        )
+      ) {
+        throw new Error(`${track.id}: invalid environment zone`)
+      }
+      if (!TRACK_BARRIER_TYPES.includes(side.barrier)) {
+        throw new Error(`${track.id}: invalid barrier type`)
+      }
+      if (
+        side.fence !== undefined &&
+        side.fence !== TRACK_FENCE_TYPE
+      ) {
+        throw new Error(`${track.id}: invalid fence type`)
+      }
+    }
   }
-  if (track.id === 'monaco' && track.trackLimits.segments.some((segment) => segment.left !== 'barrier' || segment.right !== 'barrier')) {
-    throw new Error('monaco: expected walls around the complete circuit')
+  if (track.id === 'monaco' && track.trackLimits.segments.some((segment) => [...segment.left.zones, ...segment.right.zones].some((zone) => zone.surface !== 'asphalt'))) {
+    throw new Error('monaco: expected only paved margins before its walls')
   }
   if (track.id === 'interlagos') {
-    const hasBarrier = track.trackLimits.segments.some((segment) => segment.left === 'barrier' || segment.right === 'barrier')
-    const hasRunoff = track.trackLimits.segments.some((segment) => segment.left === 'runoff' || segment.right === 'runoff')
-    if (!hasBarrier || !hasRunoff) throw new Error('interlagos: expected mixed barriers and runoff')
+    const surfaces = new Set(track.trackLimits.segments.flatMap((segment) => [...segment.left.zones, ...segment.right.zones].map((zone) => zone.surface)))
+    if (!surfaces.has('asphalt') || !surfaces.has('grass')) throw new Error('interlagos: expected audited asphalt and grass areas')
   }
 }
 
 function createTrack(feature, spec) {
-  const expectedLengthMeters = Number(feature.properties.length)
+  const expectedLengthMeters = spec.officialLengthMeters ?? Number(feature.properties.length)
+  const environmentProfile = trackEnvironmentProfiles[spec.id]
   const projected = projectCoordinates(feature.geometry.coordinates, expectedLengthMeters)
-  const centerline = resampleClosedPath(projected, expectedLengthMeters, spec.halfWidthMeters)
+  const centerline = resampleClosedPath(
+    projected,
+    expectedLengthMeters,
+    environmentProfile.width,
+    spec.id,
+  )
+  const trackLimits = createTrackLimits(expectedLengthMeters, environmentProfile)
+  const maximumHalfWidthMeters = Math.max(
+    ...centerline.map((point) => point.halfWidthMeters),
+  )
+  const maximumMarginMeters =
+    maximumHalfWidthMeters + maximumEnvironmentWidth(trackLimits) + 4
   const track = {
     schemaVersion: SCHEMA_VERSION,
     catalogVersion: CATALOG_VERSION,
     id: spec.id,
-    name: feature.properties.Name,
+    name: spec.officialName ?? feature.properties.Name,
     countryCode: spec.countryCode,
     locality: spec.locality,
     lengthMeters: expectedLengthMeters,
@@ -353,22 +519,23 @@ function createTrack(feature, spec) {
       angleDirection: 'counterclockwise',
       angleOrigin: '+x',
     },
-    bounds: boundsForPoints(centerline, spec.halfWidthMeters + 40),
+    bounds: boundsForPoints(centerline, maximumMarginMeters),
     centerline,
     racingLine: createRacingLine(centerline),
     startFinish: gateAtDistance(0, centerline, 0, expectedLengthMeters),
     gridSlots: createGridSlots(centerline, expectedLengthMeters, 8),
     checkpoints: Array.from({ length: 8 }, (_, index) => gateAtDistance(index, centerline, expectedLengthMeters * (index + 1) / 9, expectedLengthMeters)),
     pitLane: createPitLane(centerline, expectedLengthMeters),
-    surfaceModel: { onTrack: 'asphalt', offTrack: 'grass', pitLane: 'pit-lane' },
-    trackLimits: createTrackLimits(expectedLengthMeters, spec.boundaryProfile),
-    chunks: createChunks(centerline, expectedLengthMeters, spec.halfWidthMeters),
+    surfaceModel: { onTrack: 'asphalt', pitLane: 'pit-lane' },
+    trackLimits,
+    chunks: createChunks(centerline, expectedLengthMeters, maximumMarginMeters),
     sceneryLayout: createSceneryLayout(centerline, expectedLengthMeters, spec.sceneryPreset),
     source: {
       dataset: 'bacinger/f1-circuits',
       license: 'MIT',
       url: 'https://github.com/bacinger/f1-circuits',
-      transformation: 'Equirectangular projection around the first source coordinate, uniform scale to the published circuit length, closed-loop resampling every approximately 20 meters, generated gameplay metadata, and gameplay-oriented boundary profiles selected by circuit character.',
+      transformation: 'Equirectangular projection around the first source coordinate, uniform scale to the published circuit length, closed-loop resampling every approximately 20 meters, generated gameplay metadata, and per-circuit side environments audited against the listed references.',
+      environmentReferences: environmentProfile.references,
     },
   }
   assertTrack(track)
@@ -391,6 +558,62 @@ async function writeOrCheck(path, content) {
 
 const source = JSON.parse(await readFile(sourcePath, 'utf8'))
 if (trackSpecs.length !== 24) throw new Error('The frozen calendar must contain exactly 24 tracks')
+const expectedProfileIds = trackSpecs.map((spec) => spec.id).sort()
+const actualProfileIds = Object.keys(trackEnvironmentProfiles).sort()
+if (JSON.stringify(actualProfileIds) !== JSON.stringify(expectedProfileIds)) {
+  throw new Error(`Environment profiles must match the 24-track catalog: ${actualProfileIds.join(', ')}`)
+}
+const profileSignatures = new Set()
+for (const spec of trackSpecs) {
+  const profile = trackEnvironmentProfiles[spec.id]
+  if (!Array.isArray(profile.references) || profile.references.length < 2) {
+    throw new Error(`${spec.id}: expected at least two environment references`)
+  }
+  if (
+    !profile.width ||
+    profile.width.defaultHalfWidthMeters < 3.5 ||
+    profile.width.defaultHalfWidthMeters > 13 ||
+    !Array.isArray(profile.width.overrides)
+  ) {
+    throw new Error(`${spec.id}: invalid track width profile`)
+  }
+  const orderedWidthOverrides = [...profile.width.overrides].sort(
+    (left, right) => left.from - right.from,
+  )
+  for (let index = 0; index < orderedWidthOverrides.length; index += 1) {
+    const override = orderedWidthOverrides[index]
+    if (
+      override.from < 0 ||
+      override.to > 1 ||
+      override.to <= override.from ||
+      override.halfWidthMeters < 3.5 ||
+      override.halfWidthMeters > 13 ||
+      (index > 0 &&
+        override.from < orderedWidthOverrides[index - 1].to)
+    ) {
+      throw new Error(`${spec.id}: invalid track width override`)
+    }
+  }
+  if (!Array.isArray(profile.overrides) || profile.overrides.length === 0) {
+    throw new Error(`${spec.id}: expected circuit-specific environment intervals`)
+  }
+  for (const override of profile.overrides) {
+    if (override.from < 0 || override.to > 1 || override.to <= override.from) {
+      throw new Error(`${spec.id}: invalid normalized environment interval`)
+    }
+  }
+  const orderedOverrides = [...profile.overrides].sort((left, right) => left.from - right.from)
+  for (let index = 1; index < orderedOverrides.length; index += 1) {
+    if (orderedOverrides[index].from < orderedOverrides[index - 1].to) {
+      throw new Error(`${spec.id}: environment intervals must not overlap`)
+    }
+  }
+  const signature = JSON.stringify({ default: profile.default, overrides: profile.overrides })
+  if (profileSignatures.has(signature)) {
+    throw new Error(`${spec.id}: environment profile duplicates another circuit`)
+  }
+  profileSignatures.add(signature)
+}
 
 const definitions = []
 for (const spec of trackSpecs) {
