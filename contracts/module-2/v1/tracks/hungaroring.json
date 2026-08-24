@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.3.0",
-  "catalogVersion": "2026.4",
+  "catalogVersion": "2026.5",
   "id": "hungaroring",
   "name": "Hungaroring",
   "countryCode": "HU",
@@ -12458,34 +12458,34 @@
     "preset": "classic",
     "landmarks": [
       {
-        "id": "landmark-1",
-        "kind": "classic-landmark",
+        "id": "hungaroring-wooded-hills",
+        "kind": "wooded-hills",
         "position": {
-          "x": 150.145,
-          "y": 369.787
+          "x": 242.717,
+          "y": 193.444
         },
-        "rotation": 1.108066,
-        "scale": 1
+        "rotation": 2.240063,
+        "scale": 25
       },
       {
-        "id": "landmark-2",
-        "kind": "classic-landmark",
+        "id": "hungaroring-tower",
+        "kind": "circuit-tower",
         "position": {
-          "x": 622.45,
-          "y": 589.602
+          "x": 647.471,
+          "y": 596.67
         },
-        "rotation": -1.295521,
-        "scale": 1
+        "rotation": -1.395521,
+        "scale": 9
       },
       {
-        "id": "landmark-3",
-        "kind": "classic-landmark",
+        "id": "hungaroring-infield",
+        "kind": "open-infield",
         "position": {
-          "x": 435.435,
-          "y": -129.129
+          "x": 515.876,
+          "y": -57.064
         },
-        "rotation": 2.301334,
-        "scale": 1
+        "rotation": 2.401334,
+        "scale": 28
       }
     ],
     "staticObjects": [
@@ -12497,17 +12497,17 @@
           "y": 52.546
         },
         "rotation": 2.468321,
-        "scale": 1
+        "scale": 15.4
       },
       {
         "id": "main-grandstand",
         "kind": "grandstand",
         "position": {
-          "x": -93.741,
-          "y": 17.366
+          "x": 7.85,
+          "y": -66.124
         },
-        "rotation": 2.468321,
-        "scale": 1
+        "rotation": 2.469412,
+        "scale": 12
       }
     ]
   },

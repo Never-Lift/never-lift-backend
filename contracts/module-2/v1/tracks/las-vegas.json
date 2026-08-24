@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.3.0",
-  "catalogVersion": "2026.4",
+  "catalogVersion": "2026.5",
   "id": "las-vegas",
   "name": "Las Vegas Street Circuit",
   "countryCode": "US",
@@ -17316,34 +17316,34 @@
     "preset": "night-city",
     "landmarks": [
       {
-        "id": "landmark-1",
-        "kind": "night-city-landmark",
+        "id": "las-vegas-sphere",
+        "kind": "sphere",
         "position": {
-          "x": -99.345,
-          "y": 1066.855
+          "x": -187.19,
+          "y": 687.212
         },
-        "rotation": -0.015399,
-        "scale": 1
+        "rotation": 1.678416,
+        "scale": 16
       },
       {
-        "id": "landmark-2",
-        "kind": "night-city-landmark",
+        "id": "strip-neon-towers",
+        "kind": "neon-towers",
         "position": {
-          "x": -730.968,
-          "y": 1669.965
+          "x": -699.044,
+          "y": 1653.874
         },
-        "rotation": -2.037666,
-        "scale": 1
+        "rotation": -2.187666,
+        "scale": 16
       },
       {
-        "id": "landmark-3",
-        "kind": "night-city-landmark",
+        "id": "las-vegas-resort",
+        "kind": "resort-building",
         "position": {
-          "x": -1033.578,
-          "y": 196.087
+          "x": -1137.081,
+          "y": 11.672
         },
-        "rotation": -1.601031,
-        "scale": 1
+        "rotation": -1.478747,
+        "scale": 16
       }
     ],
     "staticObjects": [
@@ -17355,17 +17355,17 @@
           "y": 17.794
         },
         "rotation": 0.845085,
-        "scale": 1
+        "scale": 14.85
       },
       {
         "id": "main-grandstand",
         "kind": "grandstand",
         "position": {
-          "x": -17.829,
-          "y": 47.659
+          "x": -135.001,
+          "y": -97.039
         },
-        "rotation": 0.845085,
-        "scale": 1
+        "rotation": 0.844304,
+        "scale": 11
       }
     ]
   },

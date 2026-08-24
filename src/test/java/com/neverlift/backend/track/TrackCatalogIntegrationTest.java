@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -38,7 +39,7 @@ class TrackCatalogIntegrationTest {
         mockMvc.perform(get("/api/tracks"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.schemaVersion").value("1.3.0"))
-                .andExpect(jsonPath("$.catalogVersion").value("2026.4"))
+                .andExpect(jsonPath("$.catalogVersion").value("2026.5"))
                 .andExpect(jsonPath("$.seasonReference").value(2026))
                 .andExpect(jsonPath("$.calendarPolicy").value("original-24-round-freeze"))
                 .andExpect(jsonPath("$.tracks.length()").value(24))
@@ -57,10 +58,11 @@ class TrackCatalogIntegrationTest {
                         13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24);
 
         boolean foundOptionalFence = false;
+        Set<String> scenerySignatures = new HashSet<>();
         for (Track track : trackRepository.findAll()) {
             JsonNode definition = objectMapper.readTree(track.getDefinitionJson());
             assertThat(definition.path("schemaVersion").asText()).isEqualTo("1.3.0");
-            assertThat(definition.path("catalogVersion").asText()).isEqualTo("2026.4");
+            assertThat(definition.path("catalogVersion").asText()).isEqualTo("2026.5");
             assertThat(definition.path("id").asText()).isEqualTo(track.getId());
             assertThat(definition.path("lengthMeters").asInt()).isEqualTo(track.getLengthMeters());
 
@@ -92,7 +94,29 @@ class TrackCatalogIntegrationTest {
             assertThat(definition.path("racingLine").size()).isEqualTo(centerline.size());
             assertThat(definition.path("startFinish").isObject()).isTrue();
             assertThat(definition.path("pitLane").path("path").size()).isGreaterThanOrEqualTo(2);
-            assertThat(definition.path("sceneryLayout").isObject()).isTrue();
+            JsonNode sceneryLayout = definition.path("sceneryLayout");
+            assertThat(sceneryLayout.isObject()).isTrue();
+            assertThat(sceneryLayout.path("landmarks").size()).isGreaterThanOrEqualTo(3);
+            assertThat(sceneryLayout.path("staticObjects").size()).isGreaterThanOrEqualTo(2);
+            assertThat(sceneryLayout.path("staticObjects").get(0).path("kind").asText())
+                    .isEqualTo("start-gantry");
+            Set<String> sceneryIds = new HashSet<>();
+            for (String collection : Set.of("landmarks", "staticObjects")) {
+                for (JsonNode sceneryObject : sceneryLayout.path(collection)) {
+                    assertThat(sceneryIds.add(sceneryObject.path("id").asText()))
+                            .as("%s should not repeat scenery ids", track.getId())
+                            .isTrue();
+                    assertThat(sceneryObject.path("kind").asText())
+                            .doesNotEndWith("-landmark");
+                    assertThat(sceneryObject.path("position").path("x").isNumber()).isTrue();
+                    assertThat(sceneryObject.path("position").path("y").isNumber()).isTrue();
+                    assertThat(sceneryObject.path("rotation").isNumber()).isTrue();
+                    assertThat(sceneryObject.path("scale").asDouble()).isPositive();
+                }
+            }
+            assertThat(scenerySignatures.add(sceneryLayout.path("landmarks").toString()))
+                    .as("%s should have a circuit-specific landmark profile", track.getId())
+                    .isTrue();
             assertThat(definition.path("source").path("environmentReferences").size()).isGreaterThanOrEqualTo(2);
 
             JsonNode curbs = definition.path("curbs");
@@ -122,12 +146,15 @@ class TrackCatalogIntegrationTest {
         assertThat(foundOptionalFence)
                 .as("the canonical catalog should exercise the optional debris-fence layer")
                 .isTrue();
+        assertThat(scenerySignatures).hasSize(24);
     }
 
     @Test
     void shouldExposeAuditedUrbanAndPermanentCircuitEnvironments() throws Exception {
         mockMvc.perform(get("/api/tracks/monaco"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sceneryLayout.landmarks[0].kind").value("marina"))
+                .andExpect(jsonPath("$.sceneryLayout.landmarks[2].kind").value("tunnel-building"))
                 .andExpect(jsonPath("$.trackLimits.segments[0].left.zones").isArray())
                 .andExpect(jsonPath("$.trackLimits.segments[0].left.barrier").isString())
                 .andExpect(jsonPath("$.source.environmentReferences").isArray())
@@ -140,6 +167,7 @@ class TrackCatalogIntegrationTest {
 
         mockMvc.perform(get("/api/tracks/suzuka"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sceneryLayout.landmarks[0].kind").value("ferris-wheel"))
                 .andExpect(jsonPath("$.centerline[?(@.elevationLayer == 1)]").isNotEmpty());
 
         mockMvc.perform(get("/api/tracks/lusail"))

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.3.0",
-  "catalogVersion": "2026.4",
+  "catalogVersion": "2026.5",
   "id": "lusail",
   "name": "Lusail International Circuit",
   "countryCode": "QA",
@@ -15517,34 +15517,34 @@
     "preset": "desert",
     "landmarks": [
       {
-        "id": "landmark-1",
-        "kind": "desert-landmark",
+        "id": "lusail-floodlights",
+        "kind": "floodlight-array",
         "position": {
-          "x": 378.469,
-          "y": 929.093
+          "x": 166.168,
+          "y": 730.712
         },
-        "rotation": 0.137736,
-        "scale": 1
+        "rotation": 0.837227,
+        "scale": 6
       },
       {
-        "id": "landmark-2",
-        "kind": "desert-landmark",
+        "id": "lusail-pit-building",
+        "kind": "pit-building",
         "position": {
-          "x": 468.789,
-          "y": 247.801
+          "x": 547.783,
+          "y": 359.766
         },
-        "rotation": -2.89414,
-        "scale": 1
+        "rotation": -2.913514,
+        "scale": 15
       },
       {
-        "id": "landmark-3",
-        "kind": "desert-landmark",
+        "id": "lusail-desert",
+        "kind": "desert-expanse",
         "position": {
-          "x": 679.38,
-          "y": -239.359
+          "x": 672,
+          "y": -277.654
         },
-        "rotation": 2.9512,
-        "scale": 1
+        "rotation": 3.1012,
+        "scale": 30
       }
     ],
     "staticObjects": [
@@ -15556,17 +15556,17 @@
           "y": 95.929
         },
         "rotation": 2.072115,
-        "scale": 1
+        "scale": 13.2
       },
       {
         "id": "main-grandstand",
         "kind": "grandstand",
         "position": {
-          "x": -91.847,
-          "y": 74.303
+          "x": 54.842,
+          "y": 0.261
         },
-        "rotation": 2.072115,
-        "scale": 1
+        "rotation": 2.073132,
+        "scale": 12
       }
     ]
   },

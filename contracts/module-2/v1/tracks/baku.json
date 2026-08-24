@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.3.0",
-  "catalogVersion": "2026.4",
+  "catalogVersion": "2026.5",
   "id": "baku",
   "name": "Baku City Circuit",
   "countryCode": "AZ",
@@ -16922,34 +16922,34 @@
     "preset": "street",
     "landmarks": [
       {
-        "id": "landmark-1",
-        "kind": "street-landmark",
+        "id": "baku-old-city-wall",
+        "kind": "old-city-wall",
         "position": {
-          "x": -688.21,
-          "y": -90.685
+          "x": -682.803,
+          "y": 60.876
         },
-        "rotation": -1.210526,
-        "scale": 1
+        "rotation": -2.651634,
+        "scale": 18
       },
       {
-        "id": "landmark-2",
-        "kind": "street-landmark",
+        "id": "flame-towers",
+        "kind": "city-towers",
         "position": {
-          "x": -1724.125,
-          "y": -506.342
+          "x": -1777.17,
+          "y": -410.549
         },
-        "rotation": -2.635874,
-        "scale": 1
+        "rotation": -2.735874,
+        "scale": 16
       },
       {
-        "id": "landmark-3",
-        "kind": "street-landmark",
+        "id": "baku-waterfront",
+        "kind": "waterfront",
         "position": {
-          "x": -1305.805,
-          "y": -657.332
+          "x": -1181.053,
+          "y": -496.752
         },
-        "rotation": 1.245288,
-        "scale": 1
+        "rotation": 0.810148,
+        "scale": 25
       }
     ],
     "staticObjects": [
@@ -16961,17 +16961,17 @@
           "y": 19.78
         },
         "rotation": 0.402817,
-        "scale": 1
+        "scale": 14.3
       },
       {
         "id": "main-grandstand",
         "kind": "grandstand",
         "position": {
-          "x": 28.435,
-          "y": 61.178
+          "x": -78.87,
+          "y": -70.376
         },
-        "rotation": 0.402817,
-        "scale": 1
+        "rotation": 0.396644,
+        "scale": 11
       }
     ]
   },

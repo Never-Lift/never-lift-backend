@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.3.0",
-  "catalogVersion": "2026.4",
+  "catalogVersion": "2026.5",
   "id": "spielberg",
   "name": "Red Bull Ring",
   "countryCode": "AT",
@@ -12167,34 +12167,34 @@
     "preset": "classic",
     "landmarks": [
       {
-        "id": "landmark-1",
-        "kind": "classic-landmark",
+        "id": "styrian-alps",
+        "kind": "alpine-hills",
         "position": {
-          "x": -756.881,
-          "y": 548.727
+          "x": -464.921,
+          "y": 278.368
         },
-        "rotation": 2.354071,
-        "scale": 1
+        "rotation": 1.956291,
+        "scale": 30
       },
       {
-        "id": "landmark-2",
-        "kind": "classic-landmark",
+        "id": "spielberg-bull-sculpture",
+        "kind": "bull-sculpture",
         "position": {
-          "x": -59.074,
-          "y": 512.581
+          "x": -141.399,
+          "y": 442.004
         },
-        "rotation": -2.390317,
-        "scale": 1
+        "rotation": -2.70202,
+        "scale": 8
       },
       {
-        "id": "landmark-3",
-        "kind": "classic-landmark",
+        "id": "spielberg-hill-grandstand",
+        "kind": "hill-grandstand",
         "position": {
-          "x": -44.22,
-          "y": 384.634
+          "x": 44.422,
+          "y": 291.265
         },
-        "rotation": 0.023624,
-        "scale": 1
+        "rotation": 0.021823,
+        "scale": 14
       }
     ],
     "staticObjects": [
@@ -12206,17 +12206,17 @@
           "y": -6.609
         },
         "rotation": -2.87894,
-        "scale": 1
+        "scale": 13.75
       },
       {
         "id": "main-grandstand",
         "kind": "grandstand",
         "position": {
-          "x": -13.302,
-          "y": -50.066
+          "x": 92.059,
+          "y": -24.907
         },
-        "rotation": -2.87894,
-        "scale": 1
+        "rotation": -2.876256,
+        "scale": 12
       }
     ]
   },
