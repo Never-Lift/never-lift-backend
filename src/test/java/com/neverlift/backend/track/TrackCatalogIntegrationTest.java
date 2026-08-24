@@ -37,8 +37,8 @@ class TrackCatalogIntegrationTest {
     void shouldExposeTheCanonicalPublicCatalogInRoundOrder() throws Exception {
         mockMvc.perform(get("/api/tracks"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.schemaVersion").value("1.2.0"))
-                .andExpect(jsonPath("$.catalogVersion").value("2026.3"))
+                .andExpect(jsonPath("$.schemaVersion").value("1.3.0"))
+                .andExpect(jsonPath("$.catalogVersion").value("2026.4"))
                 .andExpect(jsonPath("$.seasonReference").value(2026))
                 .andExpect(jsonPath("$.calendarPolicy").value("original-24-round-freeze"))
                 .andExpect(jsonPath("$.tracks.length()").value(24))
@@ -59,8 +59,8 @@ class TrackCatalogIntegrationTest {
         boolean foundOptionalFence = false;
         for (Track track : trackRepository.findAll()) {
             JsonNode definition = objectMapper.readTree(track.getDefinitionJson());
-            assertThat(definition.path("schemaVersion").asText()).isEqualTo("1.2.0");
-            assertThat(definition.path("catalogVersion").asText()).isEqualTo("2026.3");
+            assertThat(definition.path("schemaVersion").asText()).isEqualTo("1.3.0");
+            assertThat(definition.path("catalogVersion").asText()).isEqualTo("2026.4");
             assertThat(definition.path("id").asText()).isEqualTo(track.getId());
             assertThat(definition.path("lengthMeters").asInt()).isEqualTo(track.getLengthMeters());
 
@@ -94,6 +94,19 @@ class TrackCatalogIntegrationTest {
             assertThat(definition.path("pitLane").path("path").size()).isGreaterThanOrEqualTo(2);
             assertThat(definition.path("sceneryLayout").isObject()).isTrue();
             assertThat(definition.path("source").path("environmentReferences").size()).isGreaterThanOrEqualTo(2);
+
+            JsonNode curbs = definition.path("curbs");
+            assertThat(curbs.isArray()).isTrue();
+            assertThat(curbs).isNotEmpty();
+            for (int index = 0; index < curbs.size(); index++) {
+                JsonNode curb = curbs.get(index);
+                assertThat(curb.path("index").asInt()).isEqualTo(index);
+                assertThat(curb.path("fromDistanceMeters").asDouble()).isGreaterThanOrEqualTo(0);
+                assertThat(curb.path("toDistanceMeters").asDouble())
+                        .isGreaterThan(curb.path("fromDistanceMeters").asDouble())
+                        .isLessThanOrEqualTo(track.getLengthMeters());
+                assertThat(curb.path("side").asText()).isIn("left", "right");
+            }
 
             JsonNode limitSegments = definition.path("trackLimits").path("segments");
             assertThat(limitSegments.isArray()).isTrue();

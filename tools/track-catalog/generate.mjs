@@ -4,6 +4,7 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { trackEnvironmentProfiles } from './track-environments.mjs'
+import { trackCurbProfiles } from './track-curbs.mjs'
 
 const toolDirectory = dirname(fileURLToPath(import.meta.url))
 const repositoryRoot = resolve(toolDirectory, '..', '..')
@@ -13,11 +14,14 @@ const catalogPath = resolve(contractDirectory, 'catalog.json')
 const checkOnly = process.argv.includes('--check')
 
 const EARTH_RADIUS_METERS = 6_371_008.8
-const SAMPLE_INTERVAL_METERS = 20
+const SAMPLE_INTERVAL_METERS = 5
 const CHUNK_LENGTH_METERS = 250
 const WIDTH_TRANSITION_METERS = 40
-const SCHEMA_VERSION = '1.2.0'
-const CATALOG_VERSION = '2026.3'
+const CORNER_ROUNDING_RADIUS_METERS = 12
+const TURN_SEARCH_STEP_METERS = 5
+const TURN_MINIMUM_SEPARATION_METERS = 40
+const SCHEMA_VERSION = '1.3.0'
+const CATALOG_VERSION = '2026.4'
 const TRACK_BARRIER_TYPES = [
   'concrete-wall',
   'guardrail',
@@ -25,6 +29,16 @@ const TRACK_BARRIER_TYPES = [
   'tyre-barrier',
 ]
 const TRACK_FENCE_TYPE = 'debris-fence'
+const TRACK_CURB_PALETTES = [
+  'red-white',
+  'orange-white',
+  'red-white-blue',
+  'green-white-red',
+  'red-yellow',
+  'green-yellow',
+  'maroon-white',
+  'blue-white',
+]
 
 const trackSpecs = [
   ['albert-park', 'Albert Park Circuit', 1, 'AU', 'Australia', 'Melbourne', 'park', 7],
@@ -85,8 +99,18 @@ function projectCoordinates(coordinates, expectedLengthMeters) {
   if (distance(rawPoints[0], rawPoints.at(-1)) < 2) rawPoints.pop()
 
   const rawLength = closedLength(rawPoints)
-  const scale = expectedLengthMeters / rawLength
-  return rawPoints.map((point) => ({ x: point.x * scale, y: point.y * scale }))
+  const initialScale = expectedLengthMeters / rawLength
+  const projected = rawPoints.map((point) => ({
+    x: point.x * initialScale,
+    y: point.y * initialScale,
+  }))
+  const smoothed = chaikinSmoothClosed(projected, 2)
+  const rounded = roundClosedCorners(smoothed, CORNER_ROUNDING_RADIUS_METERS)
+  const finalScale = expectedLengthMeters / closedLength(rounded)
+  return rounded.map((point) => ({
+    x: point.x * finalScale,
+    y: point.y * finalScale,
+  }))
 }
 
 function closedLength(points) {
@@ -95,6 +119,87 @@ function closedLength(points) {
     total += distance(points[index], points[(index + 1) % points.length])
   }
   return total
+}
+
+function interpolatePoint(from, to, ratio) {
+  return {
+    x: from.x + (to.x - from.x) * ratio,
+    y: from.y + (to.y - from.y) * ratio,
+  }
+}
+
+function quadraticPoint(from, control, to, ratio) {
+  const inverse = 1 - ratio
+  return {
+    x:
+      inverse * inverse * from.x +
+      2 * inverse * ratio * control.x +
+      ratio * ratio * to.x,
+    y:
+      inverse * inverse * from.y +
+      2 * inverse * ratio * control.y +
+      ratio * ratio * to.y,
+  }
+}
+
+function chaikinSmoothClosed(points, iterations) {
+  let smoothed = points
+  for (let iteration = 0; iteration < iterations; iteration += 1) {
+    const next = []
+    for (let index = 0; index < smoothed.length; index += 1) {
+      const from = smoothed[index]
+      const to = smoothed[(index + 1) % smoothed.length]
+      next.push(interpolatePoint(from, to, 0.25))
+      next.push(interpolatePoint(from, to, 0.75))
+    }
+    smoothed = next
+  }
+  return smoothed
+}
+
+function roundClosedCorners(points, radiusMeters) {
+  const corners = points.map((point, index) => {
+    const previous = points[(index - 1 + points.length) % points.length]
+    const next = points[(index + 1) % points.length]
+    const incomingLength = distance(previous, point)
+    const outgoingLength = distance(point, next)
+    const trimMeters = Math.min(
+      radiusMeters,
+      incomingLength * 0.35,
+      outgoingLength * 0.35,
+    )
+    return {
+      point,
+      entry: interpolatePoint(
+        point,
+        previous,
+        incomingLength === 0 ? 0 : trimMeters / incomingLength,
+      ),
+      exit: interpolatePoint(
+        point,
+        next,
+        outgoingLength === 0 ? 0 : trimMeters / outgoingLength,
+      ),
+      trimMeters,
+    }
+  })
+
+  const rounded = []
+  for (const corner of corners) {
+    rounded.push(corner.entry)
+    const subdivisions = Math.max(3, Math.ceil(corner.trimMeters * 2 / 3))
+    for (let index = 1; index <= subdivisions; index += 1) {
+      rounded.push(
+        quadraticPoint(
+          corner.entry,
+          corner.point,
+          corner.exit,
+          index / subdivisions,
+        ),
+      )
+    }
+  }
+  return rounded
 }
 
 function elevationLayerAt(trackId, normalizedDistance) {
@@ -208,6 +313,142 @@ function tangentAtDistance(centerline, targetDistance, lengthMeters) {
   const before = sampleAtDistance(centerline, targetDistance - 2, lengthMeters)
   const after = sampleAtDistance(centerline, targetDistance + 2, lengthMeters)
   return normalize({ x: after.x - before.x, y: after.y - before.y })
+}
+
+function normalizeAngle(angle) {
+  let normalized = angle
+  while (normalized > Math.PI) normalized -= Math.PI * 2
+  while (normalized < -Math.PI) normalized += Math.PI * 2
+  return normalized
+}
+
+function curvatureAtDistance(centerline, targetDistance, lengthMeters) {
+  const before = sampleAtDistance(centerline, targetDistance - 35, lengthMeters)
+  const current = sampleAtDistance(centerline, targetDistance, lengthMeters)
+  const after = sampleAtDistance(centerline, targetDistance + 35, lengthMeters)
+  const incoming = Math.atan2(current.y - before.y, current.x - before.x)
+  const outgoing = Math.atan2(after.y - current.y, after.x - current.x)
+  return normalizeAngle(outgoing - incoming)
+}
+
+function detectTurnAnchors(centerline, lengthMeters, expectedCount) {
+  const candidates = []
+  for (
+    let distanceMeters = 0;
+    distanceMeters < lengthMeters;
+    distanceMeters += TURN_SEARCH_STEP_METERS
+  ) {
+    const signedCurvature = curvatureAtDistance(
+      centerline,
+      distanceMeters,
+      lengthMeters,
+    )
+    candidates.push({
+      distanceMeters,
+      signedCurvature,
+      score: Math.abs(signedCurvature),
+    })
+  }
+
+  const selected = []
+  for (const candidate of candidates.sort((left, right) => right.score - left.score)) {
+    const overlaps = selected.some((turn) => {
+      const direct = Math.abs(turn.distanceMeters - candidate.distanceMeters)
+      return Math.min(direct, lengthMeters - direct) < TURN_MINIMUM_SEPARATION_METERS
+    })
+    if (!overlaps) selected.push(candidate)
+    if (selected.length === expectedCount) break
+  }
+  return selected.sort((left, right) => left.distanceMeters - right.distanceMeters)
+}
+
+function splitWrappedRange(fromDistanceMeters, toDistanceMeters, lengthMeters) {
+  const normalizedFrom = ((fromDistanceMeters % lengthMeters) + lengthMeters) % lengthMeters
+  const span = toDistanceMeters - fromDistanceMeters
+  const normalizedTo = normalizedFrom + span
+  if (normalizedTo <= lengthMeters) {
+    return [{ fromDistanceMeters: normalizedFrom, toDistanceMeters: normalizedTo }]
+  }
+  return [
+    { fromDistanceMeters: normalizedFrom, toDistanceMeters: lengthMeters },
+    { fromDistanceMeters: 0, toDistanceMeters: normalizedTo - lengthMeters },
+  ]
+}
+
+function createCurbs(centerline, lengthMeters, profile) {
+  const raw = []
+  const append = (fromDistanceMeters, toDistanceMeters, side) => {
+    for (const range of splitWrappedRange(
+      fromDistanceMeters,
+      toDistanceMeters,
+      lengthMeters,
+    )) {
+      raw.push({
+        ...range,
+        side,
+        widthMeters: profile.widthMeters,
+        stripeLengthMeters: profile.stripeLengthMeters,
+        palette: profile.palette,
+      })
+    }
+  }
+
+  for (const turn of detectTurnAnchors(
+    centerline,
+    lengthMeters,
+    profile.turnCount,
+  )) {
+    const insideSide = turn.signedCurvature >= 0 ? 'left' : 'right'
+    const outsideSide = insideSide === 'left' ? 'right' : 'left'
+    append(
+      turn.distanceMeters - profile.insideBeforeMeters,
+      turn.distanceMeters + profile.insideAfterMeters,
+      insideSide,
+    )
+    append(
+      turn.distanceMeters + profile.exitStartMeters,
+      turn.distanceMeters + profile.exitStartMeters + profile.exitLengthMeters,
+      outsideSide,
+    )
+  }
+
+  const merged = []
+  for (const segment of raw.sort((left, right) =>
+    left.side.localeCompare(right.side) ||
+    left.fromDistanceMeters - right.fromDistanceMeters
+  )) {
+    const previous = merged.at(-1)
+    if (
+      previous &&
+      previous.side === segment.side &&
+      previous.palette === segment.palette &&
+      previous.widthMeters === segment.widthMeters &&
+      previous.stripeLengthMeters === segment.stripeLengthMeters &&
+      segment.fromDistanceMeters <= previous.toDistanceMeters + 0.001
+    ) {
+      previous.toDistanceMeters = Math.max(
+        previous.toDistanceMeters,
+        segment.toDistanceMeters,
+      )
+    } else {
+      merged.push({ ...segment })
+    }
+  }
+
+  return merged
+    .sort((left, right) =>
+      left.fromDistanceMeters - right.fromDistanceMeters ||
+      left.side.localeCompare(right.side),
+    )
+    .map((segment, index) => ({
+      index,
+      fromDistanceMeters: round(segment.fromDistanceMeters),
+      toDistanceMeters: round(segment.toDistanceMeters),
+      side: segment.side,
+      widthMeters: segment.widthMeters,
+      stripeLengthMeters: segment.stripeLengthMeters,
+      palette: segment.palette,
+    }))
 }
 
 function vector(point) {
@@ -444,6 +685,47 @@ function assertTrack(track) {
   }
   if (track.checkpoints.length !== 8) throw new Error(`${track.id}: expected 8 checkpoints`)
   if (track.gridSlots.length !== 4) throw new Error(`${track.id}: expected 4 grid slots`)
+  for (let index = 1; index < track.centerline.length; index += 1) {
+    const segmentLength = distance(
+      track.centerline[index - 1],
+      track.centerline[index],
+    )
+    if (segmentLength > SAMPLE_INTERVAL_METERS + 0.02) {
+      throw new Error(`${track.id}: centerline sampling gap exceeds 5 meters`)
+    }
+    if (index < 2) continue
+    const previousHeading = Math.atan2(
+      track.centerline[index - 1].y - track.centerline[index - 2].y,
+      track.centerline[index - 1].x - track.centerline[index - 2].x,
+    )
+    const currentHeading = Math.atan2(
+      track.centerline[index].y - track.centerline[index - 1].y,
+      track.centerline[index].x - track.centerline[index - 1].x,
+    )
+    if (Math.abs(normalizeAngle(currentHeading - previousHeading)) > Math.PI / 3.6) {
+      throw new Error(`${track.id}: centerline contains a visibly angular corner`)
+    }
+  }
+  if (!Array.isArray(track.curbs) || track.curbs.length === 0) {
+    throw new Error(`${track.id}: expected generated curb segments`)
+  }
+  for (let index = 0; index < track.curbs.length; index += 1) {
+    const curb = track.curbs[index]
+    if (
+      curb.index !== index ||
+      curb.fromDistanceMeters < 0 ||
+      curb.toDistanceMeters > track.lengthMeters ||
+      curb.toDistanceMeters <= curb.fromDistanceMeters ||
+      !['left', 'right'].includes(curb.side) ||
+      curb.widthMeters < 0.3 ||
+      curb.widthMeters > 2.5 ||
+      curb.stripeLengthMeters < 0.5 ||
+      curb.stripeLengthMeters > 8 ||
+      !TRACK_CURB_PALETTES.includes(curb.palette)
+    ) {
+      throw new Error(`${track.id}: invalid curb segment`)
+    }
+  }
   if (Math.abs(track.centerline.at(-1).distanceMeters - track.lengthMeters) > 0.01) throw new Error(`${track.id}: length mismatch`)
   if (track.chunks.at(-1).toDistanceMeters !== track.lengthMeters) throw new Error(`${track.id}: chunk coverage mismatch`)
   if (track.trackLimits.segments[0].fromDistanceMeters !== 0) throw new Error(`${track.id}: boundary coverage must start at zero`)
@@ -490,6 +772,7 @@ function assertTrack(track) {
 function createTrack(feature, spec) {
   const expectedLengthMeters = spec.officialLengthMeters ?? Number(feature.properties.length)
   const environmentProfile = trackEnvironmentProfiles[spec.id]
+  const curbProfile = trackCurbProfiles[spec.id]
   const projected = projectCoordinates(feature.geometry.coordinates, expectedLengthMeters)
   const centerline = resampleClosedPath(
     projected,
@@ -527,6 +810,7 @@ function createTrack(feature, spec) {
     checkpoints: Array.from({ length: 8 }, (_, index) => gateAtDistance(index, centerline, expectedLengthMeters * (index + 1) / 9, expectedLengthMeters)),
     pitLane: createPitLane(centerline, expectedLengthMeters),
     surfaceModel: { onTrack: 'asphalt', pitLane: 'pit-lane' },
+    curbs: createCurbs(centerline, expectedLengthMeters, curbProfile),
     trackLimits,
     chunks: createChunks(centerline, expectedLengthMeters, maximumMarginMeters),
     sceneryLayout: createSceneryLayout(centerline, expectedLengthMeters, spec.sceneryPreset),
@@ -534,7 +818,7 @@ function createTrack(feature, spec) {
       dataset: 'bacinger/f1-circuits',
       license: 'MIT',
       url: 'https://github.com/bacinger/f1-circuits',
-      transformation: 'Equirectangular projection around the first source coordinate, uniform scale to the published circuit length, closed-loop resampling every approximately 20 meters, generated gameplay metadata, and per-circuit side environments audited against the listed references.',
+      transformation: 'Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references.',
       environmentReferences: environmentProfile.references,
     },
   }
@@ -563,9 +847,14 @@ const actualProfileIds = Object.keys(trackEnvironmentProfiles).sort()
 if (JSON.stringify(actualProfileIds) !== JSON.stringify(expectedProfileIds)) {
   throw new Error(`Environment profiles must match the 24-track catalog: ${actualProfileIds.join(', ')}`)
 }
+const actualCurbProfileIds = Object.keys(trackCurbProfiles).sort()
+if (JSON.stringify(actualCurbProfileIds) !== JSON.stringify(expectedProfileIds)) {
+  throw new Error(`Curb profiles must match the 24-track catalog: ${actualCurbProfileIds.join(', ')}`)
+}
 const profileSignatures = new Set()
 for (const spec of trackSpecs) {
   const profile = trackEnvironmentProfiles[spec.id]
+  const curbProfile = trackCurbProfiles[spec.id]
   if (!Array.isArray(profile.references) || profile.references.length < 2) {
     throw new Error(`${spec.id}: expected at least two environment references`)
   }
@@ -576,6 +865,18 @@ for (const spec of trackSpecs) {
     !Array.isArray(profile.width.overrides)
   ) {
     throw new Error(`${spec.id}: invalid track width profile`)
+  }
+  if (
+    !curbProfile ||
+    !Number.isInteger(curbProfile.turnCount) ||
+    curbProfile.turnCount < 1 ||
+    !TRACK_CURB_PALETTES.includes(curbProfile.palette) ||
+    curbProfile.widthMeters < 0.3 ||
+    curbProfile.widthMeters > 2.5 ||
+    curbProfile.stripeLengthMeters < 0.5 ||
+    curbProfile.stripeLengthMeters > 8
+  ) {
+    throw new Error(`${spec.id}: invalid curb profile`)
   }
   const orderedWidthOverrides = [...profile.width.overrides].sort(
     (left, right) => left.from - right.from,
