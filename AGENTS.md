@@ -60,7 +60,7 @@ Antes de começar um módulo, confira se as dependências dele já estão marcad
 |---|---|
 | 0 — Fundação e deploy | pronto |
 | 1 — Usuários e autenticação | pronto |
-| 2 — Suporte a corrida local | catálogo `2026.5` validado manualmente em 24/08/2026; simplificação #72 para F1 único e condução única aprovada no planejamento, com implementação de contrato pendente |
+| 2 — Suporte a corrida local | catálogo `2026.5` validado manualmente em 24/08/2026; simplificação #72 para F1 único e condução fixa concluída no contrato `1.3.0`, aguardando validação integrada final após o deploy |
 | 3 — Motor autoritativo online | não iniciado |
 | 4 — Ambiente e modo caos | não iniciado |
 | 5 — Corrida completa (dano/nitro/pits) | não iniciado |

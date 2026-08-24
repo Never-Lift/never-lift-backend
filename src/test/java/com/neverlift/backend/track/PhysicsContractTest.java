@@ -15,26 +15,46 @@ class PhysicsContractTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    void shouldPackageTheFairVehicleAndCumulativeDamageContractInTheV1Line() throws Exception {
+    void shouldPackageTheSingleF1FixedHandlingAndCumulativeDamageContractInTheV1Line()
+            throws Exception {
         JsonNode constants = readContract("physics-constants.json");
         JsonNode decisions = readContract("module-2-decisions.json");
         JsonNode referenceScenarios = readContract("physics-reference-scenarios.json");
 
-        assertThat(constants.path("version").asText()).isEqualTo("1.2.0");
-        assertThat(decisions.path("contractVersion").asText()).isEqualTo("1.2.0");
+        assertThat(constants.path("version").asText()).isEqualTo("1.3.0");
+        assertThat(decisions.path("contractVersion").asText()).isEqualTo("1.3.0");
         assertThat(decisions.path("localDamage").asText())
                 .isEqualTo("deterministic-mechanical");
-        assertThat(decisions.path("vehiclePerformancePolicy").asText())
-                .isEqualTo("shared-physics-visual-only-models");
-        assertThat(decisions.path("handlingModeScope").asText()).isEqualTo("race-wide");
+        assertThat(decisions.path("vehiclePolicy").asText())
+                .isEqualTo("single-f1-paint-only");
+        assertThat(decisions.path("handlingPolicy").asText())
+                .isEqualTo("single-fixed-normal-values");
         assertThat(referenceScenarios.path("physicsConstantsVersion").asText())
-                .isEqualTo("1.2.0");
+                .isEqualTo("1.3.0");
 
         JsonNode vehiclePerformance = constants.path("vehiclePerformance");
         assertThat(vehiclePerformance.path("massKg").asDouble()).isEqualTo(800.0);
         assertThat(vehiclePerformance.path("collisionRadiusMeters").asDouble()).isEqualTo(1.24);
-        assertThat(constants.path("vehicleVisualProfiles").size()).isEqualTo(3);
+        assertThat(constants.path("vehicleVisual").path("lengthMeters").asDouble())
+                .isEqualTo(5.6);
+        assertThat(constants.path("vehicleVisual").path("widthMeters").asDouble())
+                .isEqualTo(2.0);
+        assertThat(constants.path("handling").path("lateralGripMultiplier").asDouble())
+                .isEqualTo(1.0);
+        assertThat(constants.path("handling").path("longitudinalGripMultiplier").asDouble())
+                .isEqualTo(1.0);
+        assertThat(constants.path("handling").path("steeringMultiplier").asDouble())
+                .isEqualTo(1.0);
+        assertThat(constants.path("handling").path("yawDampingPerSecond").asDouble())
+                .isEqualTo(5.5);
+        assertThat(constants.has("vehicleVisualProfiles")).isFalse();
+        assertThat(constants.has("handlingModes")).isFalse();
         assertThat(constants.has("vehicleProfiles")).isFalse();
+
+        for (JsonNode scenario : referenceScenarios.path("scenarios")) {
+            assertThat(scenario.has("vehicleProfile")).isFalse();
+            assertThat(scenario.has("handlingMode")).isFalse();
+        }
 
         JsonNode thresholds = constants.path("damage").path("thresholds");
         assertThat(thresholds.path("minimumImpactSpeed").asDouble()).isEqualTo(4.0);
