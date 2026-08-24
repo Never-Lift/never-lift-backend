@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.3.0",
-  "catalogVersion": "2026.4",
+  "catalogVersion": "2026.5",
   "id": "monaco",
   "name": "Circuit de Monaco",
   "countryCode": "MC",
@@ -9676,34 +9676,34 @@
     "preset": "coastal",
     "landmarks": [
       {
-        "id": "landmark-1",
-        "kind": "coastal-landmark",
+        "id": "monaco-marina",
+        "kind": "marina",
         "position": {
-          "x": 212.619,
-          "y": -114.018
+          "x": 254.765,
+          "y": 242.548
         },
-        "rotation": -2.248195,
-        "scale": 1
+        "rotation": -0.259741,
+        "scale": 16
       },
       {
-        "id": "landmark-2",
-        "kind": "coastal-landmark",
+        "id": "monaco-yachts",
+        "kind": "yachts",
         "position": {
-          "x": -389.119,
-          "y": -437.854
+          "x": -215.776,
+          "y": -316.963
         },
-        "rotation": -0.721393,
-        "scale": 1
+        "rotation": -2.812917,
+        "scale": 8
       },
       {
-        "id": "landmark-3",
-        "kind": "coastal-landmark",
+        "id": "monaco-tunnel-building",
+        "kind": "tunnel-building",
         "position": {
-          "x": -518.635,
-          "y": -419.601
+          "x": -339.13,
+          "y": -762.393
         },
-        "rotation": 1.559587,
-        "scale": 1
+        "rotation": -2.910565,
+        "scale": 14
       }
     ],
     "staticObjects": [
@@ -9715,17 +9715,17 @@
           "y": 2.913
         },
         "rotation": 1.787243,
-        "scale": 1
+        "scale": 11
       },
       {
         "id": "main-grandstand",
         "kind": "grandstand",
         "position": {
-          "x": -44.346,
-          "y": -6.751
+          "x": 25.223,
+          "y": -102.588
         },
-        "rotation": 1.787243,
-        "scale": 1
+        "rotation": 1.263905,
+        "scale": 10
       }
     ]
   },

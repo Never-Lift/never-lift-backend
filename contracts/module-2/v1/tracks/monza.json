@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.3.0",
-  "catalogVersion": "2026.4",
+  "catalogVersion": "2026.5",
   "id": "monza",
   "name": "Autodromo Nazionale Monza",
   "countryCode": "IT",
@@ -16046,34 +16046,34 @@
     "preset": "park",
     "landmarks": [
       {
-        "id": "landmark-1",
-        "kind": "park-landmark",
+        "id": "monza-forest",
+        "kind": "forest",
         "position": {
-          "x": 553.069,
-          "y": 1266.956
+          "x": 144.795,
+          "y": 1156.258
         },
-        "rotation": 0.077281,
-        "scale": 1
+        "rotation": 0.839507,
+        "scale": 10
       },
       {
-        "id": "landmark-2",
-        "kind": "park-landmark",
+        "id": "historic-banking",
+        "kind": "historic-banking",
         "position": {
-          "x": 833.233,
-          "y": 781.834
+          "x": 680.842,
+          "y": 780.439
         },
-        "rotation": -2.429256,
-        "scale": 1
+        "rotation": -2.623165,
+        "scale": 16
       },
       {
-        "id": "landmark-3",
-        "kind": "park-landmark",
+        "id": "monza-pit-tower",
+        "kind": "pit-tower",
         "position": {
-          "x": 260.495,
-          "y": -414.312
+          "x": 253.002,
+          "y": -646.524
         },
-        "rotation": -1.673809,
-        "scale": 1
+        "rotation": -1.574407,
+        "scale": 9
       }
     ],
     "staticObjects": [
@@ -16085,17 +16085,17 @@
           "y": 149.154
         },
         "rotation": 1.483551,
-        "scale": 1
+        "scale": 12.1
       },
       {
         "id": "main-grandstand",
         "kind": "grandstand",
         "position": {
-          "x": -32.175,
-          "y": 153.075
+          "x": 44.957,
+          "y": 0.495
         },
-        "rotation": 1.483551,
-        "scale": 1
+        "rotation": 1.473563,
+        "scale": 12
       }
     ]
   },

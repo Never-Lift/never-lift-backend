@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 
 import { trackEnvironmentProfiles } from './track-environments.mjs'
 import { trackCurbProfiles } from './track-curbs.mjs'
+import { trackSceneryProfiles } from './track-scenery.mjs'
 
 const toolDirectory = dirname(fileURLToPath(import.meta.url))
 const repositoryRoot = resolve(toolDirectory, '..', '..')
@@ -21,7 +22,7 @@ const CORNER_ROUNDING_RADIUS_METERS = 12
 const TURN_SEARCH_STEP_METERS = 5
 const TURN_MINIMUM_SEPARATION_METERS = 40
 const SCHEMA_VERSION = '1.3.0'
-const CATALOG_VERSION = '2026.4'
+const CATALOG_VERSION = '2026.5'
 const TRACK_BARRIER_TYPES = [
   'concrete-wall',
   'guardrail',
@@ -543,43 +544,49 @@ function createChunks(centerline, lengthMeters, maximumTrackMarginMeters) {
   })
 }
 
-function createSceneryLayout(centerline, lengthMeters, preset) {
-  const anchorFractions = [0.25, 0.5, 0.75]
-  const landmarks = anchorFractions.map((fraction, index) => {
-    const targetDistance = lengthMeters * fraction
-    const point = sampleAtDistance(centerline, targetDistance, lengthMeters)
-    const tangent = tangentAtDistance(centerline, targetDistance, lengthMeters)
-    const normal = { x: -tangent.y, y: tangent.x }
-    return {
-      id: `landmark-${index + 1}`,
-      kind: `${preset}-landmark`,
-      position: vector({ x: point.x + normal.x * 35, y: point.y + normal.y * 35 }),
-      rotation: round(Math.atan2(tangent.y, tangent.x), 6),
-      scale: 1,
-    }
-  })
+function resolveSceneryObject(centerline, lengthMeters, definition) {
+  const targetDistance = lengthMeters * definition.fraction
+  const point = sampleAtDistance(centerline, targetDistance, lengthMeters)
+  const tangent = tangentAtDistance(centerline, targetDistance, lengthMeters)
+  const normal = { x: -tangent.y, y: tangent.x }
+  const sideDirection = definition.side === 'left'
+    ? 1
+    : definition.side === 'right'
+      ? -1
+      : 0
+  const distanceFromCenterline = point.halfWidthMeters + definition.offsetMeters
+  return {
+    id: definition.id,
+    kind: definition.kind,
+    position: vector({
+      x: point.x + normal.x * distanceFromCenterline * sideDirection,
+      y: point.y + normal.y * distanceFromCenterline * sideDirection,
+    }),
+    rotation: round(
+      Math.atan2(tangent.y, tangent.x) + definition.rotationOffset,
+      6,
+    ),
+    scale: definition.scale,
+  }
+}
 
+function createSceneryLayout(centerline, lengthMeters, preset, profile) {
   const start = centerline[0]
   const startTangent = tangentAtDistance(centerline, 0, lengthMeters)
-  const startNormal = { x: -startTangent.y, y: startTangent.x }
   return {
     preset,
-    landmarks,
+    landmarks: profile.landmarks.map((definition) =>
+      resolveSceneryObject(centerline, lengthMeters, definition)),
     staticObjects: [
       {
         id: 'start-gantry',
         kind: 'start-gantry',
         position: vector(start),
         rotation: round(Math.atan2(startTangent.y, startTangent.x), 6),
-        scale: 1,
+        scale: round(start.halfWidthMeters * 2.2),
       },
-      {
-        id: 'main-grandstand',
-        kind: 'grandstand',
-        position: vector({ x: start.x + startNormal.x * 45, y: start.y + startNormal.y * 45 }),
-        rotation: round(Math.atan2(startTangent.y, startTangent.x), 6),
-        scale: 1,
-      },
+      ...profile.staticObjects.map((definition) =>
+        resolveSceneryObject(centerline, lengthMeters, definition)),
     ],
   }
 }
@@ -773,6 +780,7 @@ function createTrack(feature, spec) {
   const expectedLengthMeters = spec.officialLengthMeters ?? Number(feature.properties.length)
   const environmentProfile = trackEnvironmentProfiles[spec.id]
   const curbProfile = trackCurbProfiles[spec.id]
+  const sceneryProfile = trackSceneryProfiles[spec.id]
   const projected = projectCoordinates(feature.geometry.coordinates, expectedLengthMeters)
   const centerline = resampleClosedPath(
     projected,
@@ -813,7 +821,12 @@ function createTrack(feature, spec) {
     curbs: createCurbs(centerline, expectedLengthMeters, curbProfile),
     trackLimits,
     chunks: createChunks(centerline, expectedLengthMeters, maximumMarginMeters),
-    sceneryLayout: createSceneryLayout(centerline, expectedLengthMeters, spec.sceneryPreset),
+    sceneryLayout: createSceneryLayout(
+      centerline,
+      expectedLengthMeters,
+      spec.sceneryPreset,
+      sceneryProfile,
+    ),
     source: {
       dataset: 'bacinger/f1-circuits',
       license: 'MIT',
@@ -851,10 +864,17 @@ const actualCurbProfileIds = Object.keys(trackCurbProfiles).sort()
 if (JSON.stringify(actualCurbProfileIds) !== JSON.stringify(expectedProfileIds)) {
   throw new Error(`Curb profiles must match the 24-track catalog: ${actualCurbProfileIds.join(', ')}`)
 }
+const actualSceneryProfileIds = Object.keys(trackSceneryProfiles).sort()
+if (JSON.stringify(actualSceneryProfileIds) !== JSON.stringify(expectedProfileIds)) {
+  throw new Error(`Scenery profiles must match the 24-track catalog: ${actualSceneryProfileIds.join(', ')}`)
+}
 const profileSignatures = new Set()
+const scenerySignatures = new Set()
+const sceneryObjectIds = new Set()
 for (const spec of trackSpecs) {
   const profile = trackEnvironmentProfiles[spec.id]
   const curbProfile = trackCurbProfiles[spec.id]
+  const sceneryProfile = trackSceneryProfiles[spec.id]
   if (!Array.isArray(profile.references) || profile.references.length < 2) {
     throw new Error(`${spec.id}: expected at least two environment references`)
   }
@@ -914,6 +934,51 @@ for (const spec of trackSpecs) {
     throw new Error(`${spec.id}: environment profile duplicates another circuit`)
   }
   profileSignatures.add(signature)
+
+  if (
+    !Array.isArray(sceneryProfile?.landmarks) ||
+    sceneryProfile.landmarks.length < 3 ||
+    !Array.isArray(sceneryProfile.staticObjects) ||
+    sceneryProfile.staticObjects.length < 1
+  ) {
+    throw new Error(`${spec.id}: expected explicit landmark and static-object scenery`)
+  }
+  if (new Set(sceneryProfile.landmarks.map(({ kind }) => kind)).size !== sceneryProfile.landmarks.length) {
+    throw new Error(`${spec.id}: landmark kinds must describe distinct circuit features`)
+  }
+  const sceneryObjects = [...sceneryProfile.landmarks, ...sceneryProfile.staticObjects]
+  const localIds = new Set()
+  for (const object of sceneryObjects) {
+    if (
+      !object.id ||
+      !object.kind ||
+      object.kind.endsWith('-landmark') ||
+      object.fraction < 0 ||
+      object.fraction >= 1 ||
+      !['left', 'right', 'center'].includes(object.side) ||
+      object.offsetMeters < 0 ||
+      object.offsetMeters > 70 ||
+      (object.side !== 'center' && object.offsetMeters < 12) ||
+      object.scale < 4 ||
+      object.scale > 40 ||
+      !Number.isFinite(object.rotationOffset)
+    ) {
+      throw new Error(`${spec.id}: invalid scenery object ${object.id ?? '<missing id>'}`)
+    }
+    if (localIds.has(object.id)) {
+      throw new Error(`${spec.id}: duplicate scenery object id ${object.id}`)
+    }
+    localIds.add(object.id)
+    sceneryObjectIds.add(`${spec.id}:${object.id}`)
+  }
+  const scenerySignature = JSON.stringify(sceneryProfile)
+  if (scenerySignatures.has(scenerySignature)) {
+    throw new Error(`${spec.id}: scenery profile duplicates another circuit`)
+  }
+  scenerySignatures.add(scenerySignature)
+}
+if (sceneryObjectIds.size < 96) {
+  throw new Error('The scenery catalog needs at least four explicit objects per circuit')
 }
 
 const definitions = []

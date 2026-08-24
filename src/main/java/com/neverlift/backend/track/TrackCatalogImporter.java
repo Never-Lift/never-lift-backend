@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class TrackCatalogImporter implements ApplicationRunner {
 
     public static final String SCHEMA_VERSION = "1.3.0";
-    public static final String CATALOG_VERSION = "2026.4";
+    public static final String CATALOG_VERSION = "2026.5";
     public static final int SEASON_REFERENCE = 2026;
     public static final String CALENDAR_POLICY = "original-24-round-freeze";
 

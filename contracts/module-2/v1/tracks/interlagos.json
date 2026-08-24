@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.3.0",
-  "catalogVersion": "2026.4",
+  "catalogVersion": "2026.5",
   "id": "interlagos",
   "name": "Autódromo José Carlos Pace - Interlagos",
   "countryCode": "BR",
@@ -12158,34 +12158,34 @@
     "preset": "classic",
     "landmarks": [
       {
-        "id": "landmark-1",
-        "kind": "classic-landmark",
+        "id": "interlagos-hillside-stands",
+        "kind": "hillside-grandstand",
         "position": {
-          "x": 513.845,
-          "y": 239.07
+          "x": 528.162,
+          "y": -76.172
         },
-        "rotation": 1.3133,
-        "scale": 1
+        "rotation": 1.420622,
+        "scale": 14
       },
       {
-        "id": "landmark-2",
-        "kind": "classic-landmark",
+        "id": "sao-paulo-skyline",
+        "kind": "city-skyline",
         "position": {
-          "x": -33.394,
-          "y": 276.427
+          "x": 74.975,
+          "y": 293.783
         },
-        "rotation": 1.729598,
-        "scale": 1
+        "rotation": 1.629598,
+        "scale": 16
       },
       {
-        "id": "landmark-3",
-        "kind": "classic-landmark",
+        "id": "interlagos-pit-complex",
+        "kind": "pit-building",
         "position": {
-          "x": 309.923,
-          "y": 704.812
+          "x": 95.388,
+          "y": 761.093
         },
-        "rotation": 2.782635,
-        "scale": 1
+        "rotation": -2.569386,
+        "scale": 15
       }
     ],
     "staticObjects": [
@@ -12197,17 +12197,17 @@
           "y": -73.814
         },
         "rotation": -1.318758,
-        "scale": 1
+        "scale": 14.85
       },
       {
         "id": "main-grandstand",
         "kind": "grandstand",
         "position": {
-          "x": 62.663,
-          "y": -62.592
+          "x": 35.901,
+          "y": 41.292
         },
-        "rotation": -1.318758,
-        "scale": 1
+        "rotation": -1.328777,
+        "scale": 12
       }
     ]
   },

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.3.0",
-  "catalogVersion": "2026.4",
+  "catalogVersion": "2026.5",
   "id": "yas-marina",
   "name": "Yas Marina Circuit",
   "countryCode": "AE",
@@ -14854,34 +14854,34 @@
     "preset": "coastal",
     "landmarks": [
       {
-        "id": "landmark-1",
-        "kind": "coastal-landmark",
+        "id": "yas-hotel-bridge",
+        "kind": "hotel-bridge",
         "position": {
-          "x": -18.849,
-          "y": 899.823
+          "x": 12.151,
+          "y": 685.162
         },
-        "rotation": -1.882158,
-        "scale": 1
+        "rotation": 1.789963,
+        "scale": 16
       },
       {
-        "id": "landmark-2",
-        "kind": "coastal-landmark",
+        "id": "yas-marina",
+        "kind": "marina",
         "position": {
-          "x": -259.388,
-          "y": -274.33
+          "x": -351.314,
+          "y": -311.081
         },
-        "rotation": -1.190476,
-        "scale": 1
+        "rotation": -1.340476,
+        "scale": 18
       },
       {
-        "id": "landmark-3",
-        "kind": "coastal-landmark",
+        "id": "yas-yachts",
+        "kind": "yachts",
         "position": {
-          "x": 52.635,
-          "y": -576.731
+          "x": 60.132,
+          "y": -471.362
         },
-        "rotation": 2.583101,
-        "scale": 1
+        "rotation": 2.625725,
+        "scale": 8
       }
     ],
     "staticObjects": [
@@ -14893,17 +14893,17 @@
           "y": 10.53
         },
         "rotation": 0.136731,
-        "scale": 1
+        "scale": 13.2
       },
       {
         "id": "main-grandstand",
         "kind": "grandstand",
         "position": {
-          "x": 71.741,
-          "y": 55.11
+          "x": -85.767,
+          "y": 36.143
         },
-        "rotation": 0.136731,
-        "scale": 1
+        "rotation": 0.140769,
+        "scale": 12
       }
     ]
   },

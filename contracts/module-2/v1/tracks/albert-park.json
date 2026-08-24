@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.3.0",
-  "catalogVersion": "2026.4",
+  "catalogVersion": "2026.5",
   "id": "albert-park",
   "name": "Albert Park Circuit",
   "countryCode": "AU",
@@ -14876,34 +14876,34 @@
     "preset": "park",
     "landmarks": [
       {
-        "id": "landmark-1",
-        "kind": "park-landmark",
+        "id": "albert-lake",
+        "kind": "lake",
         "position": {
-          "x": -470.195,
-          "y": 1029.081
+          "x": -598.061,
+          "y": 738.069
         },
-        "rotation": 1.605017,
-        "scale": 1
+        "rotation": 1.884234,
+        "scale": 22
       },
       {
-        "id": "landmark-2",
-        "kind": "park-landmark",
+        "id": "melbourne-skyline",
+        "kind": "city-skyline",
         "position": {
-          "x": 228.374,
-          "y": 700.507
+          "x": 160.925,
+          "y": 849.187
         },
-        "rotation": -1.758873,
-        "scale": 1
+        "rotation": -2.007925,
+        "scale": 16
       },
       {
-        "id": "landmark-3",
-        "kind": "park-landmark",
+        "id": "albert-park-trees",
+        "kind": "park-trees",
         "position": {
-          "x": 886.993,
-          "y": -269.751
+          "x": 861.949,
+          "y": -166.628
         },
-        "rotation": -1.302886,
-        "scale": 1
+        "rotation": -1.189611,
+        "scale": 6
       }
     ],
     "staticObjects": [
@@ -14915,17 +14915,17 @@
           "y": 25.337
         },
         "rotation": 2.353931,
-        "scale": 1
+        "scale": 15.4
       },
       {
         "id": "main-grandstand",
         "kind": "grandstand",
         "position": {
-          "x": -57.693,
-          "y": -6.411
+          "x": 34.85,
+          "y": -100.038
         },
-        "rotation": 2.353931,
-        "scale": 1
+        "rotation": 2.34714,
+        "scale": 12
       }
     ]
   },

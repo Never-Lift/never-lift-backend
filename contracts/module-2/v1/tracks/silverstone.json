@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.3.0",
-  "catalogVersion": "2026.4",
+  "catalogVersion": "2026.5",
   "id": "silverstone",
   "name": "Silverstone Circuit",
   "countryCode": "GB",
@@ -16701,34 +16701,34 @@
     "preset": "classic",
     "landmarks": [
       {
-        "id": "landmark-1",
-        "kind": "classic-landmark",
+        "id": "silverstone-wing",
+        "kind": "wing-building",
         "position": {
-          "x": 242.66,
-          "y": -1158.995
+          "x": 255.303,
+          "y": -93.095
         },
-        "rotation": -2.067079,
-        "scale": 1
+        "rotation": -1.23936,
+        "scale": 16
       },
       {
-        "id": "landmark-2",
-        "kind": "classic-landmark",
+        "id": "silverstone-hangar",
+        "kind": "aircraft-hangar",
         "position": {
-          "x": -607.037,
-          "y": -1184.357
+          "x": -341.728,
+          "y": -1609.152
         },
-        "rotation": 0.927976,
-        "scale": 1
+        "rotation": 2.033154,
+        "scale": 14
       },
       {
-        "id": "landmark-3",
-        "kind": "classic-landmark",
+        "id": "silverstone-infield",
+        "kind": "open-infield",
         "position": {
-          "x": 119.752,
-          "y": -550.459
+          "x": 326.903,
+          "y": -787.593
         },
-        "rotation": 2.400616,
-        "scale": 1
+        "rotation": 1.386127,
+        "scale": 30
       }
     ],
     "staticObjects": [
@@ -16740,17 +16740,17 @@
           "y": 5.059
         },
         "rotation": 0.08787,
-        "scale": 1
+        "scale": 16.5
       },
       {
         "id": "main-grandstand",
         "kind": "grandstand",
         "position": {
-          "x": 54.323,
-          "y": 49.885
+          "x": -152.207,
+          "y": 38.59
         },
-        "rotation": 0.08787,
-        "scale": 1
+        "rotation": 0.098195,
+        "scale": 13
       }
     ]
   },

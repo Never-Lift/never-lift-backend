@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.3.0",
-  "catalogVersion": "2026.4",
+  "catalogVersion": "2026.5",
   "id": "singapore",
   "name": "Marina Bay Street Circuit",
   "countryCode": "SG",
@@ -14007,34 +14007,34 @@
     "preset": "night-city",
     "landmarks": [
       {
-        "id": "landmark-1",
-        "kind": "night-city-landmark",
+        "id": "marina-bay-sands",
+        "kind": "triple-tower-hotel",
         "position": {
-          "x": -920.208,
-          "y": -173.596
+          "x": -423.04,
+          "y": -167.217
         },
-        "rotation": 2.420899,
-        "scale": 1
+        "rotation": 3.184965,
+        "scale": 18
       },
       {
-        "id": "landmark-2",
-        "kind": "night-city-landmark",
+        "id": "singapore-flyer",
+        "kind": "ferris-wheel",
         "position": {
-          "x": -1373.155,
-          "y": -146.578
+          "x": -1396.79,
+          "y": -384.081
         },
-        "rotation": 1.061453,
-        "scale": 1
+        "rotation": 2.433276,
+        "scale": 12
       },
       {
-        "id": "landmark-3",
-        "kind": "night-city-landmark",
+        "id": "marina-bay-waterfront",
+        "kind": "waterfront",
         "position": {
-          "x": -453.985,
-          "y": -1.598
+          "x": -460.424,
+          "y": -104.898
         },
-        "rotation": -0.062257,
-        "scale": 1
+        "rotation": 0.087743,
+        "scale": 24
       }
     ],
     "staticObjects": [
@@ -14046,17 +14046,17 @@
           "y": -69.595
         },
         "rotation": -1.439369,
-        "scale": 1
+        "scale": 14.3
       },
       {
         "id": "main-grandstand",
         "kind": "grandstand",
         "position": {
-          "x": 53.706,
-          "y": -63.698
+          "x": 25.515,
+          "y": 81.924
         },
-        "rotation": -1.439369,
-        "scale": 1
+        "rotation": -1.433313,
+        "scale": 11
       }
     ]
   },

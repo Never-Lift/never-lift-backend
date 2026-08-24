@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.3.0",
-  "catalogVersion": "2026.4",
+  "catalogVersion": "2026.5",
   "id": "shanghai",
   "name": "Shanghai International Circuit",
   "countryCode": "CN",
@@ -15380,34 +15380,34 @@
     "preset": "classic",
     "landmarks": [
       {
-        "id": "landmark-1",
-        "kind": "classic-landmark",
+        "id": "lotus-grandstand",
+        "kind": "lotus-grandstand",
         "position": {
-          "x": -155.041,
-          "y": 491.013
+          "x": -262.543,
+          "y": 34.83
         },
-        "rotation": -1.051709,
-        "scale": 1
+        "rotation": 1.882207,
+        "scale": 14
       },
       {
-        "id": "landmark-2",
-        "kind": "classic-landmark",
+        "id": "shanghai-circuit-tower",
+        "kind": "circuit-tower",
         "position": {
-          "x": 160.985,
-          "y": 813.282
+          "x": 220.555,
+          "y": 421.888
         },
-        "rotation": 3.119879,
-        "scale": 1
+        "rotation": -1.227624,
+        "scale": 9
       },
       {
-        "id": "landmark-3",
-        "kind": "classic-landmark",
+        "id": "shanghai-lake",
+        "kind": "lake",
         "position": {
-          "x": 777.411,
-          "y": 156.645
+          "x": 596.58,
+          "y": 494.508
         },
-        "rotation": -0.985271,
-        "scale": 1
+        "rotation": -0.885905,
+        "scale": 20
       }
     ],
     "staticObjects": [
@@ -15419,17 +15419,17 @@
           "y": -6.733
         },
         "rotation": -2.902949,
-        "scale": 1
+        "scale": 15.4
       },
       {
         "id": "main-grandstand",
         "kind": "grandstand",
         "position": {
-          "x": -15.947,
-          "y": -50.458
+          "x": 143.789,
+          "y": -16.242
         },
-        "rotation": -2.902949,
-        "scale": 1
+        "rotation": -2.907683,
+        "scale": 13
       }
     ]
   },

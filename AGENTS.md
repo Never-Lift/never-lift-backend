@@ -21,7 +21,7 @@ Detalhe completo de cada payload: `docs/backend-implementation-plan.md`, seção
 - `docs/backend-implementation-plan.md` — plano deste repositório, módulo a módulo.
 - `docs/frontend-implementation-plan.md` — plano do repositório frontend, incluído aqui só como referência de quem consome esta API/WebSocket. Não implementar nada daqui.
 - `docs/game-design-guide.md` — fonte compartilhada das decisões de jogo e apresentação. O backend implementa somente unidades, metadados e contratos explicitamente atribuídos a ele.
-- `docs/contracts/module-2-shared-contracts.md` e `contracts/module-2/v1/` — contratos versionados, catálogo `2026.4`, geometrias canônicas e constantes compartilhadas que o Módulo 2 deve transformar em API e persistência.
+- `docs/contracts/module-2-shared-contracts.md` e `contracts/module-2/v1/` — contratos versionados, catálogo `2026.5`, geometrias canônicas e constantes compartilhadas que o Módulo 2 deve transformar em API e persistência.
 
 ## Stack e convenções deste repositório
 - Java 21, Spring Boot 3.x (Web, WebSocket, Data JPA, Security, Validation).
@@ -60,7 +60,7 @@ Antes de começar um módulo, confira se as dependências dele já estão marcad
 |---|---|
 | 0 — Fundação e deploy | pronto |
 | 1 — Usuários e autenticação | pronto |
-| 2 — Suporte a corrida local | código pronto — catálogo `2026.4`/schema de pista `1.3.0` com curvas suavizadas, zebras, superfícies e proteções; testes e atlas aprovados, revalidação manual integrada no frontend pendente |
+| 2 — Suporte a corrida local | catálogo `2026.4`/schema de pista `1.3.0` validado manualmente em 24/08/2026; catálogo `2026.5` da issue #70 pronto em código, gerador e 31 testes, aguardando validação manual final integrada após o deploy |
 | 3 — Motor autoritativo online | não iniciado |
 | 4 — Ambiente e modo caos | não iniciado |
 | 5 — Corrida completa (dano/nitro/pits) | não iniciado |

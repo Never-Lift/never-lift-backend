@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.3.0",
-  "catalogVersion": "2026.4",
+  "catalogVersion": "2026.5",
   "id": "austin",
   "name": "Circuit of the Americas",
   "countryCode": "US",
@@ -15762,34 +15762,34 @@
     "preset": "classic",
     "landmarks": [
       {
-        "id": "landmark-1",
-        "kind": "classic-landmark",
+        "id": "cota-observation-tower",
+        "kind": "observation-tower",
         "position": {
-          "x": 834.754,
-          "y": 491.352
+          "x": 631.074,
+          "y": 345.416
         },
-        "rotation": 0.657131,
-        "scale": 1
+        "rotation": 1.478503,
+        "scale": 12
       },
       {
-        "id": "landmark-2",
-        "kind": "classic-landmark",
+        "id": "cota-amphitheater",
+        "kind": "amphitheater",
         "position": {
-          "x": 931.08,
-          "y": 679.585
+          "x": 991.963,
+          "y": 661.39
         },
-        "rotation": -2.93694,
-        "scale": 1
+        "rotation": -3.075093,
+        "scale": 16
       },
       {
-        "id": "landmark-3",
-        "kind": "classic-landmark",
+        "id": "texas-hills",
+        "kind": "dry-hills",
         "position": {
-          "x": 311.412,
-          "y": 336.581
+          "x": 195.933,
+          "y": 308.328
         },
-        "rotation": -1.5605,
-        "scale": 1
+        "rotation": -2.570943,
+        "scale": 24
       }
     ],
     "staticObjects": [
@@ -15801,17 +15801,17 @@
           "y": -41.886
         },
         "rotation": -0.670008,
-        "scale": 1
+        "scale": 16.5
       },
       {
         "id": "main-grandstand",
         "kind": "grandstand",
         "position": {
-          "x": 80.433,
-          "y": -6.614
+          "x": -25.183,
+          "y": 82.435
         },
-        "rotation": -0.670008,
-        "scale": 1
+        "rotation": -0.665306,
+        "scale": 12
       }
     ]
   },
