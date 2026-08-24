@@ -18,8 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class TrackCatalogImporter implements ApplicationRunner {
 
-    public static final String SCHEMA_VERSION = "1.2.0";
-    public static final String CATALOG_VERSION = "2026.3";
+    public static final String SCHEMA_VERSION = "1.3.0";
+    public static final String CATALOG_VERSION = "2026.4";
     public static final int SEASON_REFERENCE = 2026;
     public static final String CALENDAR_POLICY = "original-24-round-freeze";
 
@@ -28,6 +28,10 @@ public class TrackCatalogImporter implements ApplicationRunner {
     private static final Set<String> BARRIER_TYPES = Set.of(
             "concrete-wall", "guardrail", "tecpro", "tyre-barrier");
     private static final String FENCE_TYPE = "debris-fence";
+    private static final Set<String> CURB_SIDES = Set.of("left", "right");
+    private static final Set<String> CURB_PALETTES = Set.of(
+            "red-white", "orange-white", "red-white-blue", "green-white-red",
+            "red-yellow", "green-yellow", "maroon-white", "blue-white");
 
     private final ObjectMapper objectMapper;
     private final TrackRepository trackRepository;
@@ -125,6 +129,8 @@ public class TrackCatalogImporter implements ApplicationRunner {
         JsonNode first = centerline.get(0);
         JsonNode last = centerline.get(centerline.size() - 1);
         Set<Integer> elevationLayers = new HashSet<>();
+        JsonNode previousPoint = null;
+        JsonNode pointBeforePrevious = null;
         for (JsonNode point : centerline) {
             double halfWidthMeters = point.path("halfWidthMeters").asDouble(-1);
             JsonNode elevationLayer = point.get("elevationLayer");
@@ -136,6 +142,30 @@ public class TrackCatalogImporter implements ApplicationRunner {
                 throw invalid("centerline width or elevation layer for " + entry.id());
             }
             elevationLayers.add(elevationLayer.asInt());
+            if (previousPoint != null) {
+                double segmentLength = Math.hypot(
+                        point.path("x").asDouble() - previousPoint.path("x").asDouble(),
+                        point.path("y").asDouble() - previousPoint.path("y").asDouble());
+                if (segmentLength > 5.02) {
+                    throw invalid("centerline sampling gap for " + entry.id());
+                }
+            }
+            if (pointBeforePrevious != null) {
+                double previousHeading = Math.atan2(
+                        previousPoint.path("y").asDouble() - pointBeforePrevious.path("y").asDouble(),
+                        previousPoint.path("x").asDouble() - pointBeforePrevious.path("x").asDouble());
+                double currentHeading = Math.atan2(
+                        point.path("y").asDouble() - previousPoint.path("y").asDouble(),
+                        point.path("x").asDouble() - previousPoint.path("x").asDouble());
+                double headingDelta = Math.atan2(
+                        Math.sin(currentHeading - previousHeading),
+                        Math.cos(currentHeading - previousHeading));
+                if (Math.abs(headingDelta) > Math.PI / 3.6) {
+                    throw invalid("visibly angular centerline for " + entry.id());
+                }
+            }
+            pointBeforePrevious = previousPoint;
+            previousPoint = point;
         }
         if (Double.compare(first.path("x").asDouble(), last.path("x").asDouble()) != 0
                 || Double.compare(first.path("y").asDouble(), last.path("y").asDouble()) != 0) {
@@ -170,7 +200,33 @@ public class TrackCatalogImporter implements ApplicationRunner {
             throw invalid("required geometry for " + entry.id());
         }
 
+        validateCurbs(entry, definition.path("curbs"));
         validateTrackLimits(entry, definition.path("trackLimits"));
+    }
+
+    private void validateCurbs(CatalogEntry entry, JsonNode curbs) {
+        if (!curbs.isArray() || curbs.isEmpty()) {
+            throw invalid("curbs for " + entry.id());
+        }
+        for (int index = 0; index < curbs.size(); index++) {
+            JsonNode curb = curbs.get(index);
+            double from = curb.path("fromDistanceMeters").asDouble(-1);
+            double to = curb.path("toDistanceMeters").asDouble(-1);
+            double width = curb.path("widthMeters").asDouble(-1);
+            double stripeLength = curb.path("stripeLengthMeters").asDouble(-1);
+            if (curb.path("index").asInt(-1) != index
+                    || from < 0
+                    || to <= from
+                    || to > entry.lengthMeters()
+                    || !CURB_SIDES.contains(curb.path("side").asText())
+                    || width < 0.3
+                    || width > 2.5
+                    || stripeLength < 0.5
+                    || stripeLength > 8
+                    || !CURB_PALETTES.contains(curb.path("palette").asText())) {
+                throw invalid("curb segment for " + entry.id());
+            }
+        }
     }
 
     private void validateTrackLimits(CatalogEntry entry, JsonNode trackLimits) {
