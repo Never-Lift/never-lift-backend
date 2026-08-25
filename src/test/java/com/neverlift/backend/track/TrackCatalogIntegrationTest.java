@@ -38,8 +38,9 @@ class TrackCatalogIntegrationTest {
     void shouldExposeTheCanonicalPublicCatalogInRoundOrder() throws Exception {
         mockMvc.perform(get("/api/tracks"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.schemaVersion").value("1.3.0"))
-                .andExpect(jsonPath("$.catalogVersion").value("2026.5"))
+                .andExpect(jsonPath("$.schemaVersion").value("2.0.0"))
+                .andExpect(jsonPath("$.catalogVersion").value("2026.6"))
+                .andExpect(jsonPath("$.physicsContractVersion").value("2.0.0"))
                 .andExpect(jsonPath("$.seasonReference").value(2026))
                 .andExpect(jsonPath("$.calendarPolicy").value("original-24-round-freeze"))
                 .andExpect(jsonPath("$.tracks.length()").value(24))
@@ -61,8 +62,9 @@ class TrackCatalogIntegrationTest {
         Set<String> scenerySignatures = new HashSet<>();
         for (Track track : trackRepository.findAll()) {
             JsonNode definition = objectMapper.readTree(track.getDefinitionJson());
-            assertThat(definition.path("schemaVersion").asText()).isEqualTo("1.3.0");
-            assertThat(definition.path("catalogVersion").asText()).isEqualTo("2026.5");
+            assertThat(definition.path("schemaVersion").asText()).isEqualTo("2.0.0");
+            assertThat(definition.path("catalogVersion").asText()).isEqualTo("2026.6");
+            assertThat(definition.path("physicsContractVersion").asText()).isEqualTo("2.0.0");
             assertThat(definition.path("id").asText()).isEqualTo(track.getId());
             assertThat(definition.path("lengthMeters").asInt()).isEqualTo(track.getLengthMeters());
 
@@ -184,6 +186,42 @@ class TrackCatalogIntegrationTest {
         assertPartialFenceCoverage("jeddah");
         assertPartialFenceCoverage("baku");
         assertPartialFenceCoverage("lusail");
+    }
+
+    @Test
+    void shouldExposeCanonicalBarrierFacesWithoutCrossingElevationLayers() throws Exception {
+        boolean foundOverpassBarrierLayer = false;
+        for (Track track : trackRepository.findAll()) {
+            JsonNode definition = objectMapper.readTree(track.getDefinitionJson());
+            JsonNode trackLimits = definition.path("trackLimits").path("segments");
+            JsonNode barriers = definition.path("barrierGeometry").path("segments");
+            assertThat(barriers.size()).isGreaterThanOrEqualTo(trackLimits.size() * 2);
+
+            Set<String> coveredSides = new HashSet<>();
+            for (int index = 0; index < barriers.size(); index++) {
+                JsonNode barrier = barriers.get(index);
+                assertThat(barrier.path("index").asInt()).isEqualTo(index);
+                assertThat(barrier.path("collisionLayer").asText()).isEqualTo("track-barrier");
+                assertThat(barrier.path("thicknessMeters").asDouble()).isPositive();
+                assertThat(barrier.path("chunkIndexes").size()).isPositive();
+                assertThat(barrier.path("path").size()).isGreaterThanOrEqualTo(2);
+                int layer = barrier.path("path").get(0).path("elevationLayer").asInt();
+                for (JsonNode point : barrier.path("path")) {
+                    assertThat(point.path("elevationLayer").asInt()).isEqualTo(layer);
+                }
+                foundOverpassBarrierLayer |= "suzuka".equals(track.getId()) && layer == 1;
+                coveredSides.add(
+                        barrier.path("trackLimitSegmentIndex").asInt()
+                                + ":"
+                                + barrier.path("side").asText());
+            }
+            for (int index = 0; index < trackLimits.size(); index++) {
+                assertThat(coveredSides).contains(index + ":left", index + ":right");
+            }
+        }
+        assertThat(foundOverpassBarrierLayer)
+                .as("Suzuka barriers should preserve the overpass elevation layer")
+                .isTrue();
     }
 
     @Test

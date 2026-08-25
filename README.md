@@ -1,6 +1,6 @@
 # Never Lift
 
-API REST e futuro motor de corrida autoritativo do Never Lift, construídos com Java 21 e Spring Boot.
+API REST e futuro motor de corrida autoritativo do Never Lift, construídos com Java 21 e Spring Boot. A direção aprovada usa um único monoposto e uma simulação acessível inspirada na F1 de 2026; boost/nitro não faz parte do produto.
 
 Este é um jogo novo. O protótipo anterior serve somente como referência de sensação e comportamento; ele não é uma base de código para conversão.
 
@@ -120,6 +120,8 @@ Resultados de corridas simuladas localmente pelo frontend são enviados para `PO
 
 O backend valida pista, versão, modo, posições e tempos antes de persistir tudo atomicamente. Para um JWT de usuário, exatamente um item deve usar o `subject` autenticado; nenhum outro UUID é aceito. Resultados de guest e bot usam `null`. A consulta pública do histórico permanece reservada ao Módulo 8.
 
+Esse payload descreve o runtime histórico `1.3.0`. A Parte 2d aprovada adicionará `physicsContractVersion`, schema de pista `2.0.0` e catálogo `2026.6` junto da ativação atômica do novo motor; resultados de versões físicas incompatíveis não serão comparados diretamente. A especificação pré-implementação está em [`docs/contracts/module-2-physics-v2-proposal.md`](docs/contracts/module-2-physics-v2-proposal.md).
+
 ## Testes
 
 ```bash
@@ -144,11 +146,11 @@ Depois dessa configuração, cada atualização da `main` dispara um deploy. Qua
 
 ## Documentação
 
-Os Módulos 0–9 formam o MVP planejado. A expansão pós-MVP aprovada está registrada nos Módulos 10–16: progressão e carros por conquista, contrarrelógio com fantasmas, controles personalizáveis (frontend-only), espectadores, equipes, torneios automáticos e conduta esportiva.
+Os Módulos 0–9 formam o MVP planejado. A expansão pós-MVP aprovada está registrada nos Módulos 10–16: progressão e cosméticos por conquista, contrarrelógio com fantasmas, controles personalizáveis (frontend-only), espectadores, equipes, torneios automáticos e conduta esportiva.
 
 A direção de jogo e apresentação aprovada está em [`docs/game-design-guide.md`](docs/game-design-guide.md). Para o backend, ela é normativa somente onde define contratos compartilhados: unidade métrica, catálogo de pistas, vetor de velocidade, metadados e campos de entidades. Decisões exclusivamente visuais permanecem responsabilidade do frontend e entram apenas em seus módulos correspondentes.
 
-Os contratos implementados pelo Módulo 2 estão em [`docs/contracts/module-2-shared-contracts.md`](docs/contracts/module-2-shared-contracts.md) e [`contracts/module-2/v1/`](contracts/module-2/v1/). O catálogo `2026.5` contém 24 definições métricas reproduzíveis, com curvas suavizadas, zebras, ambientes laterais auditados, landmarks específicos e referências por circuito; rode `node tools/track-catalog/generate.mjs --check` para conferir os arquivos e `node tools/track-catalog/render-atlas.mjs` para gerar o atlas visual em `target/`.
+Os contratos implementados pelo Módulo 2 estão em [`docs/contracts/module-2-shared-contracts.md`](docs/contracts/module-2-shared-contracts.md) e [`contracts/module-2/v1/`](contracts/module-2/v1/). A [proposta aprovada da física v2](docs/contracts/module-2-physics-v2-proposal.md) registra a Parte 2d sem alterar o runtime atual. O catálogo `2026.5` contém 24 definições métricas reproduzíveis, com curvas suavizadas, zebras, ambientes laterais auditados, landmarks específicos e referências por circuito; rode `node tools/track-catalog/generate.mjs --check` para conferir os arquivos e `node tools/track-catalog/render-atlas.mjs` para gerar o atlas visual em `target/`.
 
 - [`docs/backend-implementation-plan.md`](docs/backend-implementation-plan.md) — arquitetura, protocolo e módulos do backend.
 - [`docs/frontend-implementation-plan.md`](docs/frontend-implementation-plan.md) — referência do consumidor da API e do WebSocket.

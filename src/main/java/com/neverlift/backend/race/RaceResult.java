@@ -26,6 +26,9 @@ public class RaceResult {
     @Column(name = "track_catalog_version", nullable = false, length = 30)
     private String trackCatalogVersion;
 
+    @Column(name = "physics_contract_version", nullable = false, length = 30)
+    private String physicsContractVersion;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private RaceMode mode;
@@ -52,6 +55,7 @@ public class RaceResult {
             UUID userId,
             String trackId,
             String trackCatalogVersion,
+            String physicsContractVersion,
             RaceMode mode,
             int position,
             long totalTimeMs,
@@ -61,6 +65,7 @@ public class RaceResult {
         this.userId = userId;
         this.trackId = trackId;
         this.trackCatalogVersion = trackCatalogVersion;
+        this.physicsContractVersion = physicsContractVersion;
         this.mode = mode;
         this.position = position;
         this.totalTimeMs = totalTimeMs;
@@ -83,6 +88,10 @@ public class RaceResult {
 
     public String getTrackCatalogVersion() {
         return trackCatalogVersion;
+    }
+
+    public String getPhysicsContractVersion() {
+        return physicsContractVersion;
     }
 
     public RaceMode getMode() {
