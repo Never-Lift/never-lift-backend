@@ -16,6 +16,7 @@ import com.neverlift.backend.race.dto.LocalRaceResultRequest;
 import com.neverlift.backend.race.dto.LocalRaceResultResponse;
 import com.neverlift.backend.security.UserRole;
 import com.neverlift.backend.track.Track;
+import com.neverlift.backend.track.TrackCatalogImporter;
 import com.neverlift.backend.track.TrackRepository;
 import com.neverlift.backend.user.UserRepository;
 
@@ -48,6 +49,12 @@ public class LocalRaceResultService {
                     "catalog_version_mismatch",
                     "Track catalog version does not match the active catalog");
         }
+        if (!TrackCatalogImporter.PHYSICS_CONTRACT_VERSION.equals(request.physicsContractVersion())) {
+            throw new ApiException(
+                    HttpStatus.CONFLICT,
+                    "physics_contract_version_mismatch",
+                    "Physics contract version does not match the active contract");
+        }
 
         validateRaceEntries(request.results());
         UUID authenticatedUserId = validateIdentity(jwt, request.results());
@@ -58,6 +65,7 @@ public class LocalRaceResultService {
                         entry.userIdOrNull() == null ? null : authenticatedUserId,
                         track.getId(),
                         track.getCatalogVersion(),
+                        TrackCatalogImporter.PHYSICS_CONTRACT_VERSION,
                         mode,
                         entry.position(),
                         entry.totalTimeMs(),

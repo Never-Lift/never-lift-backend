@@ -3,8 +3,12 @@ package com.neverlift.backend.track;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -18,13 +22,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class TrackCatalogImporter implements ApplicationRunner {
 
-    public static final String SCHEMA_VERSION = "1.3.0";
-    public static final String CATALOG_VERSION = "2026.5";
+    public static final String SCHEMA_VERSION = "2.0.0";
+    public static final String CATALOG_VERSION = "2026.6";
+    public static final String PHYSICS_CONTRACT_VERSION = "2.0.0";
     public static final int SEASON_REFERENCE = 2026;
     public static final String CALENDAR_POLICY = "original-24-round-freeze";
 
     private static final int TRACK_COUNT = 24;
-    private static final String CONTRACT_ROOT = "contracts/module-2/v1/";
+    private static final String CONTRACT_ROOT = "contracts/module-2/v2/";
     private static final Set<String> BARRIER_TYPES = Set.of(
             "concrete-wall", "guardrail", "tecpro", "tyre-barrier");
     private static final String FENCE_TYPE = "debris-fence";
@@ -90,6 +95,10 @@ public class TrackCatalogImporter implements ApplicationRunner {
     private void validateCatalog(CatalogDocument catalog) {
         requireEqual(SCHEMA_VERSION, catalog.schemaVersion(), "catalog schemaVersion");
         requireEqual(CATALOG_VERSION, catalog.catalogVersion(), "catalog catalogVersion");
+        requireEqual(
+                PHYSICS_CONTRACT_VERSION,
+                catalog.physicsContractVersion(),
+                "catalog physicsContractVersion");
         if (catalog.seasonReference() != SEASON_REFERENCE) {
             throw invalid("catalog seasonReference");
         }
@@ -114,6 +123,10 @@ public class TrackCatalogImporter implements ApplicationRunner {
     private void validateDefinition(CatalogDocument catalog, CatalogEntry entry, JsonNode definition) {
         requireEqual(catalog.schemaVersion(), text(definition, "schemaVersion"), "definition schemaVersion");
         requireEqual(catalog.catalogVersion(), text(definition, "catalogVersion"), "definition catalogVersion");
+        requireEqual(
+                catalog.physicsContractVersion(),
+                text(definition, "physicsContractVersion"),
+                "definition physicsContractVersion");
         requireEqual(entry.id(), text(definition, "id"), "definition id");
         requireEqual(entry.name(), text(definition, "name"), "definition name");
         requireEqual(entry.countryCode(), text(definition, "countryCode"), "definition countryCode");
@@ -202,6 +215,104 @@ public class TrackCatalogImporter implements ApplicationRunner {
 
         validateCurbs(entry, definition.path("curbs"));
         validateTrackLimits(entry, definition.path("trackLimits"));
+        validateBarrierGeometry(entry, definition.path("trackLimits"), definition.path("chunks"),
+                definition.path("barrierGeometry"));
+    }
+
+    private void validateBarrierGeometry(
+            CatalogEntry entry,
+            JsonNode trackLimits,
+            JsonNode chunks,
+            JsonNode barrierGeometry) {
+        JsonNode limitSegments = trackLimits.path("segments");
+        JsonNode barriers = barrierGeometry.path("segments");
+        if (!barrierGeometry.isObject()
+                || !barriers.isArray()
+                || barriers.size() < limitSegments.size() * 2) {
+            throw invalid("barrier geometry for " + entry.id());
+        }
+
+        Map<String, List<BarrierCoverage>> coverageBySide = new HashMap<>();
+        for (int index = 0; index < barriers.size(); index++) {
+            JsonNode barrier = barriers.get(index);
+            int trackLimitIndex = barrier.path("trackLimitSegmentIndex").asInt(-1);
+            String sideName = barrier.path("side").asText();
+            double from = barrier.path("fromDistanceMeters").asDouble(-1);
+            double to = barrier.path("toDistanceMeters").asDouble(-1);
+            JsonNode path = barrier.path("path");
+            JsonNode chunkIndexes = barrier.path("chunkIndexes");
+            if (barrier.path("index").asInt(-1) != index
+                    || trackLimitIndex < 0
+                    || trackLimitIndex >= limitSegments.size()
+                    || !Set.of("left", "right").contains(sideName)
+                    || from < 0
+                    || to <= from
+                    || !BARRIER_TYPES.contains(barrier.path("material").asText())
+                    || barrier.path("thicknessMeters").asDouble(-1) <= 0
+                    || !"track-barrier".equals(barrier.path("collisionLayer").asText())
+                    || !chunkIndexes.isArray()
+                    || chunkIndexes.isEmpty()
+                    || !path.isArray()
+                    || path.size() < 2) {
+                throw invalid("barrier segment for " + entry.id());
+            }
+
+            JsonNode limitSegment = limitSegments.get(trackLimitIndex);
+            if (!barrier.path("material").asText()
+                    .equals(limitSegment.path(sideName).path("barrier").asText())
+                    || from < limitSegment.path("fromDistanceMeters").asDouble() - 0.001
+                    || to > limitSegment.path("toDistanceMeters").asDouble() + 0.001) {
+                throw invalid("barrier source segment for " + entry.id());
+            }
+            for (JsonNode chunkIndex : chunkIndexes) {
+                if (!chunkIndex.isIntegralNumber()
+                        || chunkIndex.asInt() < 0
+                        || chunkIndex.asInt() >= chunks.size()) {
+                    throw invalid("barrier chunk for " + entry.id());
+                }
+            }
+
+            int elevationLayer = path.get(0).path("elevationLayer").asInt(-1);
+            double previousDistance = -1;
+            for (JsonNode point : path) {
+                double distanceMeters = point.path("distanceMeters").asDouble(-1);
+                if (!point.path("x").isNumber()
+                        || !point.path("y").isNumber()
+                        || distanceMeters <= previousDistance
+                        || point.path("elevationLayer").asInt(-1) != elevationLayer) {
+                    throw invalid("barrier path for " + entry.id());
+                }
+                previousDistance = distanceMeters;
+            }
+            if (Math.abs(path.get(0).path("distanceMeters").asDouble() - from) > 0.001
+                    || Math.abs(path.get(path.size() - 1).path("distanceMeters").asDouble() - to) > 0.001) {
+                throw invalid("barrier path range for " + entry.id());
+            }
+            coverageBySide
+                    .computeIfAbsent(trackLimitIndex + ":" + sideName, ignored -> new ArrayList<>())
+                    .add(new BarrierCoverage(from, to));
+        }
+
+        for (int index = 0; index < limitSegments.size(); index++) {
+            JsonNode limitSegment = limitSegments.get(index);
+            for (String sideName : Set.of("left", "right")) {
+                List<BarrierCoverage> coverage = coverageBySide.get(index + ":" + sideName);
+                if (coverage == null || coverage.isEmpty()) {
+                    throw invalid("barrier side coverage for " + entry.id());
+                }
+                coverage.sort(Comparator.comparingDouble(BarrierCoverage::from));
+                double expectedFrom = limitSegment.path("fromDistanceMeters").asDouble();
+                for (BarrierCoverage part : coverage) {
+                    if (Math.abs(part.from() - expectedFrom) > 0.001) {
+                        throw invalid("barrier side gap or overlap for " + entry.id());
+                    }
+                    expectedFrom = part.to();
+                }
+                if (Math.abs(expectedFrom - limitSegment.path("toDistanceMeters").asDouble()) > 0.001) {
+                    throw invalid("barrier side coverage end for " + entry.id());
+                }
+            }
+        }
     }
 
     private void validateCurbs(CatalogEntry entry, JsonNode curbs) {
@@ -314,6 +425,7 @@ public class TrackCatalogImporter implements ApplicationRunner {
     private record CatalogDocument(
             String schemaVersion,
             String catalogVersion,
+            String physicsContractVersion,
             int seasonReference,
             String calendarPolicy,
             List<CatalogEntry> tracks) {
@@ -328,5 +440,8 @@ public class TrackCatalogImporter implements ApplicationRunner {
             String locality,
             int lengthMeters,
             String definitionPath) {
+    }
+
+    private record BarrierCoverage(double from, double to) {
     }
 }

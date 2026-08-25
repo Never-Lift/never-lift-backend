@@ -11,6 +11,7 @@ import jakarta.validation.constraints.Size;
 public record LocalRaceResultRequest(
         @NotBlank String trackId,
         @NotBlank String trackCatalogVersion,
+        @NotBlank String physicsContractVersion,
         @NotBlank @Pattern(regexp = "solo|local") String mode,
         @NotEmpty @Size(max = 4) List<@Valid LocalRaceEntryRequest> results) {
 }
