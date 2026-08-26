@@ -60,6 +60,335 @@ function isConvex(vertices) {
   return sign !== 0
 }
 
+function validateRaceConstants(constants) {
+  const expected = {
+    jumpStartThrottleThreshold: 0.05,
+    jumpStartLockSeconds: 5,
+    gridGapMeters: 8,
+    checkpointGateMarginMeters: 2,
+    pitSpeedLimitMetersPerSecond: 22.2222222222,
+    pitLaneHalfWidthMeters: 3,
+    minimumRaceDurationSeconds: 180,
+    raceDurationReferenceSpeedMetersPerSecond: 12,
+    progressProjectionMarginMeters: 30,
+    startLightCount: 5,
+    startLightStageSeconds: 1,
+    lightsOutDelaySeconds: 1,
+    localProjectionWindowMeters: 40,
+    localProjectionRecoveryMarginMeters: 24,
+    projectionDistanceToleranceMeters: 0.5,
+    barrierBroadphaseCellMeters: 64,
+  }
+  const race = constants.race
+  invariant(Boolean(race), 'race constants')
+  invariant(
+    JSON.stringify(Object.keys(race).sort()) ===
+      JSON.stringify(Object.keys(expected).sort()),
+    'race constants exact keys',
+  )
+
+  for (const [key, expectedValue] of Object.entries(expected)) {
+    invariant(Number.isFinite(race[key]), `race ${key} must be finite`)
+    invariant(race[key] === expectedValue, `race ${key}`)
+  }
+  invariant(
+    race.jumpStartThrottleThreshold >= 0 &&
+      race.jumpStartThrottleThreshold <= 1,
+    'jump-start throttle threshold range',
+  )
+  invariant(Number.isInteger(race.startLightCount), 'start light count integer')
+  invariant(race.startLightCount > 0, 'start light count positive')
+  invariant(race.startLightStageSeconds > 0, 'start light stage duration')
+  invariant(race.lightsOutDelaySeconds >= 0, 'lights-out delay')
+  invariant(race.pitLaneHalfWidthMeters > 0, 'pit-lane half width')
+  invariant(race.minimumRaceDurationSeconds > 0, 'minimum race duration')
+  invariant(
+    race.raceDurationReferenceSpeedMetersPerSecond > 0,
+    'race-duration reference speed',
+  )
+  invariant(
+    race.localProjectionRecoveryMarginMeters <=
+      race.localProjectionWindowMeters,
+    'projection recovery margin must fit in the local window',
+  )
+  invariant(
+    race.projectionDistanceToleranceMeters > 0 &&
+      race.projectionDistanceToleranceMeters <
+        race.localProjectionRecoveryMarginMeters,
+    'projection tolerance range',
+  )
+  invariant(
+    race.barrierBroadphaseCellMeters > race.localProjectionWindowMeters,
+    'barrier broadphase cell must cover the local projection window',
+  )
+}
+
+function validateBotPlanner(constants) {
+  const plannerRanges = {
+    steeringLookAheadBaseMeters: [0, 250],
+    steeringLookAheadSpeedSeconds: [0, 10],
+    steeringLookAheadReactionReferenceSeconds: [0, 10],
+    steeringLookAheadReactionGainMetersPerSecond: [0, 250],
+    steeringNoiseFrequencyRadiansPerSecond: [0, 20],
+    brakingLookAheadBaseMeters: [0, 250],
+    brakingLookAheadSpeedSeconds: [0, 10],
+    brakingLookAheadRecoveryGainSeconds: [0, 10],
+    brakingPreviewSampleCount: [1, 32],
+    racingLineSpeedFactorExponent: [Number.MIN_VALUE, 4],
+    terminalSpeedTargetMultiplier: [0, 1],
+    brakeHeadingErrorThresholdRadians: [Number.MIN_VALUE, Math.PI],
+    maximumBrakeBase: [0, 1],
+    maximumBrakeRecoveryGain: [0, 1],
+    brakingRecoveryThrottle: [0, 1],
+    brakingTrackThrottle: [0, 1],
+    recoveryThrottleMultiplier: [0, 1],
+    trackThrottleMultiplier: [0, 1],
+    brakeDemandBase: [0, 1],
+    brakeDemandSpeedScaleMetersPerSecond: [Number.MIN_VALUE, 200],
+    steeringFullScaleHeadingErrorRadians: [Number.MIN_VALUE, Math.PI],
+  }
+  const planner = constants.bots?.planner
+  invariant(Boolean(planner), 'bot planner constants')
+  invariant(
+    JSON.stringify(Object.keys(planner).sort()) ===
+      JSON.stringify(Object.keys(plannerRanges).sort()),
+    'bot planner exact keys',
+  )
+
+  for (const [key, [minimum, maximum]] of Object.entries(plannerRanges)) {
+    const value = planner[key]
+    invariant(Number.isFinite(value), `bot planner ${key} must be finite`)
+    invariant(
+      value >= minimum && value <= maximum,
+      `bot planner ${key} range`,
+    )
+  }
+  invariant(
+    Number.isInteger(planner.brakingPreviewSampleCount),
+    'bot planner braking preview sample count must be an integer',
+  )
+  invariant(
+    planner.maximumBrakeBase + planner.maximumBrakeRecoveryGain <= 1,
+    'bot planner maximum brake composition',
+  )
+
+  const difficultyRanges = {
+    paceMultiplier: [Number.MIN_VALUE, 1],
+    brakingSafetyMultiplier: [1, Number.POSITIVE_INFINITY],
+    steeringNoise: [0, Number.POSITIVE_INFINITY],
+    steeringLookAheadPenaltySeconds: [0, Number.POSITIVE_INFINITY],
+    recoveryMultiplier: [Number.MIN_VALUE, 1],
+  }
+  for (const difficulty of ['easy', 'normal', 'hard']) {
+    const settings = constants.bots[difficulty]
+    invariant(Boolean(settings), `bot difficulty ${difficulty}`)
+    invariant(
+      JSON.stringify(Object.keys(settings).sort()) ===
+        JSON.stringify(Object.keys(difficultyRanges).sort()),
+      `bot difficulty ${difficulty} exact keys`,
+    )
+    invariant(
+      !Object.hasOwn(settings, 'consistency'),
+      `bot difficulty ${difficulty} must not define consistency`,
+    )
+    invariant(
+      !Object.hasOwn(settings, 'reactionDelaySeconds'),
+      `bot difficulty ${difficulty} must not define reactionDelaySeconds`,
+    )
+    for (const [key, [minimum, maximum]] of Object.entries(difficultyRanges)) {
+      const value = settings[key]
+      invariant(Number.isFinite(value), `bot ${difficulty} ${key} must be finite`)
+      invariant(
+        value >= minimum && value <= maximum,
+        `bot ${difficulty} ${key} range`,
+      )
+    }
+  }
+
+  const easy = constants.bots.easy
+  const normal = constants.bots.normal
+  const hard = constants.bots.hard
+  invariant(easy.paceMultiplier < normal.paceMultiplier, 'easy bot pace ordering')
+  invariant(normal.paceMultiplier < hard.paceMultiplier, 'hard bot pace ordering')
+  invariant(
+    easy.brakingSafetyMultiplier > normal.brakingSafetyMultiplier &&
+      normal.brakingSafetyMultiplier > hard.brakingSafetyMultiplier,
+    'bot braking safety ordering',
+  )
+  invariant(
+    easy.steeringNoise > normal.steeringNoise &&
+      normal.steeringNoise > hard.steeringNoise,
+    'bot steering noise ordering',
+  )
+  invariant(
+    easy.steeringLookAheadPenaltySeconds >
+      normal.steeringLookAheadPenaltySeconds &&
+      normal.steeringLookAheadPenaltySeconds >
+        hard.steeringLookAheadPenaltySeconds,
+    'bot steering look-ahead penalty ordering',
+  )
+  invariant(
+    easy.recoveryMultiplier < normal.recoveryMultiplier &&
+      normal.recoveryMultiplier < hard.recoveryMultiplier,
+    'bot recovery ordering',
+  )
+}
+
+function normalize(vector) {
+  const magnitude = Math.hypot(vector.x, vector.y)
+  return magnitude <= 1e-9
+    ? { x: 1, y: 0 }
+    : { x: vector.x / magnitude, y: vector.y / magnitude }
+}
+
+function sampleAtDistance(centerline, distanceMeters, lengthMeters) {
+  const target = Math.max(0, Math.min(lengthMeters, distanceMeters))
+  const nextIndex = centerline.findIndex((point) => point.distanceMeters >= target)
+  const endIndex = Math.max(1, nextIndex < 0 ? centerline.length - 1 : nextIndex)
+  const start = centerline[endIndex - 1]
+  const end = centerline[endIndex]
+  const span = end.distanceMeters - start.distanceMeters
+  const ratio = span <= 1e-9 ? 0 : (target - start.distanceMeters) / span
+  return {
+    x: start.x + (end.x - start.x) * ratio,
+    y: start.y + (end.y - start.y) * ratio,
+  }
+}
+
+function tangentAtDistance(centerline, distanceMeters, lengthMeters) {
+  const radius = 2
+  const before = sampleAtDistance(
+    centerline,
+    Math.max(0, distanceMeters - radius),
+    lengthMeters,
+  )
+  const after = sampleAtDistance(
+    centerline,
+    Math.min(lengthMeters, distanceMeters + radius),
+    lengthMeters,
+  )
+  return normalize({ x: after.x - before.x, y: after.y - before.y })
+}
+
+function transformVehicleShape(shape, position, tangent) {
+  return shape.vertices.map((vertex) => ({
+    x: position.x + vertex.x * tangent.x - vertex.y * tangent.y,
+    y: position.y + vertex.x * tangent.y + vertex.y * tangent.x,
+  }))
+}
+
+function polygonBounds(vertices) {
+  return vertices.reduce(
+    (bounds, vertex) => ({
+      minX: Math.min(bounds.minX, vertex.x),
+      minY: Math.min(bounds.minY, vertex.y),
+      maxX: Math.max(bounds.maxX, vertex.x),
+      maxY: Math.max(bounds.maxY, vertex.y),
+    }),
+    {
+      minX: Number.POSITIVE_INFINITY,
+      minY: Number.POSITIVE_INFINITY,
+      maxX: Number.NEGATIVE_INFINITY,
+      maxY: Number.NEGATIVE_INFINITY,
+    },
+  )
+}
+
+function boundsIntersect(first, second) {
+  return !(
+    first.maxX < second.minX ||
+    first.minX > second.maxX ||
+    first.maxY < second.minY ||
+    first.minY > second.maxY
+  )
+}
+
+function polygonAxes(vertices) {
+  return vertices.map((point, index) => {
+    const next = vertices[(index + 1) % vertices.length]
+    return normalize({ x: -(next.y - point.y), y: next.x - point.x })
+  })
+}
+
+function polygonsIntersect(first, second) {
+  for (const axis of [...polygonAxes(first), ...polygonAxes(second)]) {
+    const firstProjection = first.map((point) => point.x * axis.x + point.y * axis.y)
+    const secondProjection = second.map((point) => point.x * axis.x + point.y * axis.y)
+    if (
+      Math.max(...firstProjection) < Math.min(...secondProjection) - 1e-8 ||
+      Math.max(...secondProjection) < Math.min(...firstProjection) - 1e-8
+    ) {
+      return false
+    }
+  }
+  return true
+}
+
+function barrierCollider(segment, pathIndex) {
+  const from = segment.path[pathIndex]
+  const to = segment.path[pathIndex + 1]
+  const direction = normalize({ x: to.x - from.x, y: to.y - from.y })
+  const leftNormal = { x: -direction.y, y: direction.x }
+  const inwardNormal =
+    segment.side === 'left'
+      ? { x: -leftNormal.x, y: -leftNormal.y }
+      : leftNormal
+  const outward = {
+    x: -inwardNormal.x * segment.thicknessMeters,
+    y: -inwardNormal.y * segment.thicknessMeters,
+  }
+  return [
+    { x: from.x, y: from.y },
+    { x: from.x + outward.x, y: from.y + outward.y },
+    { x: to.x + outward.x, y: to.y + outward.y },
+    { x: to.x, y: to.y },
+  ]
+}
+
+function validateCenteredVehicleClearance(track, vehicle) {
+  const collisions = []
+  const barriers = track.barrierGeometry.segments.flatMap((segment) =>
+    segment.path.slice(0, -1).map((point, pathIndex) => {
+      const collider = barrierCollider(segment, pathIndex)
+      return {
+        id: `barrier-${segment.index}-${pathIndex}`,
+        elevationLayer: point.elevationLayer,
+        collider,
+        bounds: polygonBounds(collider),
+      }
+    }),
+  )
+
+  for (let index = 0; index < track.centerline.length - 1; index += 1) {
+    const point = track.centerline[index]
+    const tangent = tangentAtDistance(
+      track.centerline,
+      point.distanceMeters,
+      track.lengthMeters,
+    )
+    const vehicleShapes = vehicle.collisionShapes.map((shape) => {
+      const collider = transformVehicleShape(shape, point, tangent)
+      return { collider, bounds: polygonBounds(collider) }
+    })
+    for (const barrier of barriers) {
+      if (barrier.elevationLayer !== point.elevationLayer) continue
+      if (
+        vehicleShapes.some(
+          (shape) =>
+            boundsIntersect(shape.bounds, barrier.bounds) &&
+            polygonsIntersect(shape.collider, barrier.collider),
+        )
+      ) {
+        collisions.push(
+          `${track.id} centered vehicle collision at centerline ${index} ` +
+            `(${point.distanceMeters} m) with ${barrier.id}`,
+        )
+      }
+    }
+  }
+  invariant(collisions.length === 0, collisions.join('; '))
+}
+
 function validatePhysics(constants, decisions, scenarios, vehicle, protocol) {
   invariant(constants.version === VERSION, 'physics constants version')
   invariant(decisions.contractVersion === VERSION, 'decision version')
@@ -73,6 +402,8 @@ function validatePhysics(constants, decisions, scenarios, vehicle, protocol) {
   invariant(constants.simulation.serverPhysicsSubstepsPerTick === 4, 'server substeps')
   invariant(constants.controls.brakeRisePerSecond === 12, 'brake input rise rate')
   invariant(constants.controls.brakeFallPerSecond === 6, 'brake input fall rate')
+  validateRaceConstants(constants)
+  validateBotPlanner(constants)
   invariant(constants.powertrain.gearRatios.length === 8, 'eight forward gears')
   invariant(
     constants.powertrain.automaticUpshiftWheelSlipAllowance === 0.08,
@@ -112,7 +443,32 @@ function validatePhysics(constants, decisions, scenarios, vehicle, protocol) {
   invariant(!('referenceAxleLoadNewtons' in constants.tires), 'axle reference load is derived')
   invariant(!('combinedGripExponent' in constants.tires), 'combined grip is the normative Euclidean ellipse')
   invariant(constants.collision.maximumCcdEventsPerStep === 4, 'CCD event limit')
+  invariant(constants.collision.maximumContactPoints === 2, '2D manifold contact limit')
+  invariant(
+    constants.collision.ccdMaximumAngularArcStepMeters === 0.05,
+    'CCD maximum angular arc step',
+  )
+  invariant(
+    constants.collision.ccdAngularPoseSamplesPerMaximumArcStep === 4,
+    'CCD angular pose samples per maximum arc step',
+  )
+  invariant(
+    constants.collision.ccdTimeEpsilonSeconds === 1e-8,
+    'CCD time epsilon',
+  )
+  invariant(
+    constants.collision.ccdAngularMotionEpsilonRadians === 1e-8,
+    'CCD angular motion epsilon',
+  )
+  invariant(
+    constants.collision.ccdTimeRefinementIterations === 8,
+    'CCD time refinement iterations',
+  )
   invariant(constants.collision.geometryEpsilon === 1e-8, 'geometry epsilon')
+  invariant(
+    constants.collision.contactPatchNormalVelocityMergeMetersPerSecond === 0.01,
+    'solver contact patch normal velocity merge threshold',
+  )
   invariant(constants.collision.manifoldNormalMergeCosine === 0.985, 'manifold normal merge cosine')
   invariant(!('barrierRestitution' in constants.collision), 'no global barrier restitution')
   invariant(!('tangentialFriction' in constants.collision), 'no ambiguous global collision friction')
@@ -165,7 +521,7 @@ function validatePhysics(constants, decisions, scenarios, vehicle, protocol) {
   invariant(protocolText.includes('gearShiftTimeRemaining'), 'protocol shift state')
 }
 
-function validateTrack(track, entry) {
+function validateTrack(track, entry, vehicle) {
   invariant(track.schemaVersion === VERSION, `${entry.id} schema version`)
   invariant(track.catalogVersion === CATALOG_VERSION, `${entry.id} catalog version`)
   invariant(track.physicsContractVersion === PHYSICS_VERSION, `${entry.id} physics version`)
@@ -224,6 +580,7 @@ function validateTrack(track, entry) {
       )
     }
   }
+  validateCenteredVehicleClearance(track, vehicle)
 }
 
 async function validateMirror() {
@@ -248,6 +605,7 @@ const [
   scenarios,
   vehicle,
   protocol,
+  catalogSchema,
 ] = await Promise.all([
   json('catalog.json'),
   json('physics-constants.json'),
@@ -255,17 +613,24 @@ const [
   json('physics-reference-scenarios.json'),
   json('vehicle-definition.json'),
   json('realtime-race-protocol.schema.json'),
+  json('track-catalog.schema.json'),
 ])
 
 invariant(catalog.schemaVersion === VERSION, 'catalog schema version')
 invariant(catalog.catalogVersion === CATALOG_VERSION, 'catalog version')
 invariant(catalog.physicsContractVersion === PHYSICS_VERSION, 'catalog physics version')
+invariant(
+  catalogSchema.required.includes('calendarPolicy'),
+  'catalog schema requires calendarPolicy',
+)
 invariant(catalog.tracks.length === TRACK_COUNT, 'catalog track count')
 invariant(new Set(catalog.tracks.map((entry) => entry.id)).size === TRACK_COUNT, 'track ids')
 invariant(new Set(catalog.tracks.map((entry) => entry.round)).size === TRACK_COUNT, 'track rounds')
 
 validatePhysics(constants, decisions, scenarios, vehicle, protocol)
-for (const entry of catalog.tracks) validateTrack(await json(entry.definitionPath), entry)
+for (const entry of catalog.tracks) {
+  validateTrack(await json(entry.definitionPath), entry, vehicle)
+}
 await validateMirror()
 
 console.log(
