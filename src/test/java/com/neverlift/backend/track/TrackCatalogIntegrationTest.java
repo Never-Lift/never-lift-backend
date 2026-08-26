@@ -39,7 +39,7 @@ class TrackCatalogIntegrationTest {
         mockMvc.perform(get("/api/tracks"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.schemaVersion").value("2.0.0"))
-                .andExpect(jsonPath("$.catalogVersion").value("2026.6"))
+                .andExpect(jsonPath("$.catalogVersion").value("2026.7"))
                 .andExpect(jsonPath("$.physicsContractVersion").value("2.0.0"))
                 .andExpect(jsonPath("$.seasonReference").value(2026))
                 .andExpect(jsonPath("$.calendarPolicy").value("original-24-round-freeze"))
@@ -59,11 +59,10 @@ class TrackCatalogIntegrationTest {
                         13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24);
 
         boolean foundOptionalFence = false;
-        Set<String> scenerySignatures = new HashSet<>();
         for (Track track : trackRepository.findAll()) {
             JsonNode definition = objectMapper.readTree(track.getDefinitionJson());
             assertThat(definition.path("schemaVersion").asText()).isEqualTo("2.0.0");
-            assertThat(definition.path("catalogVersion").asText()).isEqualTo("2026.6");
+            assertThat(definition.path("catalogVersion").asText()).isEqualTo("2026.7");
             assertThat(definition.path("physicsContractVersion").asText()).isEqualTo("2.0.0");
             assertThat(definition.path("id").asText()).isEqualTo(track.getId());
             assertThat(definition.path("lengthMeters").asInt()).isEqualTo(track.getLengthMeters());
@@ -95,11 +94,11 @@ class TrackCatalogIntegrationTest {
             assertThat(definition.path("gridSlots").size()).isEqualTo(4);
             assertThat(definition.path("racingLine").size()).isEqualTo(centerline.size());
             assertThat(definition.path("startFinish").isObject()).isTrue();
-            assertThat(definition.path("pitLane").path("path").size()).isGreaterThanOrEqualTo(2);
+            assertThat(definition.path("pitLane").path("path").size()).isGreaterThanOrEqualTo(25);
             JsonNode sceneryLayout = definition.path("sceneryLayout");
             assertThat(sceneryLayout.isObject()).isTrue();
-            assertThat(sceneryLayout.path("landmarks").size()).isGreaterThanOrEqualTo(3);
-            assertThat(sceneryLayout.path("staticObjects").size()).isGreaterThanOrEqualTo(2);
+            assertThat(sceneryLayout.path("landmarks")).isEmpty();
+            assertThat(sceneryLayout.path("staticObjects")).isNotEmpty();
             assertThat(sceneryLayout.path("staticObjects").get(0).path("kind").asText())
                     .isEqualTo("start-gantry");
             Set<String> sceneryIds = new HashSet<>();
@@ -109,16 +108,13 @@ class TrackCatalogIntegrationTest {
                             .as("%s should not repeat scenery ids", track.getId())
                             .isTrue();
                     assertThat(sceneryObject.path("kind").asText())
-                            .doesNotEndWith("-landmark");
+                            .isIn("start-gantry", "escape-bollard");
                     assertThat(sceneryObject.path("position").path("x").isNumber()).isTrue();
                     assertThat(sceneryObject.path("position").path("y").isNumber()).isTrue();
                     assertThat(sceneryObject.path("rotation").isNumber()).isTrue();
                     assertThat(sceneryObject.path("scale").asDouble()).isPositive();
                 }
             }
-            assertThat(scenerySignatures.add(sceneryLayout.path("landmarks").toString()))
-                    .as("%s should have a circuit-specific landmark profile", track.getId())
-                    .isTrue();
             assertThat(definition.path("source").path("environmentReferences").size()).isGreaterThanOrEqualTo(2);
 
             JsonNode curbs = definition.path("curbs");
@@ -148,15 +144,15 @@ class TrackCatalogIntegrationTest {
         assertThat(foundOptionalFence)
                 .as("the canonical catalog should exercise the optional debris-fence layer")
                 .isTrue();
-        assertThat(scenerySignatures).hasSize(24);
     }
 
     @Test
     void shouldExposeAuditedUrbanAndPermanentCircuitEnvironments() throws Exception {
         mockMvc.perform(get("/api/tracks/monaco"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sceneryLayout.landmarks[0].kind").value("marina"))
-                .andExpect(jsonPath("$.sceneryLayout.landmarks[2].kind").value("tunnel-building"))
+                .andExpect(jsonPath("$.sceneryLayout.landmarks").isEmpty())
+                .andExpect(jsonPath("$.startFinish.position.x").value(org.hamcrest.Matchers.closeTo(-479.319, 0.01)))
+                .andExpect(jsonPath("$.startFinish.position.y").value(org.hamcrest.Matchers.closeTo(-493.069, 0.01)))
                 .andExpect(jsonPath("$.trackLimits.segments[0].left.zones").isArray())
                 .andExpect(jsonPath("$.trackLimits.segments[0].left.barrier").isString())
                 .andExpect(jsonPath("$.source.environmentReferences").isArray())
@@ -169,8 +165,13 @@ class TrackCatalogIntegrationTest {
 
         mockMvc.perform(get("/api/tracks/suzuka"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sceneryLayout.landmarks[0].kind").value("ferris-wheel"))
+                .andExpect(jsonPath("$.sceneryLayout.landmarks").isEmpty())
                 .andExpect(jsonPath("$.centerline[?(@.elevationLayer == 1)]").isNotEmpty());
+
+        mockMvc.perform(get("/api/tracks/monza"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sceneryLayout.staticObjects.length()").value(6))
+                .andExpect(jsonPath("$.sceneryLayout.staticObjects[1].kind").value("escape-bollard"));
 
         mockMvc.perform(get("/api/tracks/lusail"))
                 .andExpect(status().isOk())

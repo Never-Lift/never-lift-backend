@@ -1,6 +1,6 @@
 {
   "schemaVersion": "2.0.0",
-  "catalogVersion": "2026.6",
+  "catalogVersion": "2026.7",
   "id": "montreal",
   "name": "Circuit Gilles-Villeneuve",
   "countryCode": "CA",
@@ -11536,45 +11536,185 @@
     }
   ],
   "pitLane": {
-    "entryDistanceMeters": 4012.12,
-    "exitDistanceMeters": 348.88,
+    "entryDistanceMeters": 3968.51,
+    "exitDistanceMeters": 392.49,
     "speedLimitMetersPerSecond": 22.222,
     "path": [
       {
-        "x": -35.937,
-        "y": 296.654
+        "x": -35.551,
+        "y": 341.284
       },
       {
-        "x": -46.048,
-        "y": 229.54
+        "x": -33.603,
+        "y": 323.042
       },
       {
-        "x": -38.45,
-        "y": 136.733
+        "x": -31.021,
+        "y": 304.931
       },
       {
-        "x": -20.297,
-        "y": 51.533
+        "x": -28.274,
+        "y": 286.857
       },
       {
-        "x": -2.415,
-        "y": -33.893
+        "x": -25.424,
+        "y": 268.804
       },
       {
-        "x": 15.932,
-        "y": -119.19
+        "x": -22.883,
+        "y": 251.101
       },
       {
-        "x": 33.573,
-        "y": -204.279
+        "x": -25.894,
+        "y": 239.803
       },
       {
-        "x": 41.881,
-        "y": -288.832
+        "x": -41.71,
+        "y": 230.868
       },
       {
-        "x": 33.962,
-        "y": -374.976
+        "x": -51.365,
+        "y": 209.192
+      },
+      {
+        "x": -48.711,
+        "y": 189.622
+      },
+      {
+        "x": -45.48,
+        "y": 171.568
+      },
+      {
+        "x": -42.11,
+        "y": 153.581
+      },
+      {
+        "x": -38.653,
+        "y": 135.652
+      },
+      {
+        "x": -35.186,
+        "y": 117.744
+      },
+      {
+        "x": -31.708,
+        "y": 99.844
+      },
+      {
+        "x": -28.224,
+        "y": 81.943
+      },
+      {
+        "x": -24.743,
+        "y": 64.048
+      },
+      {
+        "x": -21.267,
+        "y": 46.166
+      },
+      {
+        "x": -17.754,
+        "y": 28.229
+      },
+      {
+        "x": -14.164,
+        "y": 10.312
+      },
+      {
+        "x": -10.495,
+        "y": -7.591
+      },
+      {
+        "x": -6.755,
+        "y": -25.482
+      },
+      {
+        "x": -2.948,
+        "y": -43.349
+      },
+      {
+        "x": 0.93,
+        "y": -61.2
+      },
+      {
+        "x": 4.86,
+        "y": -79.031
+      },
+      {
+        "x": 8.841,
+        "y": -96.853
+      },
+      {
+        "x": 12.873,
+        "y": -114.663
+      },
+      {
+        "x": 16.958,
+        "y": -132.462
+      },
+      {
+        "x": 21.097,
+        "y": -150.251
+      },
+      {
+        "x": 25.204,
+        "y": -167.936
+      },
+      {
+        "x": 29.18,
+        "y": -185.643
+      },
+      {
+        "x": 32.97,
+        "y": -203.364
+      },
+      {
+        "x": 36.517,
+        "y": -221.098
+      },
+      {
+        "x": 39.628,
+        "y": -238.777
+      },
+      {
+        "x": 42.071,
+        "y": -256.499
+      },
+      {
+        "x": 43.686,
+        "y": -274.219
+      },
+      {
+        "x": 44.084,
+        "y": -291.938
+      },
+      {
+        "x": 43.632,
+        "y": -309.973
+      },
+      {
+        "x": 42.833,
+        "y": -328.098
+      },
+      {
+        "x": 41.828,
+        "y": -346.306
+      },
+      {
+        "x": 40.699,
+        "y": -364.504
+      },
+      {
+        "x": 39.639,
+        "y": -382.777
+      },
+      {
+        "x": 38.897,
+        "y": -401.071
+      },
+      {
+        "x": 39.052,
+        "y": -419.435
       }
     ]
   },
@@ -11604,7 +11744,7 @@
     {
       "index": 2,
       "fromDistanceMeters": 484,
-      "toDistanceMeters": 520,
+      "toDistanceMeters": 560,
       "side": "right",
       "widthMeters": 1,
       "stripeLengthMeters": 2.5,
@@ -11621,15 +11761,6 @@
     },
     {
       "index": 4,
-      "fromDistanceMeters": 524,
-      "toDistanceMeters": 560,
-      "side": "right",
-      "widthMeters": 1,
-      "stripeLengthMeters": 2.5,
-      "palette": "red-white"
-    },
-    {
-      "index": 5,
       "fromDistanceMeters": 548,
       "toDistanceMeters": 576,
       "side": "left",
@@ -11638,7 +11769,7 @@
       "palette": "red-white"
     },
     {
-      "index": 6,
+      "index": 5,
       "fromDistanceMeters": 879,
       "toDistanceMeters": 915,
       "side": "right",
@@ -11647,7 +11778,7 @@
       "palette": "red-white"
     },
     {
-      "index": 7,
+      "index": 6,
       "fromDistanceMeters": 903,
       "toDistanceMeters": 931,
       "side": "left",
@@ -11656,7 +11787,7 @@
       "palette": "red-white"
     },
     {
-      "index": 8,
+      "index": 7,
       "fromDistanceMeters": 939,
       "toDistanceMeters": 975,
       "side": "left",
@@ -11665,7 +11796,7 @@
       "palette": "red-white"
     },
     {
-      "index": 9,
+      "index": 8,
       "fromDistanceMeters": 963,
       "toDistanceMeters": 991,
       "side": "right",
@@ -11674,7 +11805,7 @@
       "palette": "red-white"
     },
     {
-      "index": 10,
+      "index": 9,
       "fromDistanceMeters": 1404,
       "toDistanceMeters": 1440,
       "side": "left",
@@ -11683,7 +11814,7 @@
       "palette": "red-white"
     },
     {
-      "index": 11,
+      "index": 10,
       "fromDistanceMeters": 1428,
       "toDistanceMeters": 1456,
       "side": "right",
@@ -11692,16 +11823,16 @@
       "palette": "red-white"
     },
     {
-      "index": 12,
+      "index": 11,
       "fromDistanceMeters": 1474,
-      "toDistanceMeters": 1510,
+      "toDistanceMeters": 1550,
       "side": "right",
       "widthMeters": 1,
       "stripeLengthMeters": 2.5,
       "palette": "red-white"
     },
     {
-      "index": 13,
+      "index": 12,
       "fromDistanceMeters": 1498,
       "toDistanceMeters": 1526,
       "side": "left",
@@ -11710,16 +11841,7 @@
       "palette": "red-white"
     },
     {
-      "index": 14,
-      "fromDistanceMeters": 1514,
-      "toDistanceMeters": 1550,
-      "side": "right",
-      "widthMeters": 1,
-      "stripeLengthMeters": 2.5,
-      "palette": "red-white"
-    },
-    {
-      "index": 15,
+      "index": 13,
       "fromDistanceMeters": 1538,
       "toDistanceMeters": 1566,
       "side": "left",
@@ -11728,7 +11850,7 @@
       "palette": "red-white"
     },
     {
-      "index": 16,
+      "index": 14,
       "fromDistanceMeters": 2159,
       "toDistanceMeters": 2195,
       "side": "right",
@@ -11737,17 +11859,8 @@
       "palette": "red-white"
     },
     {
-      "index": 17,
+      "index": 15,
       "fromDistanceMeters": 2183,
-      "toDistanceMeters": 2211,
-      "side": "left",
-      "widthMeters": 1,
-      "stripeLengthMeters": 2.5,
-      "palette": "red-white"
-    },
-    {
-      "index": 18,
-      "fromDistanceMeters": 2214,
       "toDistanceMeters": 2250,
       "side": "left",
       "widthMeters": 1,
@@ -11755,7 +11868,7 @@
       "palette": "red-white"
     },
     {
-      "index": 19,
+      "index": 16,
       "fromDistanceMeters": 2238,
       "toDistanceMeters": 2266,
       "side": "right",
@@ -11764,16 +11877,16 @@
       "palette": "red-white"
     },
     {
-      "index": 20,
+      "index": 17,
       "fromDistanceMeters": 2849,
-      "toDistanceMeters": 2885,
+      "toDistanceMeters": 2925,
       "side": "right",
       "widthMeters": 1,
       "stripeLengthMeters": 2.5,
       "palette": "red-white"
     },
     {
-      "index": 21,
+      "index": 18,
       "fromDistanceMeters": 2873,
       "toDistanceMeters": 2901,
       "side": "left",
@@ -11782,16 +11895,7 @@
       "palette": "red-white"
     },
     {
-      "index": 22,
-      "fromDistanceMeters": 2889,
-      "toDistanceMeters": 2925,
-      "side": "right",
-      "widthMeters": 1,
-      "stripeLengthMeters": 2.5,
-      "palette": "red-white"
-    },
-    {
-      "index": 23,
+      "index": 19,
       "fromDistanceMeters": 2913,
       "toDistanceMeters": 2941,
       "side": "left",
@@ -11800,7 +11904,7 @@
       "palette": "red-white"
     },
     {
-      "index": 24,
+      "index": 20,
       "fromDistanceMeters": 4054,
       "toDistanceMeters": 4090,
       "side": "right",
@@ -11809,7 +11913,7 @@
       "palette": "red-white"
     },
     {
-      "index": 25,
+      "index": 21,
       "fromDistanceMeters": 4078,
       "toDistanceMeters": 4130,
       "side": "left",
@@ -11818,7 +11922,7 @@
       "palette": "red-white"
     },
     {
-      "index": 26,
+      "index": 22,
       "fromDistanceMeters": 4118,
       "toDistanceMeters": 4146,
       "side": "right",
@@ -12406,38 +12510,7 @@
   ],
   "sceneryLayout": {
     "preset": "park",
-    "landmarks": [
-      {
-        "id": "saint-lawrence-river",
-        "kind": "river",
-        "position": {
-          "x": -92.972,
-          "y": -382.08
-        },
-        "rotation": 2.332134,
-        "scale": 25
-      },
-      {
-        "id": "notre-dame-island",
-        "kind": "island-trees",
-        "position": {
-          "x": -511.436,
-          "y": 737.35
-        },
-        "rotation": 1.461638,
-        "scale": 8
-      },
-      {
-        "id": "montreal-casino",
-        "kind": "casino-building",
-        "position": {
-          "x": -195.054,
-          "y": 797.669
-        },
-        "rotation": -1.259227,
-        "scale": 12
-      }
-    ],
+    "landmarks": [],
     "staticObjects": [
       {
         "id": "start-gantry",
@@ -12446,18 +12519,8 @@
           "x": 6.877,
           "y": -31.914
         },
-        "rotation": -1.360954,
+        "rotation": -1.360836,
         "scale": 14.3
-      },
-      {
-        "id": "main-grandstand",
-        "kind": "grandstand",
-        "position": {
-          "x": 28.104,
-          "y": 83.941
-        },
-        "rotation": -1.363933,
-        "scale": 11
       }
     ]
   },
@@ -12465,7 +12528,7 @@
     "dataset": "bacinger/f1-circuits",
     "license": "MIT",
     "url": "https://github.com/bacinger/f1-circuits",
-    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5; barrier thickness extends away from the racing surface.",
+    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery; barrier thickness extends away from the racing surface.",
     "environmentReferences": [
       {
         "label": "FIA 2026 Montreal circuit map and emergency exits",
@@ -12989,458 +13052,458 @@
         ],
         "path": [
           {
-            "x": 0.52,
-            "y": -33.269,
+            "x": 0.177,
+            "y": -33.342,
             "distanceMeters": 0,
             "elevationLayer": 0
           },
           {
-            "x": 1.561,
-            "y": -38.155,
+            "x": 1.219,
+            "y": -38.229,
             "distanceMeters": 4.995,
             "elevationLayer": 0
           },
           {
-            "x": 2.606,
-            "y": -43.045,
+            "x": 2.264,
+            "y": -43.118,
             "distanceMeters": 9.991,
             "elevationLayer": 0
           },
           {
-            "x": 3.653,
-            "y": -47.932,
+            "x": 3.31,
+            "y": -48.005,
             "distanceMeters": 14.986,
             "elevationLayer": 0
           },
           {
-            "x": 4.702,
-            "y": -52.818,
+            "x": 4.36,
+            "y": -52.891,
             "distanceMeters": 19.982,
             "elevationLayer": 0
           },
           {
-            "x": 5.751,
-            "y": -57.703,
+            "x": 5.409,
+            "y": -57.776,
             "distanceMeters": 24.977,
             "elevationLayer": 0
           },
           {
-            "x": 6.801,
-            "y": -62.587,
+            "x": 6.459,
+            "y": -62.661,
             "distanceMeters": 29.973,
             "elevationLayer": 0
           },
           {
-            "x": 7.851,
-            "y": -67.472,
+            "x": 7.509,
+            "y": -67.545,
             "distanceMeters": 34.968,
             "elevationLayer": 0
           },
           {
-            "x": 8.902,
-            "y": -72.357,
+            "x": 8.56,
+            "y": -72.43,
             "distanceMeters": 39.963,
             "elevationLayer": 0
           },
           {
-            "x": 9.953,
-            "y": -77.24,
+            "x": 9.611,
+            "y": -77.313,
             "distanceMeters": 44.959,
             "elevationLayer": 0
           },
           {
-            "x": 11.005,
-            "y": -82.124,
+            "x": 10.662,
+            "y": -82.198,
             "distanceMeters": 49.954,
             "elevationLayer": 0
           },
           {
-            "x": 12.057,
-            "y": -87.008,
+            "x": 11.715,
+            "y": -87.082,
             "distanceMeters": 54.95,
             "elevationLayer": 0
           },
           {
-            "x": 13.109,
-            "y": -91.891,
+            "x": 12.767,
+            "y": -91.965,
             "distanceMeters": 59.945,
             "elevationLayer": 0
           },
           {
-            "x": 14.162,
-            "y": -96.776,
+            "x": 13.82,
+            "y": -96.85,
             "distanceMeters": 64.94,
             "elevationLayer": 0
           },
           {
-            "x": 15.215,
-            "y": -101.66,
+            "x": 14.873,
+            "y": -101.734,
             "distanceMeters": 69.936,
             "elevationLayer": 0
           },
           {
-            "x": 16.269,
-            "y": -106.543,
+            "x": 15.927,
+            "y": -106.617,
             "distanceMeters": 74.931,
             "elevationLayer": 0
           },
           {
-            "x": 17.323,
-            "y": -111.427,
+            "x": 16.981,
+            "y": -111.501,
             "distanceMeters": 79.927,
             "elevationLayer": 0
           },
           {
-            "x": 18.379,
-            "y": -116.311,
+            "x": 18.037,
+            "y": -116.385,
             "distanceMeters": 84.922,
             "elevationLayer": 0
           },
           {
-            "x": 19.434,
-            "y": -121.194,
+            "x": 19.092,
+            "y": -121.268,
             "distanceMeters": 89.918,
             "elevationLayer": 0
           },
           {
-            "x": 20.491,
-            "y": -126.078,
+            "x": 20.149,
+            "y": -126.152,
             "distanceMeters": 94.913,
             "elevationLayer": 0
           },
           {
-            "x": 21.548,
-            "y": -130.96,
+            "x": 21.206,
+            "y": -131.035,
             "distanceMeters": 99.908,
             "elevationLayer": 0
           },
           {
-            "x": 22.605,
-            "y": -135.843,
+            "x": 22.263,
+            "y": -135.917,
             "distanceMeters": 104.904,
             "elevationLayer": 0
           },
           {
-            "x": 23.664,
-            "y": -140.726,
+            "x": 23.322,
+            "y": -140.8,
             "distanceMeters": 109.899,
             "elevationLayer": 0
           },
           {
-            "x": 24.723,
-            "y": -145.61,
+            "x": 24.381,
+            "y": -145.684,
             "distanceMeters": 114.895,
             "elevationLayer": 0
           },
           {
-            "x": 25.783,
-            "y": -150.492,
+            "x": 25.441,
+            "y": -150.566,
             "distanceMeters": 119.89,
             "elevationLayer": 0
           },
           {
-            "x": 26.842,
-            "y": -155.368,
+            "x": 26.5,
+            "y": -155.442,
             "distanceMeters": 124.885,
             "elevationLayer": 0
           },
           {
-            "x": 27.887,
-            "y": -160.231,
+            "x": 27.545,
+            "y": -160.304,
             "distanceMeters": 129.881,
             "elevationLayer": 0
           },
           {
-            "x": 28.912,
-            "y": -165.096,
+            "x": 28.57,
+            "y": -165.167,
             "distanceMeters": 134.876,
             "elevationLayer": 0
           },
           {
-            "x": 29.924,
-            "y": -169.975,
+            "x": 29.581,
+            "y": -170.046,
             "distanceMeters": 139.872,
             "elevationLayer": 0
           },
           {
-            "x": 30.931,
-            "y": -174.855,
+            "x": 30.589,
+            "y": -174.925,
             "distanceMeters": 144.867,
             "elevationLayer": 0
           },
           {
-            "x": 31.922,
-            "y": -179.726,
+            "x": 31.579,
+            "y": -179.795,
             "distanceMeters": 149.863,
             "elevationLayer": 0
           },
           {
-            "x": 32.89,
-            "y": -184.599,
+            "x": 32.547,
+            "y": -184.666,
             "distanceMeters": 154.858,
             "elevationLayer": 0
           },
           {
-            "x": 33.841,
-            "y": -189.486,
+            "x": 33.497,
+            "y": -189.553,
             "distanceMeters": 159.853,
             "elevationLayer": 0
           },
           {
-            "x": 34.786,
-            "y": -194.372,
+            "x": 34.442,
+            "y": -194.437,
             "distanceMeters": 164.849,
             "elevationLayer": 0
           },
           {
-            "x": 35.704,
-            "y": -199.247,
+            "x": 35.36,
+            "y": -199.311,
             "distanceMeters": 169.844,
             "elevationLayer": 0
           },
           {
-            "x": 36.596,
-            "y": -204.135,
+            "x": 36.252,
+            "y": -204.197,
             "distanceMeters": 174.84,
             "elevationLayer": 0
           },
           {
-            "x": 37.476,
-            "y": -209.031,
+            "x": 37.132,
+            "y": -209.092,
             "distanceMeters": 179.835,
             "elevationLayer": 0
           },
           {
-            "x": 38.335,
-            "y": -213.913,
+            "x": 37.99,
+            "y": -213.972,
             "distanceMeters": 184.83,
             "elevationLayer": 0
           },
           {
-            "x": 39.153,
-            "y": -218.799,
+            "x": 38.808,
+            "y": -218.857,
             "distanceMeters": 189.826,
             "elevationLayer": 0
           },
           {
-            "x": 39.952,
-            "y": -223.695,
+            "x": 39.607,
+            "y": -223.751,
             "distanceMeters": 194.821,
             "elevationLayer": 0
           },
           {
-            "x": 40.713,
-            "y": -228.563,
+            "x": 40.367,
+            "y": -228.615,
             "distanceMeters": 199.817,
             "elevationLayer": 0
           },
           {
-            "x": 41.405,
-            "y": -233.438,
+            "x": 41.058,
+            "y": -233.486,
             "distanceMeters": 204.812,
             "elevationLayer": 0
           },
           {
-            "x": 42.06,
-            "y": -238.335,
+            "x": 41.713,
+            "y": -238.38,
             "distanceMeters": 209.808,
             "elevationLayer": 0
           },
           {
-            "x": 42.669,
-            "y": -243.212,
+            "x": 42.321,
+            "y": -243.252,
             "distanceMeters": 214.803,
             "elevationLayer": 0
           },
           {
-            "x": 43.198,
-            "y": -248.1,
+            "x": 42.85,
+            "y": -248.137,
             "distanceMeters": 219.798,
             "elevationLayer": 0
           },
           {
-            "x": 43.692,
-            "y": -253.004,
+            "x": 43.343,
+            "y": -253.037,
             "distanceMeters": 224.794,
             "elevationLayer": 0
           },
           {
-            "x": 44.118,
-            "y": -257.881,
+            "x": 43.769,
+            "y": -257.909,
             "distanceMeters": 229.789,
             "elevationLayer": 0
           },
           {
-            "x": 44.46,
-            "y": -262.783,
+            "x": 44.111,
+            "y": -262.806,
             "distanceMeters": 234.785,
             "elevationLayer": 0
           },
           {
-            "x": 44.765,
-            "y": -267.675,
+            "x": 44.415,
+            "y": -267.693,
             "distanceMeters": 239.78,
             "elevationLayer": 0
           },
           {
-            "x": 44.964,
-            "y": -272.551,
+            "x": 44.614,
+            "y": -272.562,
             "distanceMeters": 244.775,
             "elevationLayer": 0
           },
           {
-            "x": 45.093,
-            "y": -277.424,
+            "x": 44.743,
+            "y": -277.43,
             "distanceMeters": 249.771,
             "elevationLayer": 0
           },
           {
-            "x": 45.112,
-            "y": -282.228,
+            "x": 44.762,
+            "y": -282.223,
             "distanceMeters": 254.766,
             "elevationLayer": 0
           },
           {
-            "x": 44.953,
-            "y": -287.078,
+            "x": 44.603,
+            "y": -287.066,
             "distanceMeters": 259.762,
             "elevationLayer": 0
           },
           {
-            "x": 44.755,
-            "y": -292.021,
+            "x": 44.406,
+            "y": -292.006,
             "distanceMeters": 264.757,
             "elevationLayer": 0
           },
           {
-            "x": 44.523,
-            "y": -296.941,
+            "x": 44.173,
+            "y": -296.922,
             "distanceMeters": 269.753,
             "elevationLayer": 0
           },
           {
-            "x": 44.22,
-            "y": -301.839,
+            "x": 43.871,
+            "y": -301.815,
             "distanceMeters": 274.748,
             "elevationLayer": 0
           },
           {
-            "x": 43.851,
-            "y": -306.772,
+            "x": 43.502,
+            "y": -306.746,
             "distanceMeters": 279.743,
             "elevationLayer": 0
           },
           {
-            "x": 43.472,
-            "y": -311.739,
+            "x": 43.123,
+            "y": -311.712,
             "distanceMeters": 284.739,
             "elevationLayer": 0
           },
           {
-            "x": 43.081,
-            "y": -316.69,
+            "x": 42.732,
+            "y": -316.661,
             "distanceMeters": 289.734,
             "elevationLayer": 0
           },
           {
-            "x": 42.658,
-            "y": -321.622,
+            "x": 42.309,
+            "y": -321.591,
             "distanceMeters": 294.73,
             "elevationLayer": 0
           },
           {
-            "x": 42.201,
-            "y": -326.555,
+            "x": 41.852,
+            "y": -326.522,
             "distanceMeters": 299.725,
             "elevationLayer": 0
           },
           {
-            "x": 41.713,
-            "y": -331.506,
+            "x": 41.364,
+            "y": -331.471,
             "distanceMeters": 304.721,
             "elevationLayer": 0
           },
           {
-            "x": 41.219,
-            "y": -336.472,
+            "x": 40.871,
+            "y": -336.438,
             "distanceMeters": 309.716,
             "elevationLayer": 0
           },
           {
-            "x": 40.723,
-            "y": -341.429,
+            "x": 40.375,
+            "y": -341.393,
             "distanceMeters": 314.711,
             "elevationLayer": 0
           },
           {
-            "x": 40.211,
-            "y": -346.374,
+            "x": 39.863,
+            "y": -346.337,
             "distanceMeters": 319.707,
             "elevationLayer": 0
           },
           {
-            "x": 39.68,
-            "y": -351.316,
+            "x": 39.332,
+            "y": -351.278,
             "distanceMeters": 324.702,
             "elevationLayer": 0
           },
           {
-            "x": 39.129,
-            "y": -356.257,
+            "x": 38.781,
+            "y": -356.218,
             "distanceMeters": 329.698,
             "elevationLayer": 0
           },
           {
-            "x": 38.561,
-            "y": -361.208,
+            "x": 38.214,
+            "y": -361.168,
             "distanceMeters": 334.693,
             "elevationLayer": 0
           },
           {
-            "x": 37.991,
-            "y": -366.17,
+            "x": 37.643,
+            "y": -366.13,
             "distanceMeters": 339.688,
             "elevationLayer": 0
           },
           {
-            "x": 37.419,
-            "y": -371.136,
+            "x": 37.072,
+            "y": -371.096,
             "distanceMeters": 344.684,
             "elevationLayer": 0
           },
           {
-            "x": 36.852,
-            "y": -376.111,
+            "x": 34.989,
+            "y": -375.901,
             "distanceMeters": 349.679,
             "elevationLayer": 0
           },
           {
-            "x": 36.297,
-            "y": -381.095,
+            "x": 34.433,
+            "y": -380.89,
             "distanceMeters": 354.675,
             "elevationLayer": 0
           },
           {
-            "x": 35.758,
-            "y": -386.081,
+            "x": 30.164,
+            "y": -385.485,
             "distanceMeters": 359.67,
             "elevationLayer": 0
           },
           {
-            "x": 35.234,
-            "y": -391.063,
+            "x": 24.045,
+            "y": -389.894,
             "distanceMeters": 364.666,
             "elevationLayer": 0
           },
           {
-            "x": 34.718,
-            "y": -396.036,
+            "x": 23.528,
+            "y": -394.874,
             "distanceMeters": 369.661,
             "elevationLayer": 0
           },
           {
-            "x": 34.612,
-            "y": -397.054,
+            "x": 15.962,
+            "y": -395.118,
             "distanceMeters": 370.685,
             "elevationLayer": 0
           }
@@ -13593,38 +13656,38 @@
             "elevationLayer": 0
           },
           {
-            "x": 96.762,
-            "y": -467.39,
+            "x": 97.292,
+            "y": -466.542,
             "distanceMeters": 479.56,
             "elevationLayer": 0
           },
           {
-            "x": 102.711,
-            "y": -471.885,
+            "x": 103.425,
+            "y": -471.186,
             "distanceMeters": 484.556,
             "elevationLayer": 0
           },
           {
-            "x": 107.362,
-            "y": -478.428,
+            "x": 110.019,
+            "y": -477.035,
             "distanceMeters": 489.551,
             "elevationLayer": 0
           },
           {
-            "x": 109.943,
-            "y": -485.275,
+            "x": 115.74,
+            "y": -483.729,
             "distanceMeters": 494.546,
             "elevationLayer": 0
           },
           {
-            "x": 111.095,
-            "y": -492.16,
+            "x": 117.08,
+            "y": -491.737,
             "distanceMeters": 499.542,
             "elevationLayer": 0
           },
           {
-            "x": 111.069,
-            "y": -495.117,
+            "x": 121.066,
+            "y": -495.353,
             "distanceMeters": 501.515,
             "elevationLayer": 0
           }
@@ -13645,38 +13708,38 @@
         ],
         "path": [
           {
-            "x": 4.772,
-            "y": -393.956,
+            "x": 15.962,
+            "y": -395.118,
             "distanceMeters": 370.685,
             "elevationLayer": 0
           },
           {
-            "x": 4.355,
-            "y": -397.979,
+            "x": 15.547,
+            "y": -399.118,
             "distanceMeters": 374.656,
             "elevationLayer": 0
           },
           {
-            "x": 3.837,
-            "y": -403.164,
+            "x": 9.437,
+            "y": -403.701,
             "distanceMeters": 379.652,
             "elevationLayer": 0
           },
           {
-            "x": 3.356,
-            "y": -408.402,
+            "x": 8.959,
+            "y": -408.898,
             "distanceMeters": 384.647,
             "elevationLayer": 0
           },
           {
-            "x": 2.92,
-            "y": -413.525,
+            "x": 4.788,
+            "y": -413.683,
             "distanceMeters": 389.643,
             "elevationLayer": 0
           },
           {
-            "x": 2.485,
-            "y": -418.715,
+            "x": 4.355,
+            "y": -418.862,
             "distanceMeters": 394.638,
             "elevationLayer": 0
           },
@@ -13777,38 +13840,38 @@
             "elevationLayer": 0
           },
           {
-            "x": 71.848,
-            "y": -507.243,
+            "x": 72.709,
+            "y": -505.865,
             "distanceMeters": 479.56,
             "elevationLayer": 0
           },
           {
-            "x": 69.131,
-            "y": -504.77,
+            "x": 70.292,
+            "y": -503.633,
             "distanceMeters": 484.556,
             "elevationLayer": 0
           },
           {
-            "x": 65.739,
-            "y": -500.258,
+            "x": 70.056,
+            "y": -497.994,
             "distanceMeters": 489.551,
             "elevationLayer": 0
           },
           {
-            "x": 64.529,
-            "y": -497.383,
+            "x": 73.95,
+            "y": -494.871,
             "distanceMeters": 494.546,
             "elevationLayer": 0
           },
           {
-            "x": 64.212,
-            "y": -495.473,
+            "x": 73.938,
+            "y": -494.786,
             "distanceMeters": 499.542,
             "elevationLayer": 0
           },
           {
-            "x": 64.082,
-            "y": -494.008,
+            "x": 80.328,
+            "y": -494.391,
             "distanceMeters": 501.515,
             "elevationLayer": 0
           }
@@ -13828,38 +13891,38 @@
         ],
         "path": [
           {
-            "x": 127.065,
-            "y": -495.494,
+            "x": 121.066,
+            "y": -495.353,
             "distanceMeters": 501.515,
             "elevationLayer": 0
           },
           {
-            "x": 126.842,
-            "y": -500.75,
+            "x": 120.877,
+            "y": -500.101,
             "distanceMeters": 504.537,
             "elevationLayer": 0
           },
           {
-            "x": 125.145,
-            "y": -509.636,
+            "x": 122.247,
+            "y": -508.861,
             "distanceMeters": 509.533,
             "elevationLayer": 0
           },
           {
-            "x": 122.36,
-            "y": -517.753,
+            "x": 119.594,
+            "y": -516.593,
             "distanceMeters": 514.528,
             "elevationLayer": 0
           },
           {
-            "x": 118.355,
-            "y": -525.708,
+            "x": 117.5,
+            "y": -525.189,
             "distanceMeters": 519.523,
             "elevationLayer": 0
           },
           {
-            "x": 112.878,
-            "y": -533.266,
+            "x": 112.119,
+            "y": -532.615,
             "distanceMeters": 524.519,
             "elevationLayer": 0
           },
@@ -14038,38 +14101,38 @@
             "elevationLayer": 0
           },
           {
-            "x": -59.879,
-            "y": -522.866,
+            "x": -59.456,
+            "y": -521.96,
             "distanceMeters": 674.381,
             "elevationLayer": 0
           },
           {
-            "x": -65.005,
-            "y": -520.381,
+            "x": -64.558,
+            "y": -519.486,
             "distanceMeters": 679.377,
             "elevationLayer": 0
           },
           {
-            "x": -69.988,
-            "y": -517.818,
+            "x": -68.586,
+            "y": -515.166,
             "distanceMeters": 684.372,
             "elevationLayer": 0
           },
           {
-            "x": -74.812,
-            "y": -515.199,
+            "x": -73.361,
+            "y": -512.573,
             "distanceMeters": 689.368,
             "elevationLayer": 0
           },
           {
-            "x": -79.462,
-            "y": -512.584,
+            "x": -76.492,
+            "y": -507.371,
             "distanceMeters": 694.363,
             "elevationLayer": 0
           },
           {
-            "x": -82.56,
-            "y": -510.798,
+            "x": -77.552,
+            "y": -502.143,
             "distanceMeters": 697.76,
             "elevationLayer": 0
           }
@@ -14089,38 +14152,38 @@
         ],
         "path": [
           {
-            "x": 90.075,
-            "y": -494.621,
+            "x": 80.328,
+            "y": -494.391,
             "distanceMeters": 501.515,
             "elevationLayer": 0
           },
           {
-            "x": 90.059,
-            "y": -496.75,
+            "x": 80.366,
+            "y": -495.696,
             "distanceMeters": 504.537,
             "elevationLayer": 0
           },
           {
-            "x": 89.403,
-            "y": -500.069,
+            "x": 84.694,
+            "y": -498.808,
             "distanceMeters": 509.533,
             "elevationLayer": 0
           },
           {
-            "x": 88.239,
-            "y": -503.445,
+            "x": 83.743,
+            "y": -501.559,
             "distanceMeters": 514.528,
             "elevationLayer": 0
           },
           {
-            "x": 86.715,
-            "y": -506.527,
+            "x": 85.325,
+            "y": -505.684,
             "distanceMeters": 519.523,
             "elevationLayer": 0
           },
           {
-            "x": 84.797,
-            "y": -509.173,
+            "x": 83.564,
+            "y": -508.115,
             "distanceMeters": 524.519,
             "elevationLayer": 0
           },
@@ -14351,38 +14414,38 @@
         ],
         "path": [
           {
-            "x": -74.547,
-            "y": -496.949,
+            "x": -77.552,
+            "y": -502.143,
             "distanceMeters": 697.76,
             "elevationLayer": 0
           },
           {
-            "x": -75.985,
-            "y": -496.12,
+            "x": -79.02,
+            "y": -501.296,
             "distanceMeters": 699.359,
             "elevationLayer": 0
           },
           {
-            "x": -80.393,
-            "y": -493.492,
+            "x": -83.495,
+            "y": -498.628,
             "distanceMeters": 704.354,
             "elevationLayer": 0
           },
           {
-            "x": -84.765,
-            "y": -490.817,
+            "x": -86.348,
+            "y": -493.366,
             "distanceMeters": 709.349,
             "elevationLayer": 0
           },
           {
-            "x": -89.107,
-            "y": -488.081,
+            "x": -89.646,
+            "y": -488.924,
             "distanceMeters": 714.345,
             "elevationLayer": 0
           },
           {
-            "x": -93.426,
-            "y": -485.281,
+            "x": -93.976,
+            "y": -486.115,
             "distanceMeters": 719.34,
             "elevationLayer": 0
           },
@@ -14513,38 +14576,38 @@
             "elevationLayer": 0
           },
           {
-            "x": -179.212,
-            "y": -414.234,
+            "x": -179.379,
+            "y": -414.42,
             "distanceMeters": 829.239,
             "elevationLayer": 0
           },
           {
-            "x": -182.954,
-            "y": -410.858,
+            "x": -183.122,
+            "y": -411.043,
             "distanceMeters": 834.235,
             "elevationLayer": 0
           },
           {
-            "x": -186.677,
-            "y": -407.479,
+            "x": -187.182,
+            "y": -408.034,
             "distanceMeters": 839.23,
             "elevationLayer": 0
           },
           {
-            "x": -190.408,
-            "y": -404.072,
+            "x": -191.424,
+            "y": -405.175,
             "distanceMeters": 844.226,
             "elevationLayer": 0
           },
           {
-            "x": -194.117,
-            "y": -400.631,
+            "x": -195.139,
+            "y": -401.729,
             "distanceMeters": 849.221,
             "elevationLayer": 0
           },
           {
-            "x": -194.984,
-            "y": -399.82,
+            "x": -196.69,
+            "y": -401.647,
             "distanceMeters": 850.395,
             "elevationLayer": 0
           }
@@ -14778,38 +14841,38 @@
         ],
         "path": [
           {
-            "x": -197.714,
-            "y": -402.743,
+            "x": -196.69,
+            "y": -401.647,
             "distanceMeters": 850.395,
             "elevationLayer": 0
           },
           {
-            "x": -200.545,
-            "y": -400.094,
+            "x": -199.517,
+            "y": -399.001,
             "distanceMeters": 854.216,
             "elevationLayer": 0
           },
           {
-            "x": -204.262,
-            "y": -396.574,
+            "x": -203.743,
+            "y": -396.032,
             "distanceMeters": 859.212,
             "elevationLayer": 0
           },
           {
-            "x": -207.946,
-            "y": -393.007,
+            "x": -207.422,
+            "y": -392.47,
             "distanceMeters": 864.207,
             "elevationLayer": 0
           },
           {
-            "x": -211.653,
-            "y": -389.364,
+            "x": -211.476,
+            "y": -389.188,
             "distanceMeters": 869.203,
             "elevationLayer": 0
           },
           {
-            "x": -215.371,
-            "y": -385.558,
+            "x": -215.19,
+            "y": -385.386,
             "distanceMeters": 874.198,
             "elevationLayer": 0
           },
@@ -14886,38 +14949,38 @@
             "elevationLayer": 0
           },
           {
-            "x": -223.279,
-            "y": -312.885,
+            "x": -223.032,
+            "y": -312.928,
             "distanceMeters": 939.139,
             "elevationLayer": 0
           },
           {
-            "x": -222.789,
-            "y": -309.397,
+            "x": -222.041,
+            "y": -309.452,
             "distanceMeters": 944.134,
             "elevationLayer": 0
           },
           {
-            "x": -222.734,
-            "y": -306.399,
+            "x": -221.985,
+            "y": -306.351,
             "distanceMeters": 949.129,
             "elevationLayer": 0
           },
           {
-            "x": -223.105,
-            "y": -303.725,
+            "x": -221.642,
+            "y": -303.396,
             "distanceMeters": 954.125,
             "elevationLayer": 0
           },
           {
-            "x": -223.799,
-            "y": -301.433,
+            "x": -222.418,
+            "y": -300.848,
             "distanceMeters": 959.12,
             "elevationLayer": 0
           },
           {
-            "x": -223.858,
-            "y": -301.366,
+            "x": -221.57,
+            "y": -300.357,
             "distanceMeters": 959.42,
             "elevationLayer": 0
           }
@@ -15045,38 +15108,38 @@
             "elevationLayer": 0
           },
           {
-            "x": -198.664,
-            "y": -317.256,
+            "x": -198.91,
+            "y": -317.212,
             "distanceMeters": 939.139,
             "elevationLayer": 0
           },
           {
-            "x": -197.858,
-            "y": -311.251,
+            "x": -198.606,
+            "y": -311.195,
             "distanceMeters": 944.134,
             "elevationLayer": 0
           },
           {
-            "x": -197.784,
-            "y": -304.816,
+            "x": -198.533,
+            "y": -304.864,
             "distanceMeters": 949.129,
             "elevationLayer": 0
           },
           {
-            "x": -198.715,
-            "y": -298.235,
+            "x": -200.179,
+            "y": -298.564,
             "distanceMeters": 954.125,
             "elevationLayer": 0
           },
           {
-            "x": -200.778,
-            "y": -291.685,
+            "x": -202.159,
+            "y": -292.27,
             "distanceMeters": 959.12,
             "elevationLayer": 0
           },
           {
-            "x": -200.982,
-            "y": -291.281,
+            "x": -203.27,
+            "y": -292.289,
             "distanceMeters": 959.42,
             "elevationLayer": 0
           }
@@ -15097,32 +15160,32 @@
         ],
         "path": [
           {
-            "x": -220.198,
-            "y": -299.752,
+            "x": -221.57,
+            "y": -300.357,
             "distanceMeters": 959.42,
             "elevationLayer": 0
           },
           {
-            "x": -221.657,
-            "y": -297.087,
+            "x": -222.919,
+            "y": -297.898,
             "distanceMeters": 964.116,
             "elevationLayer": 0
           },
           {
-            "x": -224.186,
-            "y": -293.769,
+            "x": -224.783,
+            "y": -294.223,
             "distanceMeters": 969.111,
             "elevationLayer": 0
           },
           {
-            "x": -227.153,
-            "y": -289.913,
+            "x": -227.745,
+            "y": -290.374,
             "distanceMeters": 974.107,
             "elevationLayer": 0
           },
           {
-            "x": -230.204,
-            "y": -286.058,
+            "x": -230.4,
+            "y": -286.213,
             "distanceMeters": 979.102,
             "elevationLayer": 0
           },
@@ -15205,32 +15268,32 @@
             "elevationLayer": 0
           },
           {
-            "x": -274.22,
-            "y": -232.04,
+            "x": -274.412,
+            "y": -232.2,
             "distanceMeters": 1049.038,
             "elevationLayer": 0
           },
           {
-            "x": -277.414,
-            "y": -228.208,
+            "x": -277.99,
+            "y": -228.689,
             "distanceMeters": 1054.033,
             "elevationLayer": 0
           },
           {
-            "x": -280.6,
-            "y": -224.388,
+            "x": -281.175,
+            "y": -224.869,
             "distanceMeters": 1059.029,
             "elevationLayer": 0
           },
           {
-            "x": -283.781,
-            "y": -220.603,
+            "x": -284.926,
+            "y": -221.571,
             "distanceMeters": 1064.024,
             "elevationLayer": 0
           },
           {
-            "x": -286.616,
-            "y": -217.271,
+            "x": -288.517,
+            "y": -218.894,
             "distanceMeters": 1068.445,
             "elevationLayer": 0
           }
@@ -15251,140 +15314,140 @@
         ],
         "path": [
           {
-            "x": -204.642,
-            "y": -292.894,
+            "x": -203.27,
+            "y": -292.289,
             "distanceMeters": 959.42,
             "elevationLayer": 0
           },
           {
-            "x": -207.361,
-            "y": -287.889,
+            "x": -206.099,
+            "y": -287.078,
             "distanceMeters": 964.116,
             "elevationLayer": 0
           },
           {
-            "x": -210.655,
-            "y": -283.478,
+            "x": -210.058,
+            "y": -283.024,
             "distanceMeters": 969.111,
             "elevationLayer": 0
           },
           {
-            "x": -213.75,
-            "y": -279.456,
+            "x": -213.159,
+            "y": -278.994,
             "distanceMeters": 974.107,
             "elevationLayer": 0
           },
           {
-            "x": -216.881,
-            "y": -275.499,
+            "x": -216.607,
+            "y": -275.281,
             "distanceMeters": 979.102,
             "elevationLayer": 0
           },
           {
-            "x": -219.996,
-            "y": -271.575,
+            "x": -219.723,
+            "y": -271.357,
             "distanceMeters": 984.097,
             "elevationLayer": 0
           },
           {
-            "x": -223.13,
-            "y": -267.652,
+            "x": -222.857,
+            "y": -267.433,
             "distanceMeters": 989.093,
             "elevationLayer": 0
           },
           {
-            "x": -226.282,
-            "y": -263.746,
+            "x": -226.009,
+            "y": -263.526,
             "distanceMeters": 994.088,
             "elevationLayer": 0
           },
           {
-            "x": -229.431,
-            "y": -259.86,
+            "x": -229.159,
+            "y": -259.639,
             "distanceMeters": 999.084,
             "elevationLayer": 0
           },
           {
-            "x": -232.579,
-            "y": -255.975,
+            "x": -232.307,
+            "y": -255.755,
             "distanceMeters": 1004.079,
             "elevationLayer": 0
           },
           {
-            "x": -235.735,
-            "y": -252.091,
+            "x": -235.464,
+            "y": -251.87,
             "distanceMeters": 1009.074,
             "elevationLayer": 0
           },
           {
-            "x": -238.899,
-            "y": -248.211,
+            "x": -238.628,
+            "y": -247.99,
             "distanceMeters": 1014.07,
             "elevationLayer": 0
           },
           {
-            "x": -242.067,
-            "y": -244.339,
+            "x": -241.796,
+            "y": -244.117,
             "distanceMeters": 1019.065,
             "elevationLayer": 0
           },
           {
-            "x": -245.236,
-            "y": -240.472,
+            "x": -244.966,
+            "y": -240.25,
             "distanceMeters": 1024.061,
             "elevationLayer": 0
           },
           {
-            "x": -248.405,
-            "y": -236.608,
+            "x": -248.134,
+            "y": -236.386,
             "distanceMeters": 1029.056,
             "elevationLayer": 0
           },
           {
-            "x": -251.576,
-            "y": -232.742,
+            "x": -251.305,
+            "y": -232.519,
             "distanceMeters": 1034.052,
             "elevationLayer": 0
           },
           {
-            "x": -254.76,
-            "y": -228.874,
+            "x": -254.49,
+            "y": -228.651,
             "distanceMeters": 1039.047,
             "elevationLayer": 0
           },
           {
-            "x": -257.954,
-            "y": -225.012,
+            "x": -257.684,
+            "y": -224.789,
             "distanceMeters": 1044.042,
             "elevationLayer": 0
           },
           {
-            "x": -261.156,
-            "y": -221.162,
+            "x": -260.887,
+            "y": -220.938,
             "distanceMeters": 1049.038,
             "elevationLayer": 0
           },
           {
-            "x": -264.358,
-            "y": -217.321,
+            "x": -263.782,
+            "y": -216.841,
             "distanceMeters": 1054.033,
             "elevationLayer": 0
           },
           {
-            "x": -267.565,
-            "y": -213.476,
+            "x": -266.99,
+            "y": -212.994,
             "distanceMeters": 1059.029,
             "elevationLayer": 0
           },
           {
-            "x": -270.8,
-            "y": -209.626,
+            "x": -269.654,
+            "y": -208.657,
             "distanceMeters": 1064.024,
             "elevationLayer": 0
           },
           {
-            "x": -273.683,
-            "y": -206.237,
+            "x": -271.781,
+            "y": -204.614,
             "distanceMeters": 1068.445,
             "elevationLayer": 0
           }
@@ -15405,38 +15468,38 @@
         ],
         "path": [
           {
-            "x": -289.659,
-            "y": -219.868,
+            "x": -288.517,
+            "y": -218.894,
             "distanceMeters": 1068.445,
             "elevationLayer": 0
           },
           {
-            "x": -290.025,
-            "y": -219.436,
+            "x": -288.885,
+            "y": -218.462,
             "distanceMeters": 1069.019,
             "elevationLayer": 0
           },
           {
-            "x": -293.25,
-            "y": -215.675,
+            "x": -292.112,
+            "y": -214.698,
             "distanceMeters": 1074.015,
             "elevationLayer": 0
           },
           {
-            "x": -296.426,
-            "y": -211.987,
+            "x": -295.861,
+            "y": -211.493,
             "distanceMeters": 1079.01,
             "elevationLayer": 0
           },
           {
-            "x": -299.606,
-            "y": -208.406,
+            "x": -299.049,
+            "y": -207.905,
             "distanceMeters": 1084.006,
             "elevationLayer": 0
           },
           {
-            "x": -302.641,
-            "y": -205.072,
+            "x": -302.461,
+            "y": -204.898,
             "distanceMeters": 1089.001,
             "elevationLayer": 0
           },
@@ -15723,38 +15786,38 @@
             "elevationLayer": 0
           },
           {
-            "x": -391.949,
+            "x": -391.699,
             "y": 11.994,
             "distanceMeters": 1328.781,
             "elevationLayer": 0
           },
           {
-            "x": -391.933,
-            "y": 16.991,
+            "x": -391.683,
+            "y": 16.99,
             "distanceMeters": 1333.777,
             "elevationLayer": 0
           },
           {
-            "x": -391.916,
-            "y": 21.987,
+            "x": -391.166,
+            "y": 21.984,
             "distanceMeters": 1338.772,
             "elevationLayer": 0
           },
           {
-            "x": -391.9,
-            "y": 26.98,
+            "x": -391.15,
+            "y": 26.978,
             "distanceMeters": 1343.767,
             "elevationLayer": 0
           },
           {
-            "x": -391.884,
-            "y": 31.976,
+            "x": -390.384,
+            "y": 31.972,
             "distanceMeters": 1348.763,
             "elevationLayer": 0
           },
           {
-            "x": -391.874,
-            "y": 35.123,
+            "x": -389.374,
+            "y": 35.115,
             "distanceMeters": 1351.91,
             "elevationLayer": 0
           }
@@ -15775,38 +15838,38 @@
         ],
         "path": [
           {
-            "x": -270.64,
-            "y": -203.641,
+            "x": -271.781,
+            "y": -204.614,
             "distanceMeters": 1068.445,
             "elevationLayer": 0
           },
           {
-            "x": -271.016,
-            "y": -203.199,
+            "x": -272.157,
+            "y": -204.174,
             "distanceMeters": 1069.019,
             "elevationLayer": 0
           },
           {
-            "x": -274.288,
-            "y": -199.383,
+            "x": -275.426,
+            "y": -200.361,
             "distanceMeters": 1074.015,
             "elevationLayer": 0
           },
           {
-            "x": -277.607,
-            "y": -195.528,
+            "x": -278.172,
+            "y": -196.022,
             "distanceMeters": 1079.01,
             "elevationLayer": 0
           },
           {
-            "x": -281.025,
-            "y": -191.682,
+            "x": -281.582,
+            "y": -192.183,
             "distanceMeters": 1084.006,
             "elevationLayer": 0
           },
           {
-            "x": -284.631,
-            "y": -187.733,
+            "x": -284.811,
+            "y": -187.906,
             "distanceMeters": 1089.001,
             "elevationLayer": 0
           },
@@ -16093,38 +16156,38 @@
             "elevationLayer": 0
           },
           {
-            "x": -366.949,
+            "x": -366.699,
             "y": 11.914,
             "distanceMeters": 1328.781,
             "elevationLayer": 0
           },
           {
-            "x": -366.933,
-            "y": 16.908,
+            "x": -366.683,
+            "y": 16.907,
             "distanceMeters": 1333.777,
             "elevationLayer": 0
           },
           {
-            "x": -366.916,
-            "y": 21.904,
+            "x": -366.166,
+            "y": 21.902,
             "distanceMeters": 1338.772,
             "elevationLayer": 0
           },
           {
-            "x": -366.9,
-            "y": 26.9,
+            "x": -366.15,
+            "y": 26.898,
             "distanceMeters": 1343.767,
             "elevationLayer": 0
           },
           {
-            "x": -366.884,
-            "y": 31.896,
+            "x": -365.384,
+            "y": 31.892,
             "distanceMeters": 1348.763,
             "elevationLayer": 0
           },
           {
-            "x": -366.874,
-            "y": 35.043,
+            "x": -364.374,
+            "y": 35.035,
             "distanceMeters": 1351.91,
             "elevationLayer": 0
           }
@@ -16145,37 +16208,37 @@
         ],
         "path": [
           {
-            "x": -387.874,
-            "y": 35.111,
+            "x": -389.374,
+            "y": 35.115,
             "distanceMeters": 1351.91,
             "elevationLayer": 0
           },
           {
-            "x": -387.868,
-            "y": 36.958,
+            "x": -389.368,
+            "y": 36.962,
             "distanceMeters": 1353.758,
             "elevationLayer": 0
           },
           {
-            "x": -387.853,
-            "y": 41.953,
+            "x": -389.353,
+            "y": 41.957,
             "distanceMeters": 1358.754,
             "elevationLayer": 0
           },
           {
-            "x": -387.837,
-            "y": 46.95,
+            "x": -388.587,
+            "y": 46.952,
             "distanceMeters": 1363.749,
             "elevationLayer": 0
           },
           {
-            "x": -387.821,
+            "x": -388.071,
             "y": 51.944,
             "distanceMeters": 1368.745,
             "elevationLayer": 0
           },
           {
-            "x": -387.806,
+            "x": -388.056,
             "y": 56.939,
             "distanceMeters": 1373.74,
             "elevationLayer": 0
@@ -16359,38 +16422,38 @@
         ],
         "path": [
           {
-            "x": -362.874,
-            "y": 35.031,
+            "x": -364.374,
+            "y": 35.035,
             "distanceMeters": 1351.91,
             "elevationLayer": 0
           },
           {
-            "x": -362.868,
-            "y": 36.88,
+            "x": -364.368,
+            "y": 36.885,
             "distanceMeters": 1353.758,
             "elevationLayer": 0
           },
           {
-            "x": -362.853,
-            "y": 41.875,
+            "x": -364.353,
+            "y": 41.88,
             "distanceMeters": 1358.754,
             "elevationLayer": 0
           },
           {
-            "x": -362.837,
-            "y": 46.87,
+            "x": -363.587,
+            "y": 46.872,
             "distanceMeters": 1363.749,
             "elevationLayer": 0
           },
           {
-            "x": -362.821,
-            "y": 51.866,
+            "x": -363.071,
+            "y": 51.867,
             "distanceMeters": 1368.745,
             "elevationLayer": 0
           },
           {
-            "x": -362.806,
-            "y": 56.863,
+            "x": -363.056,
+            "y": 56.864,
             "distanceMeters": 1373.74,
             "elevationLayer": 0
           },
@@ -16521,38 +16584,38 @@
             "elevationLayer": 0
           },
           {
-            "x": -443.582,
-            "y": 118.436,
+            "x": -443.631,
+            "y": 118.191,
             "distanceMeters": 1483.639,
             "elevationLayer": 0
           },
           {
-            "x": -446.933,
-            "y": 119.319,
+            "x": -447.158,
+            "y": 118.603,
             "distanceMeters": 1488.635,
             "elevationLayer": 0
           },
           {
-            "x": -450.289,
-            "y": 120.558,
+            "x": -450.583,
+            "y": 119.868,
             "distanceMeters": 1493.63,
             "elevationLayer": 0
           },
           {
-            "x": -453.52,
-            "y": 122.124,
+            "x": -454.238,
+            "y": 120.807,
             "distanceMeters": 1498.625,
             "elevationLayer": 0
           },
           {
-            "x": -456.757,
-            "y": 124.105,
+            "x": -457.582,
+            "y": 122.852,
             "distanceMeters": 1503.621,
             "elevationLayer": 0
           },
           {
-            "x": -457.318,
-            "y": 124.51,
+            "x": -458.725,
+            "y": 122.444,
             "distanceMeters": 1504.545,
             "elevationLayer": 0
           }
@@ -16833,32 +16896,32 @@
         ],
         "path": [
           {
-            "x": -459.569,
-            "y": 121.204,
+            "x": -458.725,
+            "y": 122.444,
             "distanceMeters": 1504.545,
             "elevationLayer": 0
           },
           {
-            "x": -462.446,
-            "y": 123.238,
+            "x": -461.538,
+            "y": 124.432,
             "distanceMeters": 1508.616,
             "elevationLayer": 0
           },
           {
-            "x": -465.728,
-            "y": 125.908,
+            "x": -465.232,
+            "y": 126.471,
             "distanceMeters": 1513.612,
             "elevationLayer": 0
           },
           {
-            "x": -468.791,
-            "y": 128.834,
+            "x": -468.256,
+            "y": 129.359,
             "distanceMeters": 1518.607,
             "elevationLayer": 0
           },
           {
-            "x": -471.734,
-            "y": 132.04,
+            "x": -471.545,
+            "y": 132.204,
             "distanceMeters": 1523.603,
             "elevationLayer": 0
           },
@@ -17546,38 +17609,38 @@
             "elevationLayer": 0
           },
           {
-            "x": -496.231,
-            "y": 667.154,
+            "x": -497.202,
+            "y": 667.394,
             "distanceMeters": 2073.099,
             "elevationLayer": 0
           },
           {
-            "x": -495.028,
-            "y": 672.003,
+            "x": -497.94,
+            "y": 672.725,
             "distanceMeters": 2078.094,
             "elevationLayer": 0
           },
           {
-            "x": -493.825,
-            "y": 676.852,
+            "x": -496.736,
+            "y": 677.575,
             "distanceMeters": 2083.089,
             "elevationLayer": 0
           },
           {
-            "x": -492.619,
-            "y": 681.706,
+            "x": -498.442,
+            "y": 683.155,
             "distanceMeters": 2088.085,
             "elevationLayer": 0
           },
           {
-            "x": -491.407,
-            "y": 686.566,
+            "x": -497.228,
+            "y": 688.022,
             "distanceMeters": 2093.08,
             "elevationLayer": 0
           },
           {
-            "x": -491.358,
-            "y": 686.76,
+            "x": -501.059,
+            "y": 689.188,
             "distanceMeters": 2093.28,
             "elevationLayer": 0
           }
@@ -18049,38 +18112,38 @@
             "elevationLayer": 0
           },
           {
-            "x": -475.849,
-            "y": 662.096,
+            "x": -476.092,
+            "y": 662.157,
             "distanceMeters": 2073.099,
             "elevationLayer": 0
           },
           {
-            "x": -474.646,
-            "y": 666.945,
+            "x": -475.374,
+            "y": 667.126,
             "distanceMeters": 2078.094,
             "elevationLayer": 0
           },
           {
-            "x": -473.443,
-            "y": 671.792,
+            "x": -474.171,
+            "y": 671.973,
             "distanceMeters": 2083.089,
             "elevationLayer": 0
           },
           {
-            "x": -472.241,
-            "y": 676.634,
+            "x": -473.696,
+            "y": 676.996,
             "distanceMeters": 2088.085,
             "elevationLayer": 0
           },
           {
-            "x": -471.035,
-            "y": 681.468,
+            "x": -472.49,
+            "y": 681.832,
             "distanceMeters": 2093.08,
             "elevationLayer": 0
           },
           {
-            "x": -470.987,
-            "y": 681.662,
+            "x": -473.412,
+            "y": 682.269,
             "distanceMeters": 2093.28,
             "elevationLayer": 0
           }
@@ -18101,32 +18164,32 @@
         ],
         "path": [
           {
-            "x": -506.879,
-            "y": 690.645,
+            "x": -501.059,
+            "y": 689.188,
             "distanceMeters": 2093.28,
             "elevationLayer": 0
           },
           {
-            "x": -505.703,
-            "y": 695.331,
+            "x": -499.885,
+            "y": 693.866,
             "distanceMeters": 2098.076,
             "elevationLayer": 0
           },
           {
-            "x": -504.472,
-            "y": 700.207,
+            "x": -501.564,
+            "y": 699.471,
             "distanceMeters": 2103.071,
             "elevationLayer": 0
           },
           {
-            "x": -503.239,
-            "y": 705.071,
+            "x": -500.331,
+            "y": 704.332,
             "distanceMeters": 2108.066,
             "elevationLayer": 0
           },
           {
-            "x": -502.006,
-            "y": 709.919,
+            "x": -501.037,
+            "y": 709.673,
             "distanceMeters": 2113.062,
             "elevationLayer": 0
           },
@@ -18389,38 +18452,38 @@
             "elevationLayer": 0
           },
           {
-            "x": -390.567,
-            "y": 877.59,
+            "x": -389.597,
+            "y": 877.345,
             "distanceMeters": 2332.86,
             "elevationLayer": 0
           },
           {
-            "x": -389.354,
-            "y": 882.41,
+            "x": -388.384,
+            "y": 882.166,
             "distanceMeters": 2337.856,
             "elevationLayer": 0
           },
           {
-            "x": -388.149,
-            "y": 887.222,
+            "x": -385.239,
+            "y": 886.495,
             "distanceMeters": 2342.851,
             "elevationLayer": 0
           },
           {
-            "x": -386.952,
-            "y": 892.034,
+            "x": -381.129,
+            "y": 890.589,
             "distanceMeters": 2347.847,
             "elevationLayer": 0
           },
           {
-            "x": -385.76,
-            "y": 896.852,
+            "x": -379.935,
+            "y": 895.414,
             "distanceMeters": 2352.842,
             "elevationLayer": 0
           },
           {
-            "x": -385.262,
-            "y": 898.874,
+            "x": -375.552,
+            "y": 896.483,
             "distanceMeters": 2354.94,
             "elevationLayer": 0
           }
@@ -18441,326 +18504,326 @@
         ],
         "path": [
           {
-            "x": -474.867,
-            "y": 682.633,
+            "x": -473.412,
+            "y": 682.269,
             "distanceMeters": 2093.28,
             "elevationLayer": 0
           },
           {
-            "x": -473.702,
-            "y": 687.275,
+            "x": -472.247,
+            "y": 686.909,
             "distanceMeters": 2098.076,
             "elevationLayer": 0
           },
           {
-            "x": -472.481,
-            "y": 692.111,
+            "x": -471.754,
+            "y": 691.927,
             "distanceMeters": 2103.071,
             "elevationLayer": 0
           },
           {
-            "x": -471.254,
-            "y": 696.948,
+            "x": -470.527,
+            "y": 696.764,
             "distanceMeters": 2108.066,
             "elevationLayer": 0
           },
           {
-            "x": -470.023,
-            "y": 701.787,
+            "x": -469.684,
+            "y": 701.701,
             "distanceMeters": 2113.062,
             "elevationLayer": 0
           },
           {
-            "x": -468.793,
-            "y": 706.627,
+            "x": -468.454,
+            "y": 706.54,
             "distanceMeters": 2118.057,
             "elevationLayer": 0
           },
           {
-            "x": -467.561,
-            "y": 711.454,
+            "x": -467.222,
+            "y": 711.367,
             "distanceMeters": 2123.053,
             "elevationLayer": 0
           },
           {
-            "x": -466.316,
-            "y": 716.271,
+            "x": -465.978,
+            "y": 716.183,
             "distanceMeters": 2128.048,
             "elevationLayer": 0
           },
           {
-            "x": -465.056,
-            "y": 721.084,
+            "x": -464.717,
+            "y": 720.994,
             "distanceMeters": 2133.044,
             "elevationLayer": 0
           },
           {
-            "x": -463.778,
-            "y": 725.903,
+            "x": -463.44,
+            "y": 725.813,
             "distanceMeters": 2138.039,
             "elevationLayer": 0
           },
           {
-            "x": -462.5,
-            "y": 730.72,
+            "x": -462.162,
+            "y": 730.629,
             "distanceMeters": 2143.034,
             "elevationLayer": 0
           },
           {
-            "x": -461.217,
-            "y": 735.494,
+            "x": -460.879,
+            "y": 735.401,
             "distanceMeters": 2148.03,
             "elevationLayer": 0
           },
           {
-            "x": -459.878,
-            "y": 740.236,
+            "x": -459.542,
+            "y": 740.139,
             "distanceMeters": 2153.025,
             "elevationLayer": 0
           },
           {
-            "x": -458.509,
-            "y": 744.93,
+            "x": -458.174,
+            "y": 744.828,
             "distanceMeters": 2158.021,
             "elevationLayer": 0
           },
           {
-            "x": -457.191,
-            "y": 749.143,
+            "x": -456.867,
+            "y": 749.012,
             "distanceMeters": 2163.016,
             "elevationLayer": 0
           },
           {
-            "x": -455.442,
-            "y": 752.666,
+            "x": -455.143,
+            "y": 752.484,
             "distanceMeters": 2168.011,
             "elevationLayer": 0
           },
           {
-            "x": -453.379,
-            "y": 755.54,
+            "x": -453.127,
+            "y": 755.296,
             "distanceMeters": 2173.007,
             "elevationLayer": 0
           },
           {
-            "x": -450.687,
-            "y": 757.608,
+            "x": -450.502,
+            "y": 757.311,
             "distanceMeters": 2178.002,
             "elevationLayer": 0
           },
           {
-            "x": -447.289,
-            "y": 759.236,
+            "x": -447.163,
+            "y": 758.91,
             "distanceMeters": 2182.998,
             "elevationLayer": 0
           },
           {
-            "x": -443.386,
-            "y": 760.372,
+            "x": -443.307,
+            "y": 760.031,
             "distanceMeters": 2187.993,
             "elevationLayer": 0
           },
           {
-            "x": -439.02,
-            "y": 761.094,
+            "x": -438.972,
+            "y": 760.747,
             "distanceMeters": 2192.989,
             "elevationLayer": 0
           },
           {
-            "x": -434.282,
-            "y": 761.618,
+            "x": -434.246,
+            "y": 761.269,
             "distanceMeters": 2197.984,
             "elevationLayer": 0
           },
           {
-            "x": -429.119,
-            "y": 762.117,
+            "x": -429.072,
+            "y": 761.77,
             "distanceMeters": 2202.979,
             "elevationLayer": 0
           },
           {
-            "x": -423.629,
-            "y": 763.063,
+            "x": -423.552,
+            "y": 762.722,
             "distanceMeters": 2207.975,
             "elevationLayer": 0
           },
           {
-            "x": -418.181,
-            "y": 764.59,
+            "x": -418.069,
+            "y": 764.258,
             "distanceMeters": 2212.97,
             "elevationLayer": 0
           },
           {
-            "x": -412.963,
-            "y": 766.639,
+            "x": -412.821,
+            "y": 766.319,
             "distanceMeters": 2217.966,
             "elevationLayer": 0
           },
           {
-            "x": -407.957,
-            "y": 769.132,
+            "x": -407.786,
+            "y": 768.827,
             "distanceMeters": 2222.961,
             "elevationLayer": 0
           },
           {
-            "x": -403.143,
-            "y": 772.145,
+            "x": -402.941,
+            "y": 771.86,
             "distanceMeters": 2227.956,
             "elevationLayer": 0
           },
           {
-            "x": -398.72,
-            "y": 775.671,
+            "x": -398.489,
+            "y": 775.407,
             "distanceMeters": 2232.952,
             "elevationLayer": 0
           },
           {
-            "x": -394.743,
-            "y": 779.469,
+            "x": -394.492,
+            "y": 779.224,
             "distanceMeters": 2237.947,
             "elevationLayer": 0
           },
           {
-            "x": -391.089,
-            "y": 783.455,
+            "x": -390.824,
+            "y": 783.226,
             "distanceMeters": 2242.943,
             "elevationLayer": 0
           },
           {
-            "x": -387.694,
-            "y": 787.646,
+            "x": -387.416,
+            "y": 787.434,
             "distanceMeters": 2247.938,
             "elevationLayer": 0
           },
           {
-            "x": -384.56,
-            "y": 792.045,
+            "x": -384.269,
+            "y": 791.851,
             "distanceMeters": 2252.934,
             "elevationLayer": 0
           },
           {
-            "x": -381.718,
-            "y": 796.621,
+            "x": -381.415,
+            "y": 796.445,
             "distanceMeters": 2257.929,
             "elevationLayer": 0
           },
           {
-            "x": -379.168,
-            "y": 801.306,
+            "x": -378.857,
+            "y": 801.146,
             "distanceMeters": 2262.924,
             "elevationLayer": 0
           },
           {
-            "x": -376.867,
-            "y": 806.049,
+            "x": -376.549,
+            "y": 805.902,
             "distanceMeters": 2267.92,
             "elevationLayer": 0
           },
           {
-            "x": -374.748,
-            "y": 810.888,
+            "x": -374.424,
+            "y": 810.755,
             "distanceMeters": 2272.915,
             "elevationLayer": 0
           },
           {
-            "x": -372.829,
-            "y": 815.946,
+            "x": -372.497,
+            "y": 815.835,
             "distanceMeters": 2277.911,
             "elevationLayer": 0
           },
           {
-            "x": -371.346,
-            "y": 820.996,
+            "x": -371.01,
+            "y": 820.898,
             "distanceMeters": 2282.906,
             "elevationLayer": 0
           },
           {
-            "x": -369.95,
-            "y": 825.839,
+            "x": -369.613,
+            "y": 825.743,
             "distanceMeters": 2287.901,
             "elevationLayer": 0
           },
           {
-            "x": -368.594,
-            "y": 830.717,
+            "x": -368.257,
+            "y": 830.626,
             "distanceMeters": 2292.897,
             "elevationLayer": 0
           },
           {
-            "x": -367.3,
-            "y": 835.586,
+            "x": -366.962,
+            "y": 835.497,
             "distanceMeters": 2297.892,
             "elevationLayer": 0
           },
           {
-            "x": -366.024,
-            "y": 840.424,
+            "x": -365.686,
+            "y": 840.335,
             "distanceMeters": 2302.888,
             "elevationLayer": 0
           },
           {
-            "x": -364.751,
-            "y": 845.266,
+            "x": -364.412,
+            "y": 845.177,
             "distanceMeters": 2307.883,
             "elevationLayer": 0
           },
           {
-            "x": -363.488,
-            "y": 850.12,
+            "x": -363.149,
+            "y": 850.033,
             "distanceMeters": 2312.879,
             "elevationLayer": 0
           },
           {
-            "x": -362.241,
-            "y": 854.98,
+            "x": -361.902,
+            "y": 854.893,
             "distanceMeters": 2317.874,
             "elevationLayer": 0
           },
           {
-            "x": -361.012,
-            "y": 859.834,
+            "x": -360.673,
+            "y": 859.749,
             "distanceMeters": 2322.869,
             "elevationLayer": 0
           },
           {
-            "x": -359.789,
-            "y": 864.681,
+            "x": -359.45,
+            "y": 864.595,
             "distanceMeters": 2327.865,
             "elevationLayer": 0
           },
           {
-            "x": -358.567,
-            "y": 869.527,
+            "x": -358.228,
+            "y": 869.441,
             "distanceMeters": 2332.86,
             "elevationLayer": 0
           },
           {
-            "x": -357.347,
-            "y": 874.377,
+            "x": -357.007,
+            "y": 874.292,
             "distanceMeters": 2337.856,
             "elevationLayer": 0
           },
           {
-            "x": -356.131,
-            "y": 879.231,
+            "x": -355.404,
+            "y": 879.05,
             "distanceMeters": 2342.851,
             "elevationLayer": 0
           },
           {
-            "x": -354.923,
-            "y": 884.087,
+            "x": -353.467,
+            "y": 883.725,
             "distanceMeters": 2347.847,
             "elevationLayer": 0
           },
           {
-            "x": -353.721,
-            "y": 888.945,
+            "x": -352.265,
+            "y": 888.585,
             "distanceMeters": 2352.842,
             "elevationLayer": 0
           },
           {
-            "x": -353.219,
-            "y": 890.985,
+            "x": -350.791,
+            "y": 890.388,
             "distanceMeters": 2354.94,
             "elevationLayer": 0
           }
@@ -18781,38 +18844,38 @@
         ],
         "path": [
           {
-            "x": -369.726,
-            "y": 895.049,
+            "x": -375.552,
+            "y": 896.483,
             "distanceMeters": 2354.94,
             "elevationLayer": 0
           },
           {
-            "x": -369.034,
-            "y": 897.86,
+            "x": -374.86,
+            "y": 899.293,
             "distanceMeters": 2357.837,
             "elevationLayer": 0
           },
           {
-            "x": -367.842,
-            "y": 902.71,
+            "x": -373.669,
+            "y": 904.142,
             "distanceMeters": 2362.833,
             "elevationLayer": 0
           },
           {
-            "x": -366.649,
-            "y": 907.561,
+            "x": -369.563,
+            "y": 908.277,
             "distanceMeters": 2367.828,
             "elevationLayer": 0
           },
           {
-            "x": -365.459,
-            "y": 912.406,
+            "x": -366.43,
+            "y": 912.644,
             "distanceMeters": 2372.824,
             "elevationLayer": 0
           },
           {
-            "x": -364.274,
-            "y": 917.244,
+            "x": -365.246,
+            "y": 917.481,
             "distanceMeters": 2377.819,
             "elevationLayer": 0
           },
@@ -19231,32 +19294,32 @@
             "elevationLayer": 0
           },
           {
-            "x": -335.546,
-            "y": 1258.114,
+            "x": -338.059,
+            "y": 1257.615,
             "distanceMeters": 2727.498,
             "elevationLayer": 0
           },
           {
-            "x": -336.519,
-            "y": 1263.012,
+            "x": -344.059,
+            "y": 1261.512,
             "distanceMeters": 2732.494,
             "elevationLayer": 0
           },
           {
-            "x": -337.493,
-            "y": 1267.905,
+            "x": -345.032,
+            "y": 1266.402,
             "distanceMeters": 2737.489,
             "elevationLayer": 0
           },
           {
-            "x": -338.47,
-            "y": 1272.795,
+            "x": -353.546,
+            "y": 1269.774,
             "distanceMeters": 2742.485,
             "elevationLayer": 0
           },
           {
-            "x": -339.442,
-            "y": 1277.633,
+            "x": -364.563,
+            "y": 1272.572,
             "distanceMeters": 2747.43,
             "elevationLayer": 0
           }
@@ -19277,38 +19340,38 @@
         ],
         "path": [
           {
-            "x": -349.335,
-            "y": 890.029,
+            "x": -350.791,
+            "y": 890.388,
             "distanceMeters": 2354.94,
             "elevationLayer": 0
           },
           {
-            "x": -348.642,
-            "y": 892.844,
+            "x": -350.098,
+            "y": 893.202,
             "distanceMeters": 2357.837,
             "elevationLayer": 0
           },
           {
-            "x": -347.45,
-            "y": 897.696,
+            "x": -348.906,
+            "y": 898.055,
             "distanceMeters": 2362.833,
             "elevationLayer": 0
           },
           {
-            "x": -346.257,
-            "y": 902.547,
+            "x": -346.985,
+            "y": 902.726,
             "distanceMeters": 2367.828,
             "elevationLayer": 0
           },
           {
-            "x": -345.063,
-            "y": 907.404,
+            "x": -345.306,
+            "y": 907.463,
             "distanceMeters": 2372.824,
             "elevationLayer": 0
           },
           {
-            "x": -343.872,
-            "y": 912.272,
+            "x": -344.115,
+            "y": 912.331,
             "distanceMeters": 2377.819,
             "elevationLayer": 0
           },
@@ -19774,38 +19837,38 @@
         ],
         "path": [
           {
-            "x": -379.635,
-            "y": 1269.536,
+            "x": -364.563,
+            "y": 1272.572,
             "distanceMeters": 2747.43,
             "elevationLayer": 0
           },
           {
-            "x": -379.645,
-            "y": 1269.585,
+            "x": -364.573,
+            "y": 1272.621,
             "distanceMeters": 2747.48,
             "elevationLayer": 0
           },
           {
-            "x": -380.623,
-            "y": 1274.43,
+            "x": -365.554,
+            "y": 1277.482,
             "distanceMeters": 2752.475,
             "elevationLayer": 0
           },
           {
-            "x": -381.611,
-            "y": 1279.293,
+            "x": -374.077,
+            "y": 1280.824,
             "distanceMeters": 2757.471,
             "elevationLayer": 0
           },
           {
-            "x": -382.605,
-            "y": 1284.184,
+            "x": -375.072,
+            "y": 1285.716,
             "distanceMeters": 2762.466,
             "elevationLayer": 0
           },
           {
-            "x": -383.6,
-            "y": 1289.08,
+            "x": -381.089,
+            "y": 1289.591,
             "distanceMeters": 2767.462,
             "elevationLayer": 0
           },
@@ -20122,38 +20185,38 @@
             "elevationLayer": 0
           },
           {
-            "x": -238.515,
-            "y": 1262.918,
+            "x": -240.816,
+            "y": 1261.79,
             "distanceMeters": 3032.219,
             "elevationLayer": 0
           },
           {
-            "x": -236.317,
-            "y": 1258.432,
+            "x": -243.22,
+            "y": 1255.049,
             "distanceMeters": 3037.214,
             "elevationLayer": 0
           },
           {
-            "x": -234.12,
-            "y": 1253.948,
+            "x": -241.023,
+            "y": 1250.565,
             "distanceMeters": 3042.21,
             "elevationLayer": 0
           },
           {
-            "x": -231.924,
-            "y": 1249.467,
+            "x": -245.73,
+            "y": 1242.7,
             "distanceMeters": 3047.205,
             "elevationLayer": 0
           },
           {
-            "x": -229.727,
-            "y": 1244.985,
+            "x": -243.532,
+            "y": 1238.217,
             "distanceMeters": 3052.2,
             "elevationLayer": 0
           },
           {
-            "x": -229.507,
-            "y": 1244.537,
+            "x": -252.516,
+            "y": 1233.256,
             "distanceMeters": 3052.7,
             "elevationLayer": 0
           }
@@ -20523,38 +20586,38 @@
             "elevationLayer": 0
           },
           {
-            "x": -294.191,
-            "y": 1235.638,
+            "x": -294.416,
+            "y": 1235.528,
             "distanceMeters": 3032.219,
             "elevationLayer": 0
           },
           {
-            "x": -291.993,
-            "y": 1231.152,
+            "x": -292.667,
+            "y": 1230.822,
             "distanceMeters": 3037.214,
             "elevationLayer": 0
           },
           {
-            "x": -289.795,
-            "y": 1226.666,
+            "x": -290.468,
+            "y": 1226.336,
             "distanceMeters": 3042.21,
             "elevationLayer": 0
           },
           {
-            "x": -287.596,
-            "y": 1222.18,
+            "x": -288.943,
+            "y": 1221.52,
             "distanceMeters": 3047.205,
             "elevationLayer": 0
           },
           {
-            "x": -285.397,
-            "y": 1217.693,
+            "x": -286.744,
+            "y": 1217.033,
             "distanceMeters": 3052.2,
             "elevationLayer": 0
           },
           {
-            "x": -285.177,
-            "y": 1217.244,
+            "x": -287.422,
+            "y": 1216.143,
             "distanceMeters": 3052.7,
             "elevationLayer": 0
           }
@@ -20577,32 +20640,32 @@
         ],
         "path": [
           {
-            "x": -266.321,
-            "y": 1226.488,
+            "x": -252.516,
+            "y": 1233.256,
             "distanceMeters": 3052.7,
             "elevationLayer": 0
           },
           {
-            "x": -264.343,
-            "y": 1222.453,
+            "x": -250.538,
+            "y": 1229.223,
             "distanceMeters": 3057.196,
             "elevationLayer": 0
           },
           {
-            "x": -262.143,
-            "y": 1217.968,
+            "x": -255.24,
+            "y": 1221.353,
             "distanceMeters": 3062.191,
             "elevationLayer": 0
           },
           {
-            "x": -259.944,
-            "y": 1213.483,
+            "x": -253.041,
+            "y": 1216.868,
             "distanceMeters": 3067.187,
             "elevationLayer": 0
           },
           {
-            "x": -257.721,
-            "y": 1208.952,
+            "x": -255.415,
+            "y": 1210.069,
             "distanceMeters": 3072.182,
             "elevationLayer": 0
           },
@@ -21651,38 +21714,38 @@
             "elevationLayer": 0
           },
           {
-            "x": -29.796,
-            "y": 365.093,
+            "x": -28.205,
+            "y": 365.425,
             "distanceMeters": 3946.38,
             "elevationLayer": 0
           },
           {
-            "x": -28.775,
-            "y": 360.202,
+            "x": -27.184,
+            "y": 360.534,
             "distanceMeters": 3951.376,
             "elevationLayer": 0
           },
           {
-            "x": -27.754,
-            "y": 355.312,
+            "x": -22.982,
+            "y": 356.308,
             "distanceMeters": 3956.371,
             "elevationLayer": 0
           },
           {
-            "x": -26.733,
-            "y": 350.422,
+            "x": -17.188,
+            "y": 352.415,
             "distanceMeters": 3961.367,
             "elevationLayer": 0
           },
           {
-            "x": -25.712,
-            "y": 345.532,
+            "x": -16.168,
+            "y": 347.525,
             "distanceMeters": 3966.362,
             "elevationLayer": 0
           },
           {
-            "x": -25.273,
-            "y": 343.43,
+            "x": -9.366,
+            "y": 346.752,
             "distanceMeters": 3968.51,
             "elevationLayer": 0
           }
@@ -21705,32 +21768,32 @@
         ],
         "path": [
           {
-            "x": -288.768,
-            "y": 1215.483,
+            "x": -287.422,
+            "y": 1216.143,
             "distanceMeters": 3052.7,
             "elevationLayer": 0
           },
           {
-            "x": -286.789,
-            "y": 1211.445,
+            "x": -285.442,
+            "y": 1212.106,
             "distanceMeters": 3057.196,
             "elevationLayer": 0
           },
           {
-            "x": -284.589,
-            "y": 1206.96,
+            "x": -283.915,
+            "y": 1207.291,
             "distanceMeters": 3062.191,
             "elevationLayer": 0
           },
           {
-            "x": -282.39,
-            "y": 1202.475,
+            "x": -281.716,
+            "y": 1202.806,
             "distanceMeters": 3067.187,
             "elevationLayer": 0
           },
           {
-            "x": -280.221,
-            "y": 1198.055,
+            "x": -279.996,
+            "y": 1198.164,
             "distanceMeters": 3072.182,
             "elevationLayer": 0
           },
@@ -22779,38 +22842,38 @@
             "elevationLayer": 0
           },
           {
-            "x": -54.268,
-            "y": 359.981,
+            "x": -54.023,
+            "y": 360.032,
             "distanceMeters": 3946.38,
             "elevationLayer": 0
           },
           {
-            "x": -53.247,
-            "y": 355.092,
+            "x": -53.002,
+            "y": 355.144,
             "distanceMeters": 3951.376,
             "elevationLayer": 0
           },
           {
-            "x": -52.226,
-            "y": 350.202,
+            "x": -51.492,
+            "y": 350.356,
             "distanceMeters": 3956.371,
             "elevationLayer": 0
           },
           {
-            "x": -51.205,
-            "y": 345.312,
+            "x": -49.737,
+            "y": 345.619,
             "distanceMeters": 3961.367,
             "elevationLayer": 0
           },
           {
-            "x": -50.184,
-            "y": 340.422,
+            "x": -48.716,
+            "y": 340.729,
             "distanceMeters": 3966.362,
             "elevationLayer": 0
           },
           {
-            "x": -49.745,
-            "y": 338.319,
+            "x": -47.298,
+            "y": 338.83,
             "distanceMeters": 3968.51,
             "elevationLayer": 0
           }
@@ -22831,38 +22894,38 @@
         ],
         "path": [
           {
-            "x": 0.178,
-            "y": 348.745,
+            "x": -9.366,
+            "y": 346.752,
             "distanceMeters": 3968.51,
             "elevationLayer": 0
           },
           {
-            "x": 0.76,
-            "y": 345.961,
+            "x": -8.784,
+            "y": 343.967,
             "distanceMeters": 3971.357,
             "elevationLayer": 0
           },
           {
-            "x": 1.782,
-            "y": 341.071,
+            "x": -7.762,
+            "y": 339.077,
             "distanceMeters": 3976.353,
             "elevationLayer": 0
           },
           {
-            "x": 2.803,
-            "y": 336.177,
+            "x": -1.969,
+            "y": 335.181,
             "distanceMeters": 3981.348,
             "elevationLayer": 0
           },
           {
-            "x": 3.824,
-            "y": 331.287,
+            "x": 2.234,
+            "y": 330.955,
             "distanceMeters": 3986.344,
             "elevationLayer": 0
           },
           {
-            "x": 4.845,
-            "y": 326.397,
+            "x": 3.255,
+            "y": 326.065,
             "distanceMeters": 3991.339,
             "elevationLayer": 0
           },
@@ -22993,32 +23056,32 @@
             "elevationLayer": 0
           },
           {
-            "x": -10.109,
-            "y": 201.14,
+            "x": -11.446,
+            "y": 202.063,
             "distanceMeters": 4101.238,
             "elevationLayer": 0
           },
           {
-            "x": -8.169,
-            "y": 204.967,
+            "x": -12.75,
+            "y": 206.635,
             "distanceMeters": 4106.234,
             "elevationLayer": 0
           },
           {
-            "x": -7.251,
-            "y": 208.594,
+            "x": -12.096,
+            "y": 209.128,
             "distanceMeters": 4111.229,
             "elevationLayer": 0
           },
           {
-            "x": -7.178,
-            "y": 210.65,
+            "x": -16.894,
+            "y": 209.836,
             "distanceMeters": 4116.225,
             "elevationLayer": 0
           },
           {
-            "x": -6.792,
-            "y": 209.228,
+            "x": -22.785,
+            "y": 206.346,
             "distanceMeters": 4121.145,
             "elevationLayer": 0
           }
@@ -23039,38 +23102,38 @@
         ],
         "path": [
           {
-            "x": -45.829,
-            "y": 339.137,
+            "x": -47.298,
+            "y": 338.83,
             "distanceMeters": 3968.51,
             "elevationLayer": 0
           },
           {
-            "x": -45.247,
-            "y": 336.35,
+            "x": -46.715,
+            "y": 336.043,
             "distanceMeters": 3971.357,
             "elevationLayer": 0
           },
           {
-            "x": -44.225,
-            "y": 331.46,
+            "x": -45.693,
+            "y": 331.153,
             "distanceMeters": 3976.353,
             "elevationLayer": 0
           },
           {
-            "x": -43.204,
-            "y": 326.571,
+            "x": -43.939,
+            "y": 326.418,
             "distanceMeters": 3981.348,
             "elevationLayer": 0
           },
           {
-            "x": -42.183,
-            "y": 321.681,
+            "x": -42.428,
+            "y": 321.63,
             "distanceMeters": 3986.344,
             "elevationLayer": 0
           },
           {
-            "x": -41.162,
-            "y": 316.791,
+            "x": -41.407,
+            "y": 316.74,
             "distanceMeters": 3991.339,
             "elevationLayer": 0
           },
@@ -23201,32 +23264,32 @@
             "elevationLayer": 0
           },
           {
-            "x": -48.795,
-            "y": 227.831,
+            "x": -48.681,
+            "y": 227.753,
             "distanceMeters": 4101.238,
             "elevationLayer": 0
           },
           {
-            "x": -52.331,
-            "y": 221.053,
+            "x": -51.943,
+            "y": 220.912,
             "distanceMeters": 4106.234,
             "elevationLayer": 0
           },
           {
-            "x": -53.968,
-            "y": 213.742,
+            "x": -53.558,
+            "y": 213.697,
             "distanceMeters": 4111.229,
             "elevationLayer": 0
           },
           {
-            "x": -54.014,
-            "y": 206.727,
+            "x": -53.192,
+            "y": 206.795,
             "distanceMeters": 4116.225,
             "elevationLayer": 0
           },
           {
-            "x": -53.047,
-            "y": 200.894,
+            "x": -51.694,
+            "y": 201.138,
             "distanceMeters": 4121.145,
             "elevationLayer": 0
           }
@@ -23247,38 +23310,38 @@
         ],
         "path": [
           {
-            "x": -32.38,
-            "y": 204.618,
+            "x": -22.785,
+            "y": 206.346,
             "distanceMeters": 4121.145,
             "elevationLayer": 0
           },
           {
-            "x": -32.368,
-            "y": 204.547,
+            "x": -22.773,
+            "y": 206.278,
             "distanceMeters": 4121.22,
             "elevationLayer": 0
           },
           {
-            "x": -31.472,
-            "y": 199.786,
+            "x": -21.903,
+            "y": 201.656,
             "distanceMeters": 4126.215,
             "elevationLayer": 0
           },
           {
-            "x": -30.497,
-            "y": 194.975,
+            "x": -25.72,
+            "y": 195.949,
             "distanceMeters": 4131.211,
             "elevationLayer": 0
           },
           {
-            "x": -29.498,
-            "y": 190.105,
+            "x": -24.723,
+            "y": 191.09,
             "distanceMeters": 4136.206,
             "elevationLayer": 0
           },
           {
-            "x": -28.49,
-            "y": 185.248,
+            "x": -26.899,
+            "y": 185.581,
             "distanceMeters": 4141.202,
             "elevationLayer": 0
           },
@@ -23437,38 +23500,38 @@
         ],
         "path": [
           {
-            "x": -50.882,
-            "y": 201.284,
+            "x": -51.694,
+            "y": 201.138,
             "distanceMeters": 4121.145,
             "elevationLayer": 0
           },
           {
-            "x": -50.869,
-            "y": 201.208,
+            "x": -51.681,
+            "y": 201.062,
             "distanceMeters": 4121.22,
             "elevationLayer": 0
           },
           {
-            "x": -49.923,
-            "y": 196.18,
+            "x": -50.733,
+            "y": 196.022,
             "distanceMeters": 4126.215,
             "elevationLayer": 0
           },
           {
-            "x": -48.918,
-            "y": 191.219,
+            "x": -49.322,
+            "y": 191.136,
             "distanceMeters": 4131.211,
             "elevationLayer": 0
           },
           {
-            "x": -47.91,
-            "y": 186.306,
+            "x": -48.314,
+            "y": 186.222,
             "distanceMeters": 4136.206,
             "elevationLayer": 0
           },
           {
-            "x": -46.889,
-            "y": 181.388,
+            "x": -47.024,
+            "y": 181.36,
             "distanceMeters": 4141.202,
             "elevationLayer": 0
           },
@@ -23575,38 +23638,38 @@
             "elevationLayer": 0
           },
           {
-            "x": -27.888,
-            "y": 93.474,
+            "x": -27.778,
+            "y": 93.498,
             "distanceMeters": 4231.119,
             "elevationLayer": 0
           },
           {
-            "x": -26.847,
-            "y": 88.59,
+            "x": -26.517,
+            "y": 88.66,
             "distanceMeters": 4236.115,
             "elevationLayer": 0
           },
           {
-            "x": -25.809,
-            "y": 83.71,
+            "x": -25.479,
+            "y": 83.78,
             "distanceMeters": 4241.11,
             "elevationLayer": 0
           },
           {
-            "x": -24.777,
-            "y": 78.831,
+            "x": -24.117,
+            "y": 78.97,
             "distanceMeters": 4246.105,
             "elevationLayer": 0
           },
           {
-            "x": -23.75,
-            "y": 73.951,
+            "x": -23.089,
+            "y": 74.089,
             "distanceMeters": 4251.101,
             "elevationLayer": 0
           },
           {
-            "x": -23.571,
-            "y": 73.097,
+            "x": -22.47,
+            "y": 73.328,
             "distanceMeters": 4251.975,
             "elevationLayer": 0
           }
@@ -23779,140 +23842,140 @@
         ],
         "path": [
           {
-            "x": -21.809,
-            "y": 73.466,
+            "x": -22.47,
+            "y": 73.328,
             "distanceMeters": 4251.975,
             "elevationLayer": 0
           },
           {
-            "x": -20.964,
-            "y": 69.433,
+            "x": -21.624,
+            "y": 69.295,
             "distanceMeters": 4256.096,
             "elevationLayer": 0
           },
           {
-            "x": -19.939,
-            "y": 64.547,
+            "x": -20.282,
+            "y": 64.475,
             "distanceMeters": 4261.092,
             "elevationLayer": 0
           },
           {
-            "x": -18.919,
-            "y": 59.662,
+            "x": -19.262,
+            "y": 59.591,
             "distanceMeters": 4266.087,
             "elevationLayer": 0
           },
           {
-            "x": -17.904,
-            "y": 54.779,
+            "x": -18.246,
+            "y": 54.708,
             "distanceMeters": 4271.082,
             "elevationLayer": 0
           },
           {
-            "x": -16.894,
-            "y": 49.893,
+            "x": -17.237,
+            "y": 49.822,
             "distanceMeters": 4276.078,
             "elevationLayer": 0
           },
           {
-            "x": -15.889,
-            "y": 45.003,
+            "x": -16.232,
+            "y": 44.933,
             "distanceMeters": 4281.073,
             "elevationLayer": 0
           },
           {
-            "x": -14.881,
-            "y": 40.108,
+            "x": -15.224,
+            "y": 40.038,
             "distanceMeters": 4286.069,
             "elevationLayer": 0
           },
           {
-            "x": -13.873,
-            "y": 35.212,
+            "x": -14.215,
+            "y": 35.141,
             "distanceMeters": 4291.064,
             "elevationLayer": 0
           },
           {
-            "x": -12.859,
-            "y": 30.315,
+            "x": -13.201,
+            "y": 30.244,
             "distanceMeters": 4296.06,
             "elevationLayer": 0
           },
           {
-            "x": -11.842,
-            "y": 25.421,
+            "x": -12.185,
+            "y": 25.349,
             "distanceMeters": 4301.055,
             "elevationLayer": 0
           },
           {
-            "x": -10.823,
-            "y": 20.529,
+            "x": -11.166,
+            "y": 20.457,
             "distanceMeters": 4306.05,
             "elevationLayer": 0
           },
           {
-            "x": -9.804,
-            "y": 15.636,
+            "x": -10.147,
+            "y": 15.564,
             "distanceMeters": 4311.046,
             "elevationLayer": 0
           },
           {
-            "x": -8.782,
-            "y": 10.742,
+            "x": -9.125,
+            "y": 10.67,
             "distanceMeters": 4316.041,
             "elevationLayer": 0
           },
           {
-            "x": -7.756,
-            "y": 5.848,
+            "x": -8.099,
+            "y": 5.776,
             "distanceMeters": 4321.037,
             "elevationLayer": 0
           },
           {
-            "x": -6.728,
-            "y": 0.958,
+            "x": -7.07,
+            "y": 0.886,
             "distanceMeters": 4326.032,
             "elevationLayer": 0
           },
           {
-            "x": -5.698,
-            "y": -3.932,
+            "x": -6.041,
+            "y": -4.005,
             "distanceMeters": 4331.027,
             "elevationLayer": 0
           },
           {
-            "x": -4.668,
-            "y": -8.823,
+            "x": -5.01,
+            "y": -8.895,
             "distanceMeters": 4336.023,
             "elevationLayer": 0
           },
           {
-            "x": -3.635,
-            "y": -13.713,
+            "x": -3.978,
+            "y": -13.785,
             "distanceMeters": 4341.018,
             "elevationLayer": 0
           },
           {
-            "x": -2.6,
-            "y": -18.604,
+            "x": -2.942,
+            "y": -18.676,
             "distanceMeters": 4346.014,
             "elevationLayer": 0
           },
           {
-            "x": -1.561,
-            "y": -23.494,
+            "x": -1.903,
+            "y": -23.567,
             "distanceMeters": 4351.009,
             "elevationLayer": 0
           },
           {
-            "x": -0.521,
-            "y": -28.381,
+            "x": -0.863,
+            "y": -28.454,
             "distanceMeters": 4356.005,
             "elevationLayer": 0
           },
           {
-            "x": 0.519,
-            "y": -33.267,
+            "x": 0.177,
+            "y": -33.34,
             "distanceMeters": 4361,
             "elevationLayer": 0
           }

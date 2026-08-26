@@ -11,7 +11,7 @@ const mirrorDirectory =
   mirrorFlag >= 0 ? resolve(repositoryRoot, process.argv[mirrorFlag + 1]) : null
 
 const VERSION = '2.0.0'
-const CATALOG_VERSION = '2026.6'
+const CATALOG_VERSION = '2026.7'
 const PHYSICS_VERSION = '2.0.0'
 const TRACK_COUNT = 24
 const sharedFiles = [
@@ -268,6 +268,77 @@ function tangentAtDistance(centerline, distanceMeters, lengthMeters) {
     lengthMeters,
   )
   return normalize({ x: after.x - before.x, y: after.y - before.y })
+}
+
+function angleDifference(first, second) {
+  let difference = Math.abs(first - second) % (Math.PI * 2)
+  if (difference > Math.PI) difference = Math.PI * 2 - difference
+  return difference
+}
+
+function validateTrackInfrastructure(track, entry) {
+  invariant(track.pitLane.path.length >= 25, `${entry.id} detailed pit path`)
+  invariant(track.sceneryLayout.landmarks.length === 0, `${entry.id} provisional landmarks removed`)
+  invariant(
+    track.sceneryLayout.staticObjects.some(
+      (object) => object.kind === 'start-gantry',
+    ),
+    `${entry.id} start gantry`,
+  )
+  invariant(
+    track.sceneryLayout.staticObjects.every((object) =>
+      ['start-gantry', 'escape-bollard'].includes(object.kind),
+    ),
+    `${entry.id} infrastructure-only scenery`,
+  )
+
+  const start = track.centerline[0]
+  invariant(
+    Math.hypot(
+      track.startFinish.position.x - start.x,
+      track.startFinish.position.y - start.y,
+    ) <= 0.01,
+    `${entry.id} start line anchored to centerline`,
+  )
+  const forward = Math.atan2(
+    track.startFinish.forward.y,
+    track.startFinish.forward.x,
+  )
+  const before = tangentAtDistance(
+    track.centerline,
+    track.lengthMeters - 35,
+    track.lengthMeters,
+  )
+  const after = tangentAtDistance(track.centerline, 35, track.lengthMeters)
+  invariant(
+    angleDifference(
+      Math.atan2(before.y, before.x),
+      Math.atan2(after.y, after.x),
+    ) <= (5 * Math.PI) / 180,
+    `${entry.id} start must be on a straight`,
+  )
+  invariant(
+    angleDifference(
+      forward,
+      Math.atan2(after.y, after.x),
+    ) <= (3 * Math.PI) / 180,
+    `${entry.id} start direction`,
+  )
+
+  if (entry.id === 'monaco') {
+    invariant(
+      Math.hypot(start.x + 479.319, start.y + 493.069) <= 2,
+      'monaco start must be rebased to Boulevard Albert 1er',
+    )
+  }
+  if (entry.id === 'monza') {
+    invariant(
+      track.sceneryLayout.staticObjects.filter(
+        (object) => object.kind === 'escape-bollard',
+      ).length >= 5,
+      'monza Rettifilo escape obstacles',
+    )
+  }
 }
 
 function transformVehicleShape(shape, position, tangent) {
@@ -580,6 +651,23 @@ function validateTrack(track, entry, vehicle) {
       )
     }
   }
+  for (const side of ['left', 'right']) {
+    const segments = track.barrierGeometry.segments
+      .filter((segment) => segment.side === side)
+      .sort(
+        (first, second) =>
+          first.fromDistanceMeters - second.fromDistanceMeters,
+      )
+    for (let index = 1; index < segments.length; index += 1) {
+      const previous = segments[index - 1].path.at(-1)
+      const current = segments[index].path[0]
+      invariant(
+        Math.hypot(previous.x - current.x, previous.y - current.y) <= 0.002,
+        `${entry.id} ${side} canonical barrier continuity`,
+      )
+    }
+  }
+  validateTrackInfrastructure(track, entry)
   validateCenteredVehicleClearance(track, vehicle)
 }
 
