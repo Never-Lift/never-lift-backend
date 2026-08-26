@@ -79,6 +79,20 @@ class PhysicsContractV2Test {
         assertThat(constants.path("tires").has("combinedGripExponent")).isFalse();
         assertThat(constants.path("collision").path("maximumCcdEventsPerStep").asInt())
                 .isEqualTo(4);
+        assertThat(constants.path("collision").path("maximumContactPoints").asInt())
+                .isEqualTo(2);
+        assertThat(constants.path("collision").path("ccdMaximumAngularArcStepMeters").asDouble())
+                .isEqualTo(0.05);
+        assertThat(constants.path("collision").path("ccdAngularPoseSamplesPerMaximumArcStep").asInt())
+                .isEqualTo(4);
+        assertThat(constants.path("collision").path("ccdTimeEpsilonSeconds").asDouble())
+                .isEqualTo(1e-8);
+        assertThat(constants.path("collision").path("ccdAngularMotionEpsilonRadians").asDouble())
+                .isEqualTo(1e-8);
+        assertThat(constants.path("collision").path("ccdTimeRefinementIterations").asInt())
+                .isEqualTo(8);
+        assertThat(constants.path("collision").path("contactPatchNormalVelocityMergeMetersPerSecond").asDouble())
+                .isEqualTo(0.01);
         assertThat(constants.path("collision").path("barrierMaterials").fieldNames())
                 .toIterable()
                 .containsExactlyInAnyOrder("concrete-wall", "guardrail", "tecpro", "tyre-barrier");
@@ -129,6 +143,92 @@ class PhysicsContractV2Test {
                 "front-left-wheel",
                 "rear-right-wheel",
                 "rear-wing-left");
+    }
+
+    @Test
+    void shouldPackageTheSharedBotPlannerConstants() throws Exception {
+        JsonNode bots = readContract("physics-constants.json").path("bots");
+        JsonNode planner = bots.path("planner");
+
+        assertThat(planner.isObject()).isTrue();
+        assertThat(planner.fieldNames()).toIterable().containsExactlyInAnyOrder(
+                "steeringLookAheadBaseMeters",
+                "steeringLookAheadSpeedSeconds",
+                "steeringLookAheadReactionReferenceSeconds",
+                "steeringLookAheadReactionGainMetersPerSecond",
+                "steeringNoiseFrequencyRadiansPerSecond",
+                "brakingLookAheadBaseMeters",
+                "brakingLookAheadSpeedSeconds",
+                "brakingLookAheadRecoveryGainSeconds",
+                "brakingPreviewSampleCount",
+                "racingLineSpeedFactorExponent",
+                "terminalSpeedTargetMultiplier",
+                "brakeHeadingErrorThresholdRadians",
+                "maximumBrakeBase",
+                "maximumBrakeRecoveryGain",
+                "brakingRecoveryThrottle",
+                "brakingTrackThrottle",
+                "recoveryThrottleMultiplier",
+                "trackThrottleMultiplier",
+                "brakeDemandBase",
+                "brakeDemandSpeedScaleMetersPerSecond",
+                "steeringFullScaleHeadingErrorRadians");
+        assertThat(planner.path("brakingPreviewSampleCount").asInt()).isEqualTo(6);
+        assertThat(planner.path("maximumBrakeBase").asDouble()
+                        + planner.path("maximumBrakeRecoveryGain").asDouble())
+                .isLessThanOrEqualTo(1.0);
+        for (String difficulty : Set.of("easy", "normal", "hard")) {
+            JsonNode settings = bots.path(difficulty);
+            assertThat(settings.fieldNames()).toIterable().containsExactlyInAnyOrder(
+                    "paceMultiplier",
+                    "brakingSafetyMultiplier",
+                    "steeringNoise",
+                    "steeringLookAheadPenaltySeconds",
+                    "recoveryMultiplier");
+            assertThat(settings.has("consistency")).isFalse();
+            assertThat(settings.has("reactionDelaySeconds")).isFalse();
+        }
+        assertThat(bots.path("easy").path("steeringLookAheadPenaltySeconds").asDouble())
+                .isEqualTo(0.3);
+        assertThat(bots.path("normal").path("steeringLookAheadPenaltySeconds").asDouble())
+                .isEqualTo(0.18);
+        assertThat(bots.path("hard").path("steeringLookAheadPenaltySeconds").asDouble())
+                .isEqualTo(0.08);
+    }
+
+    @Test
+    void shouldPackageTheSharedRaceRuntimeConstants() throws Exception {
+        JsonNode race = readContract("physics-constants.json").path("race");
+
+        assertThat(race.fieldNames()).toIterable().containsExactlyInAnyOrder(
+                "jumpStartThrottleThreshold",
+                "jumpStartLockSeconds",
+                "gridGapMeters",
+                "checkpointGateMarginMeters",
+                "pitSpeedLimitMetersPerSecond",
+                "pitLaneHalfWidthMeters",
+                "minimumRaceDurationSeconds",
+                "raceDurationReferenceSpeedMetersPerSecond",
+                "progressProjectionMarginMeters",
+                "startLightCount",
+                "startLightStageSeconds",
+                "lightsOutDelaySeconds",
+                "localProjectionWindowMeters",
+                "localProjectionRecoveryMarginMeters",
+                "projectionDistanceToleranceMeters",
+                "barrierBroadphaseCellMeters");
+        assertThat(race.path("pitLaneHalfWidthMeters").asDouble()).isEqualTo(3.0);
+        assertThat(race.path("minimumRaceDurationSeconds").asDouble()).isEqualTo(180.0);
+        assertThat(race.path("raceDurationReferenceSpeedMetersPerSecond").asDouble())
+                .isEqualTo(12.0);
+        assertThat(race.path("progressProjectionMarginMeters").asDouble()).isEqualTo(30.0);
+        assertThat(race.path("startLightCount").asInt()).isEqualTo(5);
+        assertThat(race.path("startLightStageSeconds").asDouble()).isEqualTo(1.0);
+        assertThat(race.path("lightsOutDelaySeconds").asDouble()).isEqualTo(1.0);
+        assertThat(race.path("localProjectionWindowMeters").asDouble()).isEqualTo(40.0);
+        assertThat(race.path("localProjectionRecoveryMarginMeters").asDouble()).isEqualTo(24.0);
+        assertThat(race.path("projectionDistanceToleranceMeters").asDouble()).isEqualTo(0.5);
+        assertThat(race.path("barrierBroadphaseCellMeters").asDouble()).isEqualTo(64.0);
     }
 
     @Test

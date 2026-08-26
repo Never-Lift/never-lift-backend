@@ -21,7 +21,7 @@ Detalhe completo de cada payload: `docs/backend-implementation-plan.md`, seção
 - `docs/backend-implementation-plan.md` — plano deste repositório, módulo a módulo.
 - `docs/frontend-implementation-plan.md` — plano do repositório frontend, incluído aqui só como referência de quem consome esta API/WebSocket. Não implementar nada daqui.
 - `docs/game-design-guide.md` — fonte compartilhada das decisões de jogo e apresentação. O backend implementa somente unidades, metadados e contratos explicitamente atribuídos a ele.
-- `docs/contracts/module-2-shared-contracts.md`, `docs/contracts/module-2-physics-v2-proposal.md` e `contracts/module-2/v1/` — estado atual, proposta incompatível aprovada e contratos publicados do Módulo 2. O `v1` é histórico imutável; a Parte 2d publicará a linha `v2`.
+- `docs/contracts/module-2-shared-contracts.md`, `docs/contracts/module-2-physics-v2-proposal.md` e `contracts/module-2/v1/`/`v2/` — decisões e contratos publicados do Módulo 2. O `v1` é histórico imutável; o `v2` é a linha executável da Parte 2d.
 
 ## Stack e convenções deste repositório
 - Java 21, Spring Boot 3.x (Web, WebSocket, Data JPA, Security, Validation).
@@ -35,8 +35,8 @@ Detalhe completo de cada payload: `docs/backend-implementation-plan.md`, seção
 - Recordes/estatísticas (Módulo 8) são calculados via query sobre `RaceResult`/`ChampionshipEntry`, não guardados numa tabela paralela.
 - Física, pistas, checkpoints e snapshots usam **1 unidade de mundo = 1 metro**, velocidades em metros por segundo e ângulos na convenção compartilhada do plano. Pixels e escala de câmera nunca entram no domínio do backend.
 - O catálogo de pistas é versionado. Uma sala fixa `trackId` e `trackCatalogVersion`; nunca simular clientes com geometrias divergentes.
-- As 24 definições geradas em `contracts/module-2/v1/tracks/` são a fonte canônica do runtime atual. A futura linha v2 publicará faces canônicas de barreira e catálogo próprio; não redesenhar pistas na migration nem misturar versões.
-- Na direção v2 aprovada, boost/nitro não existe e `Shift` fica sem função. O contrato v1.3 ainda registra a reserva histórica sem efeito; a Parte 2d deve removê-la de input, protocolo, HUD, controles personalizáveis e testes antes de ser marcada pronta.
+- As 24 definições geradas em `contracts/module-2/v2/tracks/` são a fonte canônica do runtime atual, com catálogo próprio e faces canônicas de barreira. O `v1` permanece histórico; não redesenhar pistas na migration nem misturar versões.
+- No contrato v2, boost/nitro não existe e `Shift` fica sem função: input, protocolo e testes não carregam a reserva histórica do v1.3.
 
 ## Regra fixa: design e fase
 - `docs/game-design-guide.md` registra decisões globais e futuras, mas não autoriza antecipar entidades ou endpoints pós-MVP.
@@ -61,7 +61,7 @@ Antes de começar um módulo, confira se as dependências dele já estão marcad
 |---|---|
 | 0 — Fundação e deploy | pronto |
 | 1 — Usuários e autenticação | pronto |
-| 2 — Suporte a corrida local | catálogo `2026.5` validado manualmente em 24/08/2026; simplificação #72 para F1 único concluída no contrato `1.3.0`; Parte 2d (contrato físico v2, faces canônicas de barreira, versionamento de resultado e remoção de boost) aprovada e documentada, implementação pendente |
+| 2 — Suporte a corrida local | catálogo `2026.5` validado manualmente em 24/08/2026; simplificação #72 para F1 único concluída no contrato histórico `1.3.0`; Parte 2d (contrato físico v2, catálogo `2026.6`, faces canônicas de barreira, versionamento de resultado e remoção de boost): implementação automatizada concluída; validação manual pendente |
 | 3 — Motor autoritativo online | não iniciado |
 | 4 — Ambiente e modo caos | não iniciado |
 | 5 — Corrida completa (dano/vácuo/pits) | não iniciado |

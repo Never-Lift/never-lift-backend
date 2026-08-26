@@ -20,6 +20,11 @@ const barrierThicknessMeters = Object.freeze({
   'tyre-barrier': 1.2,
 })
 
+const monacoAdjacentArmRunoffOverrides = Object.freeze({
+  1: 4,
+  3: 4,
+})
+
 function round(value, decimals = ROUND_DECIMALS) {
   return Number(value.toFixed(decimals))
 }
@@ -198,20 +203,60 @@ function createBarrierGeometry(track) {
   return { segments }
 }
 
-function createTrackV2(track) {
+function createTrackLimitsV2(track) {
+  if (track.id !== 'monaco') return track.trackLimits
+
   return {
-    ...track,
+    ...track.trackLimits,
+    segments: track.trackLimits.segments.map((segment) => {
+      const widthMeters = monacoAdjacentArmRunoffOverrides[segment.index]
+      if (widthMeters === undefined) return segment
+
+      const [zone] = segment.left.zones
+      if (
+        segment.left.zones.length !== 1 ||
+        zone.surface !== 'asphalt' ||
+        zone.widthMeters !== 20
+      ) {
+        throw new Error(
+          `Unexpected Monaco v1 runoff source at track-limit segment ${segment.index}`,
+        )
+      }
+
+      return {
+        ...segment,
+        left: {
+          ...segment.left,
+          zones: [{ ...zone, widthMeters }],
+        },
+      }
+    }),
+  }
+}
+
+function createTrackV2(track) {
+  const trackLimits = createTrackLimitsV2(track)
+  const v2Track = { ...track, trackLimits }
+  const clearanceTransformation =
+    track.id === 'monaco'
+      ? ' In Monaco, the two coarse 20-meter left paved margins beside adjacent ' +
+        'track arms are narrowed to 4 meters so the canonical barrier face cannot ' +
+        'invade the neighboring roadway.'
+      : ''
+
+  return {
+    ...v2Track,
     schemaVersion: SCHEMA_VERSION,
     catalogVersion: CATALOG_VERSION,
     physicsContractVersion: PHYSICS_CONTRACT_VERSION,
-    barrierGeometry: createBarrierGeometry(track),
+    barrierGeometry: createBarrierGeometry(v2Track),
     source: {
       ...track.source,
       transformation:
         `${track.source.transformation} Contract v2 derives each track-facing ` +
         'barrier polyline from the sampled centerline, local track half-width, ' +
         'and the audited runoff-zone widths in catalog 2026.5; barrier thickness ' +
-        'extends away from the racing surface.',
+        `extends away from the racing surface.${clearanceTransformation}`,
     },
   }
 }
@@ -219,6 +264,9 @@ function createTrackV2(track) {
 function createCatalogSchema(v1Schema) {
   const required = [...v1Schema.required]
   required.splice(required.indexOf('seasonReference'), 0, 'physicsContractVersion')
+  if (!required.includes('calendarPolicy')) {
+    required.splice(required.indexOf('tracks'), 0, 'calendarPolicy')
+  }
   return {
     ...v1Schema,
     $id: 'https://never-lift.local/contracts/module-2/v2/track-catalog.schema.json',
@@ -322,7 +370,11 @@ async function writeJson(path, value) {
   const output = `${JSON.stringify(value, null, 2)}\n`
   if (checkOnly) {
     const current = await readFile(path, 'utf8')
-    if (current !== output) throw new Error(`Generated artifact is stale: ${path}`)
+    // Git may materialize tracked text as CRLF on Windows even though the
+    // canonical blob uses LF. Reproducibility checks compare content while
+    // the separate mirror audit remains responsible for byte identity.
+    const normalizedCurrent = current.replace(/\r\n?/g, '\n')
+    if (normalizedCurrent !== output) throw new Error(`Generated artifact is stale: ${path}`)
     return
   }
   await writeFile(path, output, 'utf8')
