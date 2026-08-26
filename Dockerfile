@@ -8,6 +8,7 @@ RUN chmod +x mvnw && ./mvnw --batch-mode dependency:go-offline
 
 COPY src/ src/
 COPY contracts/module-2/v1/ contracts/module-2/v1/
+COPY contracts/module-2/v2/ contracts/module-2/v2/
 RUN ./mvnw --batch-mode clean package
 
 FROM eclipse-temurin:21-jre-alpine
