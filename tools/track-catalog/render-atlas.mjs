@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 
 const toolDirectory = dirname(fileURLToPath(import.meta.url))
 const repositoryRoot = resolve(toolDirectory, '..', '..')
-const contractDirectory = resolve(repositoryRoot, 'contracts', 'module-2', 'v1')
+const contractDirectory = resolve(repositoryRoot, 'contracts', 'module-2', 'v2')
 const catalog = JSON.parse(await readFile(resolve(contractDirectory, 'catalog.json'), 'utf8'))
 const requestedTrack = process.argv
   .find((argument) => argument.startsWith('--track='))
@@ -145,44 +145,22 @@ function renderTrack(track, cardX, cardY) {
     )
   }
 
-  for (let index = 0; index < track.centerline.length - 1; index += 1) {
-    const from = track.centerline[index]
-    const to = track.centerline[index + 1]
-    const segment = limitAt(track, (from.distanceMeters + to.distanceMeters) / 2)
-    for (const side of ['left', 'right']) {
-      const environment = segment[side]
-      const fromEnvironment = limitAt(track, from.distanceMeters)[side]
-      const toEnvironment = limitAt(track, to.distanceMeters)[side]
-      const fromEnvironmentWidth = environmentWidth(fromEnvironment)
-      const toEnvironmentWidth = environmentWidth(toEnvironment)
-      const barrierFrom = offsetPoint(
-        track.centerline,
-        index,
-        side,
-        from.halfWidthMeters + fromEnvironmentWidth,
+  for (const barrier of track.barrierGeometry.segments) {
+    const environment = track.trackLimits.segments[
+      barrier.trackLimitSegmentIndex
+    ][barrier.side]
+    elements.push(
+      `<polyline points="${pointsAttribute(barrier.path)}" fill="none" ` +
+        `stroke="${barrierColors[barrier.material]}" stroke-width="2" ` +
+        'vector-effect="non-scaling-stroke" stroke-linecap="round" ' +
+        'stroke-linejoin="round"/>',
+    )
+    if (environment.fence) {
+      elements.push(
+        `<polyline points="${pointsAttribute(barrier.path)}" fill="none" ` +
+          'stroke="#718096" stroke-width="1.2" stroke-dasharray="4 3" ' +
+          'vector-effect="non-scaling-stroke"/>',
       )
-      const barrierTo = offsetPoint(
-        track.centerline,
-        index + 1,
-        side,
-        to.halfWidthMeters + toEnvironmentWidth,
-      )
-      elements.push(line(barrierFrom, barrierTo, `stroke="${barrierColors[environment.barrier]}" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round"`))
-      if (environment.fence) {
-        const fenceFrom = offsetPoint(
-          track.centerline,
-          index,
-          side,
-          from.halfWidthMeters + fromEnvironmentWidth + 0.8,
-        )
-        const fenceTo = offsetPoint(
-          track.centerline,
-          index + 1,
-          side,
-          to.halfWidthMeters + toEnvironmentWidth + 0.8,
-        )
-        elements.push(line(fenceFrom, fenceTo, 'stroke="#718096" stroke-width="1.3" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"'))
-      }
     }
   }
 
@@ -199,13 +177,23 @@ function renderTrack(track, cardX, cardY) {
         track.centerline,
         index,
         curb.side,
-        point.halfWidthMeters - curb.widthMeters / 2,
+        point.halfWidthMeters + curb.widthMeters / 2,
       )
     })
     const dash = curb.stripeLengthMeters * scale
     elements.push(`<polyline points="${pointsAttribute(curbLine)}" fill="none" stroke="#f0f0fa" stroke-width="3" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>`)
     elements.push(`<polyline points="${pointsAttribute(curbLine)}" fill="none" stroke="${curbColors[curb.palette]}" stroke-width="3" stroke-dasharray="${dash.toFixed(2)} ${dash.toFixed(2)}" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>`)
   }
+
+  elements.push(
+    `<polyline points="${pointsAttribute(track.pitLane.path)}" fill="none" ` +
+      'stroke="#303a48" stroke-width="6" vector-effect="non-scaling-stroke" ' +
+      'stroke-linecap="round" stroke-linejoin="round"/>',
+  )
+  elements.push(
+    `<circle cx="${track.startFinish.position.x}" cy="${track.startFinish.position.y}" ` +
+      'r="4" fill="#31c7ff" vector-effect="non-scaling-stroke"/>',
+  )
 
   return `
     <g>

@@ -1,6 +1,7 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { infrastructureProfileFor } from './track-infrastructure-v2.mjs'
 
 const toolDirectory = dirname(fileURLToPath(import.meta.url))
 const repositoryRoot = resolve(toolDirectory, '..', '..')
@@ -9,9 +10,13 @@ const v2Directory = resolve(repositoryRoot, 'contracts', 'module-2', 'v2')
 const checkOnly = process.argv.includes('--check')
 
 const SCHEMA_VERSION = '2.0.0'
-const CATALOG_VERSION = '2026.6'
+const CATALOG_VERSION = '2026.7'
 const PHYSICS_CONTRACT_VERSION = '2.0.0'
 const ROUND_DECIMALS = 3
+const CHUNK_LENGTH_METERS = 250
+const BARRIER_TRANSITION_RADIUS_METERS = 24
+const ADJACENT_ARM_LONGITUDINAL_WINDOW_METERS = 28
+const ADJACENT_ARM_CLEARANCE_METERS = 2.5
 
 const barrierThicknessMeters = Object.freeze({
   'concrete-wall': 0.35,
@@ -87,7 +92,110 @@ function tangentAtDistance(centerline, distanceMeters, lengthMeters) {
   return normalize({ x: after.x - before.x, y: after.y - before.y })
 }
 
-function barrierFacePoint(track, sideEnvironment, side, distanceMeters) {
+function moduloDistance(distanceMeters, lengthMeters) {
+  const wrapped = distanceMeters % lengthMeters
+  return wrapped < 0 ? wrapped + lengthMeters : wrapped
+}
+
+function circularDistance(first, second, lengthMeters) {
+  const direct = Math.abs(first - second)
+  return Math.min(direct, lengthMeters - direct)
+}
+
+function trackSideEnvironmentAt(track, distanceMeters, side) {
+  const normalized = Math.min(
+    track.lengthMeters - 1e-6,
+    Math.max(0, moduloDistance(distanceMeters, track.lengthMeters)),
+  )
+  const segment = track.trackLimits.segments.find(
+    (candidate) =>
+      normalized >= candidate.fromDistanceMeters - 1e-6 &&
+      normalized < candidate.toDistanceMeters - 1e-6,
+  ) ?? track.trackLimits.segments.at(-1)
+  return segment[side]
+}
+
+function rawBarrierFaceOffset(track, side, distanceMeters) {
+  const center = sampleAtDistance(
+    track.centerline,
+    moduloDistance(distanceMeters, track.lengthMeters),
+    track.lengthMeters,
+  )
+  const environment = trackSideEnvironmentAt(track, distanceMeters, side)
+  return (
+    center.halfWidthMeters +
+    environment.zones.reduce((total, zone) => total + zone.widthMeters, 0)
+  )
+}
+
+function adjacentArmSafeOffset(track, side, distanceMeters, desiredOffset) {
+  const center = sampleAtDistance(
+    track.centerline,
+    moduloDistance(distanceMeters, track.lengthMeters),
+    track.lengthMeters,
+  )
+  const tangent = tangentAtDistance(
+    track.centerline,
+    moduloDistance(distanceMeters, track.lengthMeters),
+    track.lengthMeters,
+  )
+  const sideDirection = side === 'left' ? 1 : -1
+  const outward = {
+    x: -tangent.y * sideDirection,
+    y: tangent.x * sideDirection,
+  }
+  let safeOffset = desiredOffset
+
+  for (const candidate of track.centerline) {
+    if (candidate.elevationLayer !== center.elevationLayer) continue
+    if (
+      circularDistance(
+        candidate.distanceMeters,
+        moduloDistance(distanceMeters, track.lengthMeters),
+        track.lengthMeters,
+      ) < 65
+    ) {
+      continue
+    }
+    const relative = {
+      x: candidate.x - center.x,
+      y: candidate.y - center.y,
+    }
+    const lateral = relative.x * outward.x + relative.y * outward.y
+    const longitudinal = Math.abs(
+      relative.x * tangent.x + relative.y * tangent.y,
+    )
+    if (
+      lateral <= center.halfWidthMeters ||
+      longitudinal > ADJACENT_ARM_LONGITUDINAL_WINDOW_METERS
+    ) {
+      continue
+    }
+    safeOffset = Math.min(
+      safeOffset,
+      lateral - candidate.halfWidthMeters - ADJACENT_ARM_CLEARANCE_METERS,
+    )
+  }
+
+  return Math.max(center.halfWidthMeters + 0.35, safeOffset)
+}
+
+function smoothedBarrierFaceOffset(track, side, distanceMeters) {
+  const sampleOffsets = [-1, -2 / 3, -1 / 3, 0, 1 / 3, 2 / 3, 1].map(
+    (factor) => factor * BARRIER_TRANSITION_RADIUS_METERS,
+  )
+  const weights = [1, 2, 3, 4, 3, 2, 1]
+  const desired = sampleOffsets.reduce(
+    (total, offset, index) =>
+      total +
+      rawBarrierFaceOffset(track, side, distanceMeters + offset) *
+        weights[index],
+    0,
+  ) / weights.reduce((total, weight) => total + weight, 0)
+  return adjacentArmSafeOffset(track, side, distanceMeters, desired)
+}
+
+function barrierFacePoint(track, side, distanceMeters) {
   const center = sampleAtDistance(
     track.centerline,
     distanceMeters,
@@ -100,11 +208,7 @@ function barrierFacePoint(track, sideEnvironment, side, distanceMeters) {
   )
   const leftNormal = { x: -tangent.y, y: tangent.x }
   const sign = side === 'left' ? 1 : -1
-  const runoffWidth = sideEnvironment.zones.reduce(
-    (total, zone) => total + zone.widthMeters,
-    0,
-  )
-  const faceOffset = center.halfWidthMeters + runoffWidth
+  const faceOffset = smoothedBarrierFaceOffset(track, side, distanceMeters)
   return {
     x: round(center.x + leftNormal.x * sign * faceOffset),
     y: round(center.y + leftNormal.y * sign * faceOffset),
@@ -176,7 +280,7 @@ function createBarrierGeometry(track) {
       const sideEnvironment = trackLimitSegment[side]
       const distances = distancesForSegment(track, trackLimitSegment)
       const path = distances.map((distanceMeters) =>
-        barrierFacePoint(track, sideEnvironment, side, distanceMeters),
+        barrierFacePoint(track, side, distanceMeters),
       )
       for (const layerPath of splitPathByElevationLayer(path)) {
         const fromDistanceMeters = layerPath[0].distanceMeters
@@ -201,6 +305,352 @@ function createBarrierGeometry(track) {
     }
   }
   return { segments }
+}
+
+function interpolateClosedPathPoint(path, distanceMeters, lengthMeters) {
+  const target = moduloDistance(distanceMeters, lengthMeters)
+  const nextIndex = path.findIndex((point) => point.distanceMeters >= target)
+  const endIndex = Math.max(1, nextIndex < 0 ? path.length - 1 : nextIndex)
+  const start = path[endIndex - 1]
+  const end = path[endIndex]
+  const span = end.distanceMeters - start.distanceMeters
+  const ratio = span <= 1e-9 ? 0 : (target - start.distanceMeters) / span
+  const interpolated = {}
+  for (const [key, value] of Object.entries(start)) {
+    if (key === 'distanceMeters') continue
+    const endValue = end[key]
+    interpolated[key] =
+      typeof value === 'number' && typeof endValue === 'number'
+        ? round(value + (endValue - value) * ratio, key === 'targetSpeedFactor' ? 4 : ROUND_DECIMALS)
+        : ratio < 0.5
+          ? value
+          : endValue
+  }
+  return { ...interpolated, distanceMeters: 0 }
+}
+
+function rebaseClosedPath(path, offsetMeters, lengthMeters) {
+  const start = interpolateClosedPathPoint(path, offsetMeters, lengthMeters)
+  const rebased = [
+    start,
+    ...path
+      .filter(
+        (point) =>
+          point.distanceMeters > offsetMeters + 1e-6 &&
+          point.distanceMeters < lengthMeters - 1e-6,
+      )
+      .map((point) => ({
+        ...point,
+        distanceMeters: round(point.distanceMeters - offsetMeters),
+      })),
+    {
+      ...path[0],
+      distanceMeters: round(lengthMeters - offsetMeters),
+    },
+    ...path
+      .filter(
+        (point) =>
+          point.distanceMeters > 1e-6 &&
+          point.distanceMeters < offsetMeters - 1e-6,
+      )
+      .map((point) => ({
+        ...point,
+        distanceMeters: round(
+          point.distanceMeters + lengthMeters - offsetMeters,
+        ),
+      })),
+  ].sort((first, second) => first.distanceMeters - second.distanceMeters)
+  rebased.push({ ...start, distanceMeters: lengthMeters })
+  return rebased
+}
+
+function rebaseIntervals(items, offsetMeters, lengthMeters) {
+  const pieces = []
+  for (const item of items) {
+    const duration = item.toDistanceMeters - item.fromDistanceMeters
+    const from = moduloDistance(item.fromDistanceMeters - offsetMeters, lengthMeters)
+    const to = from + duration
+    if (to <= lengthMeters + 1e-6) {
+      pieces.push({
+        ...item,
+        fromDistanceMeters: round(from),
+        toDistanceMeters: round(Math.min(lengthMeters, to)),
+      })
+      continue
+    }
+    pieces.push(
+      {
+        ...item,
+        fromDistanceMeters: round(from),
+        toDistanceMeters: lengthMeters,
+      },
+      {
+        ...item,
+        fromDistanceMeters: 0,
+        toDistanceMeters: round(to - lengthMeters),
+      },
+    )
+  }
+  return pieces
+    .filter((item) => item.toDistanceMeters - item.fromDistanceMeters > 1e-3)
+    .sort((first, second) => first.fromDistanceMeters - second.fromDistanceMeters)
+    .map((item, index) => ({ ...item, index }))
+}
+
+function mergeNearbyCurbs(curbs) {
+  const merged = []
+  const groups = new Map()
+  for (const curb of curbs) {
+    const key = [
+      curb.side,
+      curb.palette,
+      curb.widthMeters,
+      curb.stripeLengthMeters,
+    ].join(':')
+    const group = groups.get(key) ?? []
+    group.push(curb)
+    groups.set(key, group)
+  }
+  for (const group of groups.values()) {
+    group.sort(
+      (first, second) =>
+        first.fromDistanceMeters - second.fromDistanceMeters,
+    )
+    for (const curb of group) {
+      const previous = merged.at(-1)
+      if (
+        previous &&
+        previous.side === curb.side &&
+        previous.palette === curb.palette &&
+        previous.widthMeters === curb.widthMeters &&
+        previous.stripeLengthMeters === curb.stripeLengthMeters &&
+        curb.fromDistanceMeters - previous.toDistanceMeters <= 7
+      ) {
+        previous.toDistanceMeters = Math.max(
+          previous.toDistanceMeters,
+          curb.toDistanceMeters,
+        )
+      } else {
+        merged.push({ ...curb })
+      }
+    }
+  }
+  return merged
+    .sort(
+      (first, second) =>
+        first.fromDistanceMeters - second.fromDistanceMeters ||
+        first.side.localeCompare(second.side),
+    )
+    .map((curb, index) => ({ ...curb, index }))
+}
+
+function gateAtDistance(index, centerline, distanceMeters, lengthMeters) {
+  const point = sampleAtDistance(centerline, distanceMeters, lengthMeters)
+  const tangent = tangentAtDistance(centerline, distanceMeters, lengthMeters)
+  return {
+    index,
+    distanceMeters: round(distanceMeters),
+    position: { x: round(point.x), y: round(point.y) },
+    forward: { x: round(tangent.x), y: round(tangent.y) },
+    halfWidthMeters: round(point.halfWidthMeters + 2),
+  }
+}
+
+function createGridSlots(centerline, lengthMeters) {
+  return Array.from({ length: 4 }, (_, index) => {
+    const row = Math.floor(index / 2) + 1
+    const distanceMeters = lengthMeters - row * 8
+    const point = sampleAtDistance(centerline, distanceMeters, lengthMeters)
+    const tangent = tangentAtDistance(centerline, distanceMeters, lengthMeters)
+    const normal = { x: -tangent.y, y: tangent.x }
+    const lateralOffset = index % 2 === 0 ? -2.2 : 2.2
+    return {
+      position: {
+        x: round(point.x + normal.x * lateralOffset),
+        y: round(point.y + normal.y * lateralOffset),
+      },
+      angle: round(Math.atan2(tangent.y, tangent.x), 6),
+    }
+  })
+}
+
+function maximumEnvironmentWidth(trackLimits) {
+  return Math.max(
+    ...trackLimits.segments.flatMap((segment) =>
+      ['left', 'right'].map((side) =>
+        segment[side].zones.reduce(
+          (total, zone) => total + zone.widthMeters,
+          0,
+        ),
+      ),
+    ),
+  )
+}
+
+function boundsForPoints(points, margin = 0) {
+  const xs = points.map((point) => point.x)
+  const ys = points.map((point) => point.y)
+  return {
+    minX: round(Math.min(...xs) - margin),
+    minY: round(Math.min(...ys) - margin),
+    maxX: round(Math.max(...xs) + margin),
+    maxY: round(Math.max(...ys) + margin),
+  }
+}
+
+function createChunks(centerline, lengthMeters, trackLimits) {
+  const maximumHalfWidth = Math.max(
+    ...centerline.map((point) => point.halfWidthMeters),
+  )
+  const margin = maximumHalfWidth + maximumEnvironmentWidth(trackLimits) + 4
+  const count = Math.ceil(lengthMeters / CHUNK_LENGTH_METERS)
+  return Array.from({ length: count }, (_, index) => {
+    const fromDistanceMeters = index * CHUNK_LENGTH_METERS
+    const toDistanceMeters = Math.min(
+      (index + 1) * CHUNK_LENGTH_METERS,
+      lengthMeters,
+    )
+    const points = centerline.filter(
+      (point) =>
+        point.distanceMeters >= fromDistanceMeters &&
+        point.distanceMeters <= toDistanceMeters,
+    )
+    points.push(
+      sampleAtDistance(centerline, fromDistanceMeters, lengthMeters),
+      sampleAtDistance(centerline, toDistanceMeters, lengthMeters),
+    )
+    return {
+      index,
+      fromDistanceMeters,
+      toDistanceMeters,
+      bounds: boundsForPoints(points, margin),
+    }
+  })
+}
+
+function rebaseTrack(track, offsetMeters) {
+  if (!offsetMeters) return track
+  const centerline = rebaseClosedPath(
+    track.centerline,
+    offsetMeters,
+    track.lengthMeters,
+  )
+  const racingLine = rebaseClosedPath(
+    track.racingLine,
+    offsetMeters,
+    track.lengthMeters,
+  )
+  const trackLimits = {
+    ...track.trackLimits,
+    segments: rebaseIntervals(
+      track.trackLimits.segments,
+      offsetMeters,
+      track.lengthMeters,
+    ),
+  }
+  return {
+    ...track,
+    centerline,
+    racingLine,
+    curbs: rebaseIntervals(track.curbs, offsetMeters, track.lengthMeters),
+    trackLimits,
+    chunks: createChunks(centerline, track.lengthMeters, trackLimits),
+  }
+}
+
+function createPitLane(track, profile) {
+  const entryDistanceMeters = round(
+    track.lengthMeters * profile.pitEntryFraction,
+  )
+  const exitDistanceMeters = round(
+    track.lengthMeters * profile.pitExitFraction,
+  )
+  const span = track.lengthMeters - entryDistanceMeters + exitDistanceMeters
+  const sampleCount = Math.max(25, Math.ceil(span / 18))
+  const sideDirection = profile.pitSide === 'left' ? 1 : -1
+  const path = Array.from({ length: sampleCount }, (_, index) => {
+    const progress = index / (sampleCount - 1)
+    const unwrappedDistance = entryDistanceMeters + span * progress
+    const distanceMeters = moduloDistance(unwrappedDistance, track.lengthMeters)
+    const point = sampleAtDistance(
+      track.centerline,
+      distanceMeters,
+      track.lengthMeters,
+    )
+    const tangent = tangentAtDistance(
+      track.centerline,
+      distanceMeters,
+      track.lengthMeters,
+    )
+    const normal = { x: -tangent.y, y: tangent.x }
+    const merge = Math.sin(Math.PI * progress) ** 0.72
+    const offset =
+      (point.halfWidthMeters + profile.pitOffsetMeters) *
+      sideDirection *
+      merge
+    return {
+      x: round(point.x + normal.x * offset),
+      y: round(point.y + normal.y * offset),
+    }
+  })
+  return {
+    entryDistanceMeters,
+    exitDistanceMeters,
+    speedLimitMetersPerSecond: 22.222,
+    path,
+  }
+}
+
+function infrastructureObject(track, id, kind, distanceMeters, side, offset, scale) {
+  const point = sampleAtDistance(track.centerline, distanceMeters, track.lengthMeters)
+  const tangent = tangentAtDistance(track.centerline, distanceMeters, track.lengthMeters)
+  const normal = { x: -tangent.y, y: tangent.x }
+  const sideDirection = side === 'left' ? 1 : -1
+  return {
+    id,
+    kind,
+    position: {
+      x: round(point.x + normal.x * sideDirection * (point.halfWidthMeters + offset)),
+      y: round(point.y + normal.y * sideDirection * (point.halfWidthMeters + offset)),
+    },
+    rotation: round(Math.atan2(tangent.y, tangent.x), 6),
+    scale,
+  }
+}
+
+function createSceneryLayout(track) {
+  const start = track.centerline[0]
+  const tangent = tangentAtDistance(track.centerline, 0, track.lengthMeters)
+  const staticObjects = [
+    {
+      id: 'start-gantry',
+      kind: 'start-gantry',
+      position: { x: round(start.x), y: round(start.y) },
+      rotation: round(Math.atan2(tangent.y, tangent.x), 6),
+      scale: round(start.halfWidthMeters * 2.2),
+    },
+  ]
+  if (track.id === 'monza') {
+    const obstacleDistance = 430
+    for (let index = -2; index <= 2; index += 1) {
+      staticObjects.push(
+        infrastructureObject(
+          track,
+          `rettifilo-escape-bollard-${index + 3}`,
+          'escape-bollard',
+          obstacleDistance + index * 2.4,
+          index % 2 === 0 ? 'left' : 'right',
+          8 + Math.abs(index) * 0.7,
+          1.1,
+        ),
+      )
+    }
+  }
+  return {
+    preset: track.sceneryLayout.preset,
+    landmarks: [],
+    staticObjects,
+  }
 }
 
 function createTrackLimitsV2(track) {
@@ -235,8 +685,36 @@ function createTrackLimitsV2(track) {
 }
 
 function createTrackV2(track) {
+  const infrastructure = infrastructureProfileFor(track.id)
   const trackLimits = createTrackLimitsV2(track)
-  const v2Track = { ...track, trackLimits }
+  const rebasedTrack = rebaseTrack(
+    { ...track, trackLimits },
+    infrastructure.startOffsetMeters ?? 0,
+  )
+  const v2Track = {
+    ...rebasedTrack,
+    curbs: mergeNearbyCurbs(rebasedTrack.curbs),
+    startFinish: gateAtDistance(
+      0,
+      rebasedTrack.centerline,
+      0,
+      rebasedTrack.lengthMeters,
+    ),
+    gridSlots: createGridSlots(
+      rebasedTrack.centerline,
+      rebasedTrack.lengthMeters,
+    ),
+    checkpoints: Array.from({ length: 8 }, (_, index) =>
+      gateAtDistance(
+        index,
+        rebasedTrack.centerline,
+        (rebasedTrack.lengthMeters * (index + 1)) / 9,
+        rebasedTrack.lengthMeters,
+      ),
+    ),
+    pitLane: createPitLane(rebasedTrack, infrastructure),
+    sceneryLayout: createSceneryLayout(rebasedTrack),
+  }
   const clearanceTransformation =
     track.id === 'monaco'
       ? ' In Monaco, the two coarse 20-meter left paved margins beside adjacent ' +
@@ -255,8 +733,10 @@ function createTrackV2(track) {
       transformation:
         `${track.source.transformation} Contract v2 derives each track-facing ` +
         'barrier polyline from the sampled centerline, local track half-width, ' +
-        'and the audited runoff-zone widths in catalog 2026.5; barrier thickness ' +
-        `extends away from the racing surface.${clearanceTransformation}`,
+        'and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 ' +
+        'smooths abrupt protection transitions, caps faces before adjacent same-level ' +
+        'track arms, publishes continuous pit paths and removes provisional scenery; ' +
+        `barrier thickness extends away from the racing surface.${clearanceTransformation}`,
     },
   }
 }

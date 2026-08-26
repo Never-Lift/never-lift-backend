@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class TrackCatalogImporter implements ApplicationRunner {
 
     public static final String SCHEMA_VERSION = "2.0.0";
-    public static final String CATALOG_VERSION = "2026.6";
+    public static final String CATALOG_VERSION = "2026.7";
     public static final String PHYSICS_CONTRACT_VERSION = "2.0.0";
     public static final int SEASON_REFERENCE = 2026;
     public static final String CALENDAR_POLICY = "original-24-round-freeze";
@@ -207,16 +207,41 @@ public class TrackCatalogImporter implements ApplicationRunner {
 
         if (definition.path("gridSlots").size() != 4
                 || definition.path("racingLine").size() != centerline.size()
-                || definition.path("pitLane").path("path").size() < 2
+                || definition.path("pitLane").path("path").size() < 25
                 || !definition.path("sceneryLayout").isObject()
                 || definition.path("source").path("environmentReferences").size() < 2) {
             throw invalid("required geometry for " + entry.id());
         }
 
         validateCurbs(entry, definition.path("curbs"));
+        validateInfrastructure(entry, definition.path("sceneryLayout"));
         validateTrackLimits(entry, definition.path("trackLimits"));
         validateBarrierGeometry(entry, definition.path("trackLimits"), definition.path("chunks"),
                 definition.path("barrierGeometry"));
+    }
+
+    private void validateInfrastructure(CatalogEntry entry, JsonNode sceneryLayout) {
+        if (!sceneryLayout.path("landmarks").isArray()
+                || !sceneryLayout.path("landmarks").isEmpty()
+                || !sceneryLayout.path("staticObjects").isArray()
+                || sceneryLayout.path("staticObjects").isEmpty()) {
+            throw invalid("infrastructure-only scenery for " + entry.id());
+        }
+        boolean hasStartGantry = false;
+        int escapeBollards = 0;
+        for (JsonNode object : sceneryLayout.path("staticObjects")) {
+            String kind = object.path("kind").asText();
+            if (!Set.of("start-gantry", "escape-bollard").contains(kind)) {
+                throw invalid("unsupported provisional scenery for " + entry.id());
+            }
+            hasStartGantry |= "start-gantry".equals(kind);
+            if ("escape-bollard".equals(kind)) {
+                escapeBollards++;
+            }
+        }
+        if (!hasStartGantry || ("monza".equals(entry.id()) && escapeBollards < 5)) {
+            throw invalid("required track infrastructure for " + entry.id());
+        }
     }
 
     private void validateBarrierGeometry(
