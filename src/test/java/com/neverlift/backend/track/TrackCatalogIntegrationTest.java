@@ -39,7 +39,7 @@ class TrackCatalogIntegrationTest {
         mockMvc.perform(get("/api/tracks"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.schemaVersion").value("2.0.0"))
-                .andExpect(jsonPath("$.catalogVersion").value("2026.7"))
+                .andExpect(jsonPath("$.catalogVersion").value("2026.8"))
                 .andExpect(jsonPath("$.physicsContractVersion").value("2.0.0"))
                 .andExpect(jsonPath("$.seasonReference").value(2026))
                 .andExpect(jsonPath("$.calendarPolicy").value("original-24-round-freeze"))
@@ -62,7 +62,7 @@ class TrackCatalogIntegrationTest {
         for (Track track : trackRepository.findAll()) {
             JsonNode definition = objectMapper.readTree(track.getDefinitionJson());
             assertThat(definition.path("schemaVersion").asText()).isEqualTo("2.0.0");
-            assertThat(definition.path("catalogVersion").asText()).isEqualTo("2026.7");
+            assertThat(definition.path("catalogVersion").asText()).isEqualTo("2026.8");
             assertThat(definition.path("physicsContractVersion").asText()).isEqualTo("2.0.0");
             assertThat(definition.path("id").asText()).isEqualTo(track.getId());
             assertThat(definition.path("lengthMeters").asInt()).isEqualTo(track.getLengthMeters());
@@ -94,7 +94,12 @@ class TrackCatalogIntegrationTest {
             assertThat(definition.path("gridSlots").size()).isEqualTo(4);
             assertThat(definition.path("racingLine").size()).isEqualTo(centerline.size());
             assertThat(definition.path("startFinish").isObject()).isTrue();
-            assertThat(definition.path("pitLane").path("path").size()).isGreaterThanOrEqualTo(25);
+            JsonNode pitLane = definition.path("pitLane");
+            assertThat(pitLane.path("path").size()).isGreaterThanOrEqualTo(25);
+            JsonNode pitVisualStyle = pitLane.path("visualStyle");
+            assertThat(pitVisualStyle.path("architecture").isTextual()).isTrue();
+            assertThat(pitVisualStyle.path("garageCount").asInt()).isBetween(8, 16);
+            assertThat(pitVisualStyle.path("buildingHeightMeters").asDouble()).isBetween(3.0, 8.0);
             JsonNode sceneryLayout = definition.path("sceneryLayout");
             assertThat(sceneryLayout.isObject()).isTrue();
             assertThat(sceneryLayout.path("landmarks")).isEmpty();
@@ -102,19 +107,30 @@ class TrackCatalogIntegrationTest {
             assertThat(sceneryLayout.path("staticObjects").get(0).path("kind").asText())
                     .isEqualTo("start-gantry");
             Set<String> sceneryIds = new HashSet<>();
+            int authoredStructures = 0;
+            int grandstands = 0;
+            boolean hasStartAreaBuilding = false;
             for (String collection : Set.of("landmarks", "staticObjects")) {
                 for (JsonNode sceneryObject : sceneryLayout.path(collection)) {
                     assertThat(sceneryIds.add(sceneryObject.path("id").asText()))
                             .as("%s should not repeat scenery ids", track.getId())
                             .isTrue();
-                    assertThat(sceneryObject.path("kind").asText())
-                            .isIn("start-gantry", "escape-bollard");
+                    String kind = sceneryObject.path("kind").asText();
+                    if (!Set.of("start-gantry", "escape-bollard").contains(kind)) {
+                        authoredStructures++;
+                        grandstands += kind.contains("grandstand") ? 1 : 0;
+                        hasStartAreaBuilding |= kind.contains("building") || kind.contains("tower");
+                        assertThat(sceneryObject.path("visualStyle").isObject()).isTrue();
+                    }
                     assertThat(sceneryObject.path("position").path("x").isNumber()).isTrue();
                     assertThat(sceneryObject.path("position").path("y").isNumber()).isTrue();
                     assertThat(sceneryObject.path("rotation").isNumber()).isTrue();
                     assertThat(sceneryObject.path("scale").asDouble()).isPositive();
                 }
             }
+            assertThat(authoredStructures).isGreaterThanOrEqualTo(5);
+            assertThat(grandstands).isGreaterThanOrEqualTo(3);
+            assertThat(hasStartAreaBuilding).isTrue();
             assertThat(definition.path("source").path("environmentReferences").size()).isGreaterThanOrEqualTo(2);
 
             JsonNode curbs = definition.path("curbs");
@@ -170,8 +186,10 @@ class TrackCatalogIntegrationTest {
 
         mockMvc.perform(get("/api/tracks/monza"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sceneryLayout.staticObjects.length()").value(6))
-                .andExpect(jsonPath("$.sceneryLayout.staticObjects[1].kind").value("escape-bollard"));
+                .andExpect(jsonPath("$.sceneryLayout.staticObjects.length()")
+                        .value(org.hamcrest.Matchers.greaterThanOrEqualTo(11)))
+                .andExpect(jsonPath("$.sceneryLayout.staticObjects[?(@.kind == 'escape-bollard')]")
+                        .value(org.hamcrest.Matchers.hasSize(5)));
 
         mockMvc.perform(get("/api/tracks/lusail"))
                 .andExpect(status().isOk())
@@ -183,9 +201,9 @@ class TrackCatalogIntegrationTest {
     void shouldPreserveDocumentedFullAndPartialDebrisFenceCoverage() throws Exception {
         assertCompleteFenceCoverage("miami");
         assertCompleteFenceCoverage("las-vegas");
+        assertCompleteFenceCoverage("jeddah");
+        assertCompleteFenceCoverage("baku");
 
-        assertPartialFenceCoverage("jeddah");
-        assertPartialFenceCoverage("baku");
         assertPartialFenceCoverage("lusail");
     }
 

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "2.0.0",
-  "catalogVersion": "2026.7",
+  "catalogVersion": "2026.8",
   "id": "las-vegas",
   "name": "Las Vegas Street Circuit",
   "countryCode": "US",
@@ -16576,7 +16576,16 @@
         "x": -249.606,
         "y": 190.657
       }
-    ]
+    ],
+    "visualStyle": {
+      "architecture": "permanent-modern",
+      "primaryColor": "#d9dad8",
+      "secondaryColor": "#333941",
+      "accentColor": "#8f6e32",
+      "roofColor": "#ecece9",
+      "garageCount": 12,
+      "buildingHeightMeters": 5.7
+    }
   },
   "surfaceModel": {
     "onTrack": "asphalt",
@@ -16586,7 +16595,7 @@
     {
       "index": 0,
       "fromDistanceMeters": 59,
-      "toDistanceMeters": 175,
+      "toDistanceMeters": 220,
       "side": "left",
       "widthMeters": 0.9,
       "stripeLengthMeters": 2.5,
@@ -16595,42 +16604,6 @@
     {
       "index": 1,
       "fromDistanceMeters": 83,
-      "toDistanceMeters": 111,
-      "side": "right",
-      "widthMeters": 0.9,
-      "stripeLengthMeters": 2.5,
-      "palette": "red-white"
-    },
-    {
-      "index": 2,
-      "fromDistanceMeters": 123,
-      "toDistanceMeters": 151,
-      "side": "right",
-      "widthMeters": 0.9,
-      "stripeLengthMeters": 2.5,
-      "palette": "red-white"
-    },
-    {
-      "index": 3,
-      "fromDistanceMeters": 163,
-      "toDistanceMeters": 191,
-      "side": "right",
-      "widthMeters": 0.9,
-      "stripeLengthMeters": 2.5,
-      "palette": "red-white"
-    },
-    {
-      "index": 4,
-      "fromDistanceMeters": 184,
-      "toDistanceMeters": 220,
-      "side": "left",
-      "widthMeters": 0.9,
-      "stripeLengthMeters": 2.5,
-      "palette": "red-white"
-    },
-    {
-      "index": 5,
-      "fromDistanceMeters": 208,
       "toDistanceMeters": 236,
       "side": "right",
       "widthMeters": 0.9,
@@ -16638,26 +16611,8 @@
       "palette": "red-white"
     },
     {
-      "index": 6,
+      "index": 2,
       "fromDistanceMeters": 314,
-      "toDistanceMeters": 350,
-      "side": "right",
-      "widthMeters": 0.9,
-      "stripeLengthMeters": 2.5,
-      "palette": "red-white"
-    },
-    {
-      "index": 7,
-      "fromDistanceMeters": 338,
-      "toDistanceMeters": 366,
-      "side": "left",
-      "widthMeters": 0.9,
-      "stripeLengthMeters": 2.5,
-      "palette": "red-white"
-    },
-    {
-      "index": 8,
-      "fromDistanceMeters": 359,
       "toDistanceMeters": 395,
       "side": "right",
       "widthMeters": 0.9,
@@ -16665,8 +16620,8 @@
       "palette": "red-white"
     },
     {
-      "index": 9,
-      "fromDistanceMeters": 383,
+      "index": 3,
+      "fromDistanceMeters": 338,
       "toDistanceMeters": 411,
       "side": "left",
       "widthMeters": 0.9,
@@ -16674,7 +16629,7 @@
       "palette": "red-white"
     },
     {
-      "index": 10,
+      "index": 4,
       "fromDistanceMeters": 489,
       "toDistanceMeters": 525,
       "side": "right",
@@ -16683,7 +16638,7 @@
       "palette": "red-white"
     },
     {
-      "index": 11,
+      "index": 5,
       "fromDistanceMeters": 513,
       "toDistanceMeters": 541,
       "side": "left",
@@ -16692,7 +16647,7 @@
       "palette": "red-white"
     },
     {
-      "index": 12,
+      "index": 6,
       "fromDistanceMeters": 1379,
       "toDistanceMeters": 1415,
       "side": "right",
@@ -16701,7 +16656,7 @@
       "palette": "red-white"
     },
     {
-      "index": 13,
+      "index": 7,
       "fromDistanceMeters": 1403,
       "toDistanceMeters": 1431,
       "side": "left",
@@ -16710,7 +16665,7 @@
       "palette": "red-white"
     },
     {
-      "index": 14,
+      "index": 8,
       "fromDistanceMeters": 1649,
       "toDistanceMeters": 1685,
       "side": "left",
@@ -16719,7 +16674,7 @@
       "palette": "red-white"
     },
     {
-      "index": 15,
+      "index": 9,
       "fromDistanceMeters": 1673,
       "toDistanceMeters": 1701,
       "side": "right",
@@ -16728,7 +16683,7 @@
       "palette": "red-white"
     },
     {
-      "index": 16,
+      "index": 10,
       "fromDistanceMeters": 1849,
       "toDistanceMeters": 1885,
       "side": "left",
@@ -16737,7 +16692,7 @@
       "palette": "red-white"
     },
     {
-      "index": 17,
+      "index": 11,
       "fromDistanceMeters": 1873,
       "toDistanceMeters": 1975,
       "side": "right",
@@ -16746,17 +16701,8 @@
       "palette": "red-white"
     },
     {
-      "index": 18,
+      "index": 12,
       "fromDistanceMeters": 1923,
-      "toDistanceMeters": 1951,
-      "side": "left",
-      "widthMeters": 0.9,
-      "stripeLengthMeters": 2.5,
-      "palette": "red-white"
-    },
-    {
-      "index": 19,
-      "fromDistanceMeters": 1963,
       "toDistanceMeters": 1991,
       "side": "left",
       "widthMeters": 0.9,
@@ -16764,7 +16710,7 @@
       "palette": "red-white"
     },
     {
-      "index": 20,
+      "index": 13,
       "fromDistanceMeters": 2039,
       "toDistanceMeters": 2115,
       "side": "left",
@@ -16773,17 +16719,8 @@
       "palette": "red-white"
     },
     {
-      "index": 21,
+      "index": 14,
       "fromDistanceMeters": 2063,
-      "toDistanceMeters": 2091,
-      "side": "right",
-      "widthMeters": 0.9,
-      "stripeLengthMeters": 2.5,
-      "palette": "red-white"
-    },
-    {
-      "index": 22,
-      "fromDistanceMeters": 2103,
       "toDistanceMeters": 2131,
       "side": "right",
       "widthMeters": 0.9,
@@ -16791,7 +16728,7 @@
       "palette": "red-white"
     },
     {
-      "index": 23,
+      "index": 15,
       "fromDistanceMeters": 3029,
       "toDistanceMeters": 3065,
       "side": "left",
@@ -16800,7 +16737,7 @@
       "palette": "red-white"
     },
     {
-      "index": 24,
+      "index": 16,
       "fromDistanceMeters": 3053,
       "toDistanceMeters": 3081,
       "side": "right",
@@ -16809,7 +16746,7 @@
       "palette": "red-white"
     },
     {
-      "index": 25,
+      "index": 17,
       "fromDistanceMeters": 4984,
       "toDistanceMeters": 5020,
       "side": "left",
@@ -16818,7 +16755,7 @@
       "palette": "red-white"
     },
     {
-      "index": 26,
+      "index": 18,
       "fromDistanceMeters": 5008,
       "toDistanceMeters": 5065,
       "side": "right",
@@ -16827,7 +16764,7 @@
       "palette": "red-white"
     },
     {
-      "index": 27,
+      "index": 19,
       "fromDistanceMeters": 5053,
       "toDistanceMeters": 5081,
       "side": "left",
@@ -17505,6 +17442,86 @@
         },
         "rotation": 0.845018,
         "scale": 14.85
+      },
+      {
+        "id": "main-grandstand",
+        "kind": "main-grandstand-covered",
+        "position": {
+          "x": -79.312,
+          "y": -146.525
+        },
+        "rotation": 0.844304,
+        "scale": 18,
+        "visualStyle": {
+          "primaryColor": "#d2d4d2",
+          "secondaryColor": "#373e45",
+          "accentColor": "#8f6e32",
+          "roofColor": "#e9eae7"
+        }
+      },
+      {
+        "id": "sphere-zone-grandstand",
+        "kind": "grandstand-covered",
+        "position": {
+          "x": -206.579,
+          "y": 748.996
+        },
+        "rotation": 1.5768,
+        "scale": 14,
+        "visualStyle": {
+          "primaryColor": "#d2d4d2",
+          "secondaryColor": "#373e45",
+          "accentColor": "#8f6e32",
+          "roofColor": "#e9eae7"
+        }
+      },
+      {
+        "id": "las-vegas-pit-building",
+        "kind": "race-control-building",
+        "position": {
+          "x": -49.069,
+          "y": -7.562
+        },
+        "rotation": 0.845999,
+        "scale": 14,
+        "visualStyle": {
+          "primaryColor": "#d9dad8",
+          "secondaryColor": "#333941",
+          "accentColor": "#8f6e32",
+          "roofColor": "#ecece9"
+        }
+      },
+      {
+        "id": "east-harmon-grandstand",
+        "kind": "grandstand-covered",
+        "position": {
+          "x": -207.032,
+          "y": 147.288
+        },
+        "rotation": 2.0367,
+        "scale": 14,
+        "visualStyle": {
+          "primaryColor": "#d9dad8",
+          "secondaryColor": "#333941",
+          "accentColor": "#8f6e32",
+          "roofColor": "#ecece9"
+        }
+      },
+      {
+        "id": "koval-grandstand",
+        "kind": "grandstand-open",
+        "position": {
+          "x": -580.571,
+          "y": 1648.944
+        },
+        "rotation": 2.478564,
+        "scale": 12,
+        "visualStyle": {
+          "primaryColor": "#d9dad8",
+          "secondaryColor": "#333941",
+          "accentColor": "#8f6e32",
+          "roofColor": "#ecece9"
+        }
       }
     ]
   },
@@ -17512,7 +17529,7 @@
     "dataset": "bacinger/f1-circuits",
     "license": "MIT",
     "url": "https://github.com/bacinger/f1-circuits",
-    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery; barrier thickness extends away from the racing surface.",
+    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery. Catalog 2026.8 adds per-circuit pit architecture, major buildings, spectator grandstands and safety fencing, closes curb gaps only through continuous curvature and preserves the canonical racing geometry; barrier thickness extends away from the racing surface.",
     "environmentReferences": [
       {
         "label": "FIA 2025 Las Vegas race director event notes",
@@ -17538,6 +17555,10 @@
         "label": "Las Vegas GP official media kit - width 12-15 m",
         "url": "https://www.fia.com/sites/default/files/las_vegas_grand_prix_2023_media_kit_fia_accredited_1.pdf",
         "checkedAt": "2026-08-21"
+      },
+      {
+        "label": "Las Vegas Grand Prix official circuit and venue overview",
+        "url": "https://www.f1lasvegasgp.com/track-layout/"
       }
     ]
   },

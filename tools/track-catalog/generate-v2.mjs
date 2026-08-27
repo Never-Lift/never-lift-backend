@@ -1,7 +1,10 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { infrastructureProfileFor } from './track-infrastructure-v2.mjs'
+import {
+  infrastructureProfileFor,
+  infrastructureReferencesFor,
+} from './track-infrastructure-v2.mjs'
 
 const toolDirectory = dirname(fileURLToPath(import.meta.url))
 const repositoryRoot = resolve(toolDirectory, '..', '..')
@@ -10,13 +13,25 @@ const v2Directory = resolve(repositoryRoot, 'contracts', 'module-2', 'v2')
 const checkOnly = process.argv.includes('--check')
 
 const SCHEMA_VERSION = '2.0.0'
-const CATALOG_VERSION = '2026.7'
+const CATALOG_VERSION = '2026.8'
 const PHYSICS_CONTRACT_VERSION = '2.0.0'
 const ROUND_DECIMALS = 3
 const CHUNK_LENGTH_METERS = 250
 const BARRIER_TRANSITION_RADIUS_METERS = 24
 const ADJACENT_ARM_LONGITUDINAL_WINDOW_METERS = 28
 const ADJACENT_ARM_CLEARANCE_METERS = 2.5
+const CURB_CONTINUITY_GAP_METERS = 18
+const GRANDSTAND_FENCE_MARGIN_METERS = 54
+
+const fullyFencedStreetCircuits = new Set([
+  'baku',
+  'jeddah',
+  'las-vegas',
+  'madrid',
+  'miami',
+  'monaco',
+  'singapore',
+])
 
 const barrierThicknessMeters = Object.freeze({
   'concrete-wall': 0.35,
@@ -397,7 +412,39 @@ function rebaseIntervals(items, offsetMeters, lengthMeters) {
     .map((item, index) => ({ ...item, index }))
 }
 
-function mergeNearbyCurbs(curbs) {
+function signedTurnAtDistance(track, distanceMeters) {
+  const before = tangentAtDistance(
+    track.centerline,
+    moduloDistance(distanceMeters - 6, track.lengthMeters),
+    track.lengthMeters,
+  )
+  const after = tangentAtDistance(
+    track.centerline,
+    moduloDistance(distanceMeters + 6, track.lengthMeters),
+    track.lengthMeters,
+  )
+  return before.x * after.y - before.y * after.x
+}
+
+function canBridgeCurbGap(track, previous, next) {
+  const gap = next.fromDistanceMeters - previous.toDistanceMeters
+  if (gap < -1e-6 || gap > CURB_CONTINUITY_GAP_METERS) return false
+  if (gap <= 7) return true
+
+  const samples = [
+    previous.toDistanceMeters - 4,
+    previous.toDistanceMeters + gap * 0.25,
+    previous.toDistanceMeters + gap * 0.5,
+    previous.toDistanceMeters + gap * 0.75,
+    next.fromDistanceMeters + 4,
+  ].map((distanceMeters) => signedTurnAtDistance(track, distanceMeters))
+  const meaningful = samples.filter((value) => Math.abs(value) >= 0.0015)
+  if (meaningful.length < 3) return false
+  const direction = Math.sign(meaningful[0])
+  return meaningful.every((value) => Math.sign(value) === direction)
+}
+
+function mergeNearbyCurbs(track, curbs) {
   const merged = []
   const groups = new Map()
   for (const curb of curbs) {
@@ -424,7 +471,7 @@ function mergeNearbyCurbs(curbs) {
         previous.palette === curb.palette &&
         previous.widthMeters === curb.widthMeters &&
         previous.stripeLengthMeters === curb.stripeLengthMeters &&
-        curb.fromDistanceMeters - previous.toDistanceMeters <= 7
+        canBridgeCurbGap(track, previous, curb)
       ) {
         previous.toDistanceMeters = Math.max(
           previous.toDistanceMeters,
@@ -442,6 +489,99 @@ function mergeNearbyCurbs(curbs) {
         first.side.localeCompare(second.side),
     )
     .map((curb, index) => ({ ...curb, index }))
+}
+
+function splitWrappedFenceRange(fromDistanceMeters, toDistanceMeters, lengthMeters) {
+  const from = moduloDistance(fromDistanceMeters, lengthMeters)
+  const span = toDistanceMeters - fromDistanceMeters
+  if (from + span <= lengthMeters) {
+    return [{ fromDistanceMeters: from, toDistanceMeters: from + span }]
+  }
+  return [
+    { fromDistanceMeters: from, toDistanceMeters: lengthMeters },
+    { fromDistanceMeters: 0, toDistanceMeters: from + span - lengthMeters },
+  ]
+}
+
+function addStructureSafetyFences(track, trackLimits, profile) {
+  if (fullyFencedStreetCircuits.has(track.id)) {
+    return {
+      ...trackLimits,
+      segments: trackLimits.segments.map((segment, index) => ({
+        ...segment,
+        index,
+        left: { ...segment.left, fence: 'debris-fence' },
+        right: { ...segment.right, fence: 'debris-fence' },
+      })),
+    }
+  }
+
+  const ranges = profile.structures
+    .filter((object) => object.kind.includes('grandstand'))
+    .flatMap((object) => {
+      const center = track.lengthMeters * object.fraction
+      const margin = Math.max(
+        GRANDSTAND_FENCE_MARGIN_METERS,
+        object.scale * 4.5,
+      )
+      return splitWrappedFenceRange(
+        center - margin,
+        center + margin,
+        track.lengthMeters,
+      ).map((range) => ({ ...range, side: object.side }))
+    })
+
+  const segments = []
+  for (const segment of trackLimits.segments) {
+    const breakpoints = new Set([
+      segment.fromDistanceMeters,
+      segment.toDistanceMeters,
+    ])
+    for (const range of ranges) {
+      if (
+        range.fromDistanceMeters > segment.fromDistanceMeters + 1e-6 &&
+        range.fromDistanceMeters < segment.toDistanceMeters - 1e-6
+      ) {
+        breakpoints.add(range.fromDistanceMeters)
+      }
+      if (
+        range.toDistanceMeters > segment.fromDistanceMeters + 1e-6 &&
+        range.toDistanceMeters < segment.toDistanceMeters - 1e-6
+      ) {
+        breakpoints.add(range.toDistanceMeters)
+      }
+    }
+    const ordered = [...breakpoints].sort((first, second) => first - second)
+    for (let index = 0; index < ordered.length - 1; index += 1) {
+      const fromDistanceMeters = ordered[index]
+      const toDistanceMeters = ordered[index + 1]
+      const midpoint = (fromDistanceMeters + toDistanceMeters) / 2
+      const fencedSides = new Set(
+        ranges
+          .filter(
+            (range) =>
+              midpoint >= range.fromDistanceMeters - 1e-6 &&
+              midpoint <= range.toDistanceMeters + 1e-6,
+          )
+          .map((range) => range.side),
+      )
+      segments.push({
+        ...segment,
+        fromDistanceMeters: round(fromDistanceMeters),
+        toDistanceMeters: round(toDistanceMeters),
+        left: fencedSides.has('left')
+          ? { ...segment.left, fence: 'debris-fence' }
+          : segment.left,
+        right: fencedSides.has('right')
+          ? { ...segment.right, fence: 'debris-fence' }
+          : segment.right,
+      })
+    }
+  }
+  return {
+    ...trackLimits,
+    segments: segments.map((segment, index) => ({ ...segment, index })),
+  }
 }
 
 function gateAtDistance(index, centerline, distanceMeters, lengthMeters) {
@@ -598,10 +738,21 @@ function createPitLane(track, profile) {
     exitDistanceMeters,
     speedLimitMetersPerSecond: 22.222,
     path,
+    visualStyle: profile.pitVisual,
   }
 }
 
-function infrastructureObject(track, id, kind, distanceMeters, side, offset, scale) {
+function infrastructureObject(
+  track,
+  id,
+  kind,
+  distanceMeters,
+  side,
+  offset,
+  scale,
+  visualStyle,
+  rotationOffset = 0,
+) {
   const point = sampleAtDistance(track.centerline, distanceMeters, track.lengthMeters)
   const tangent = tangentAtDistance(track.centerline, distanceMeters, track.lengthMeters)
   const normal = { x: -tangent.y, y: tangent.x }
@@ -613,12 +764,13 @@ function infrastructureObject(track, id, kind, distanceMeters, side, offset, sca
       x: round(point.x + normal.x * sideDirection * (point.halfWidthMeters + offset)),
       y: round(point.y + normal.y * sideDirection * (point.halfWidthMeters + offset)),
     },
-    rotation: round(Math.atan2(tangent.y, tangent.x), 6),
+    rotation: round(Math.atan2(tangent.y, tangent.x) + rotationOffset, 6),
     scale,
+    ...(visualStyle ? { visualStyle } : {}),
   }
 }
 
-function createSceneryLayout(track) {
+function createSceneryLayout(track, profile) {
   const start = track.centerline[0]
   const tangent = tangentAtDistance(track.centerline, 0, track.lengthMeters)
   const staticObjects = [
@@ -629,6 +781,19 @@ function createSceneryLayout(track) {
       rotation: round(Math.atan2(tangent.y, tangent.x), 6),
       scale: round(start.halfWidthMeters * 2.2),
     },
+    ...profile.structures.map((object) =>
+      infrastructureObject(
+        track,
+        object.id,
+        object.kind,
+        track.lengthMeters * object.fraction,
+        object.side,
+        object.offsetMeters,
+        object.scale,
+        object.visualStyle,
+        object.rotationOffset,
+      ),
+    ),
   ]
   if (track.id === 'monza') {
     const obstacleDistance = 430
@@ -653,12 +818,12 @@ function createSceneryLayout(track) {
   }
 }
 
-function createTrackLimitsV2(track) {
-  if (track.id !== 'monaco') return track.trackLimits
-
-  return {
-    ...track.trackLimits,
-    segments: track.trackLimits.segments.map((segment) => {
+function createTrackLimitsV2(track, profile) {
+  const clearedTrackLimits = track.id !== 'monaco'
+    ? track.trackLimits
+    : {
+      ...track.trackLimits,
+      segments: track.trackLimits.segments.map((segment) => {
       const widthMeters = monacoAdjacentArmRunoffOverrides[segment.index]
       if (widthMeters === undefined) return segment
 
@@ -680,20 +845,21 @@ function createTrackLimitsV2(track) {
           zones: [{ ...zone, widthMeters }],
         },
       }
-    }),
-  }
+      }),
+    }
+  return addStructureSafetyFences(track, clearedTrackLimits, profile)
 }
 
 function createTrackV2(track) {
   const infrastructure = infrastructureProfileFor(track.id)
-  const trackLimits = createTrackLimitsV2(track)
+  const trackLimits = createTrackLimitsV2(track, infrastructure)
   const rebasedTrack = rebaseTrack(
     { ...track, trackLimits },
     infrastructure.startOffsetMeters ?? 0,
   )
   const v2Track = {
     ...rebasedTrack,
-    curbs: mergeNearbyCurbs(rebasedTrack.curbs),
+    curbs: mergeNearbyCurbs(rebasedTrack, rebasedTrack.curbs),
     startFinish: gateAtDistance(
       0,
       rebasedTrack.centerline,
@@ -713,7 +879,7 @@ function createTrackV2(track) {
       ),
     ),
     pitLane: createPitLane(rebasedTrack, infrastructure),
-    sceneryLayout: createSceneryLayout(rebasedTrack),
+    sceneryLayout: createSceneryLayout(rebasedTrack, infrastructure),
   }
   const clearanceTransformation =
     track.id === 'monaco'
@@ -730,12 +896,19 @@ function createTrackV2(track) {
     barrierGeometry: createBarrierGeometry(v2Track),
     source: {
       ...track.source,
+      environmentReferences: [
+        ...track.source.environmentReferences,
+        ...infrastructureReferencesFor(track.id),
+      ],
       transformation:
         `${track.source.transformation} Contract v2 derives each track-facing ` +
         'barrier polyline from the sampled centerline, local track half-width, ' +
         'and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 ' +
         'smooths abrupt protection transitions, caps faces before adjacent same-level ' +
-        'track arms, publishes continuous pit paths and removes provisional scenery; ' +
+        'track arms, publishes continuous pit paths and removes provisional scenery. ' +
+        'Catalog 2026.8 adds per-circuit pit architecture, major buildings, spectator ' +
+        'grandstands and safety fencing, closes curb gaps only through continuous ' +
+        'curvature and preserves the canonical racing geometry; ' +
         `barrier thickness extends away from the racing surface.${clearanceTransformation}`,
     },
   }
@@ -766,6 +939,8 @@ function createTrackSchema(v1Schema) {
   required.splice(required.indexOf('id'), 0, 'physicsContractVersion')
   const sourceIndex = required.indexOf('source')
   required.splice(sourceIndex < 0 ? required.length : sourceIndex, 0, 'barrierGeometry')
+  const pitLane = v1Schema.properties.pitLane
+  const sceneryObject = v1Schema.$defs.sceneryObject
   return {
     ...v1Schema,
     $id: 'https://never-lift.local/contracts/module-2/v2/track-definition.schema.json',
@@ -776,10 +951,77 @@ function createTrackSchema(v1Schema) {
       schemaVersion: { const: SCHEMA_VERSION },
       catalogVersion: { const: CATALOG_VERSION },
       physicsContractVersion: { const: PHYSICS_CONTRACT_VERSION },
+      pitLane: {
+        ...pitLane,
+        required: [...pitLane.required, 'visualStyle'],
+        properties: {
+          ...pitLane.properties,
+          visualStyle: { $ref: '#/$defs/pitVisualStyle' },
+        },
+      },
       barrierGeometry: { $ref: '#/$defs/barrierGeometry' },
     },
     $defs: {
       ...v1Schema.$defs,
+      infrastructurePalette: {
+        type: 'object',
+        additionalProperties: false,
+        required: [
+          'primaryColor',
+          'secondaryColor',
+          'accentColor',
+          'roofColor',
+        ],
+        properties: {
+          primaryColor: { type: 'string', pattern: '^#[0-9a-fA-F]{6}$' },
+          secondaryColor: { type: 'string', pattern: '^#[0-9a-fA-F]{6}$' },
+          accentColor: { type: 'string', pattern: '^#[0-9a-fA-F]{6}$' },
+          roofColor: { type: 'string', pattern: '^#[0-9a-fA-F]{6}$' },
+        },
+      },
+      pitVisualStyle: {
+        allOf: [
+          { $ref: '#/$defs/infrastructurePalette' },
+          {
+            type: 'object',
+            properties: {
+              architecture: {
+                enum: [
+                  'temporary-modular',
+                  'permanent-modern',
+                  'desert-canopy',
+                  'stepped-modern',
+                  'urban-compact',
+                  'wing',
+                  'heritage',
+                  'exhibition',
+                  'stadium',
+                  'marina-canopy',
+                ],
+              },
+              garageCount: { type: 'integer', minimum: 8, maximum: 16 },
+              buildingHeightMeters: {
+                type: 'number',
+                minimum: 3,
+                maximum: 8,
+              },
+            },
+            required: [
+              'architecture',
+              'garageCount',
+              'buildingHeightMeters',
+            ],
+          },
+        ],
+        unevaluatedProperties: false,
+      },
+      sceneryObject: {
+        ...sceneryObject,
+        properties: {
+          ...sceneryObject.properties,
+          visualStyle: { $ref: '#/$defs/infrastructurePalette' },
+        },
+      },
       barrierFacePoint: {
         type: 'object',
         additionalProperties: false,

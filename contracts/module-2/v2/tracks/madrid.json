@@ -1,6 +1,6 @@
 {
   "schemaVersion": "2.0.0",
-  "catalogVersion": "2026.7",
+  "catalogVersion": "2026.8",
   "id": "madrid",
   "name": "Circuito de Madring",
   "countryCode": "ES",
@@ -14646,7 +14646,16 @@
         "x": -435.992,
         "y": 45.283
       }
-    ]
+    ],
+    "visualStyle": {
+      "architecture": "exhibition",
+      "primaryColor": "#e2e3e1",
+      "secondaryColor": "#4f575f",
+      "accentColor": "#9b2933",
+      "roofColor": "#f0f0ed",
+      "garageCount": 12,
+      "buildingHeightMeters": 5.6
+    }
   },
   "surfaceModel": {
     "onTrack": "asphalt",
@@ -14728,15 +14737,6 @@
     {
       "index": 8,
       "fromDistanceMeters": 1638,
-      "toDistanceMeters": 1666,
-      "side": "left",
-      "widthMeters": 1,
-      "stripeLengthMeters": 2.5,
-      "palette": "red-white"
-    },
-    {
-      "index": 9,
-      "fromDistanceMeters": 1674,
       "toDistanceMeters": 1710,
       "side": "left",
       "widthMeters": 1,
@@ -14744,7 +14744,7 @@
       "palette": "red-white"
     },
     {
-      "index": 10,
+      "index": 9,
       "fromDistanceMeters": 1698,
       "toDistanceMeters": 1726,
       "side": "right",
@@ -14753,7 +14753,7 @@
       "palette": "red-white"
     },
     {
-      "index": 11,
+      "index": 10,
       "fromDistanceMeters": 1784,
       "toDistanceMeters": 1820,
       "side": "right",
@@ -14762,7 +14762,7 @@
       "palette": "red-white"
     },
     {
-      "index": 12,
+      "index": 11,
       "fromDistanceMeters": 1808,
       "toDistanceMeters": 1836,
       "side": "left",
@@ -14771,7 +14771,7 @@
       "palette": "red-white"
     },
     {
-      "index": 13,
+      "index": 12,
       "fromDistanceMeters": 1954,
       "toDistanceMeters": 1990,
       "side": "right",
@@ -14780,7 +14780,7 @@
       "palette": "red-white"
     },
     {
-      "index": 14,
+      "index": 13,
       "fromDistanceMeters": 1978,
       "toDistanceMeters": 2006,
       "side": "left",
@@ -14789,7 +14789,7 @@
       "palette": "red-white"
     },
     {
-      "index": 15,
+      "index": 14,
       "fromDistanceMeters": 2059,
       "toDistanceMeters": 2095,
       "side": "left",
@@ -14798,7 +14798,7 @@
       "palette": "red-white"
     },
     {
-      "index": 16,
+      "index": 15,
       "fromDistanceMeters": 2083,
       "toDistanceMeters": 2111,
       "side": "right",
@@ -14807,7 +14807,7 @@
       "palette": "red-white"
     },
     {
-      "index": 17,
+      "index": 16,
       "fromDistanceMeters": 2274,
       "toDistanceMeters": 2310,
       "side": "right",
@@ -14816,7 +14816,7 @@
       "palette": "red-white"
     },
     {
-      "index": 18,
+      "index": 17,
       "fromDistanceMeters": 2298,
       "toDistanceMeters": 2326,
       "side": "left",
@@ -14825,7 +14825,7 @@
       "palette": "red-white"
     },
     {
-      "index": 19,
+      "index": 18,
       "fromDistanceMeters": 2329,
       "toDistanceMeters": 2365,
       "side": "right",
@@ -14834,7 +14834,7 @@
       "palette": "red-white"
     },
     {
-      "index": 20,
+      "index": 19,
       "fromDistanceMeters": 2353,
       "toDistanceMeters": 2381,
       "side": "left",
@@ -14843,7 +14843,7 @@
       "palette": "red-white"
     },
     {
-      "index": 21,
+      "index": 20,
       "fromDistanceMeters": 2434,
       "toDistanceMeters": 2470,
       "side": "right",
@@ -14852,7 +14852,7 @@
       "palette": "red-white"
     },
     {
-      "index": 22,
+      "index": 21,
       "fromDistanceMeters": 2458,
       "toDistanceMeters": 2486,
       "side": "left",
@@ -14861,7 +14861,7 @@
       "palette": "red-white"
     },
     {
-      "index": 23,
+      "index": 22,
       "fromDistanceMeters": 3014,
       "toDistanceMeters": 3050,
       "side": "left",
@@ -14870,7 +14870,7 @@
       "palette": "red-white"
     },
     {
-      "index": 24,
+      "index": 23,
       "fromDistanceMeters": 3038,
       "toDistanceMeters": 3066,
       "side": "right",
@@ -14879,7 +14879,7 @@
       "palette": "red-white"
     },
     {
-      "index": 25,
+      "index": 24,
       "fromDistanceMeters": 3204,
       "toDistanceMeters": 3240,
       "side": "right",
@@ -14888,7 +14888,7 @@
       "palette": "red-white"
     },
     {
-      "index": 26,
+      "index": 25,
       "fromDistanceMeters": 3228,
       "toDistanceMeters": 3256,
       "side": "left",
@@ -14897,7 +14897,7 @@
       "palette": "red-white"
     },
     {
-      "index": 27,
+      "index": 26,
       "fromDistanceMeters": 3714,
       "toDistanceMeters": 3750,
       "side": "right",
@@ -14906,7 +14906,7 @@
       "palette": "red-white"
     },
     {
-      "index": 28,
+      "index": 27,
       "fromDistanceMeters": 3738,
       "toDistanceMeters": 3766,
       "side": "left",
@@ -14915,7 +14915,7 @@
       "palette": "red-white"
     },
     {
-      "index": 29,
+      "index": 28,
       "fromDistanceMeters": 3954,
       "toDistanceMeters": 3990,
       "side": "left",
@@ -14924,7 +14924,7 @@
       "palette": "red-white"
     },
     {
-      "index": 30,
+      "index": 29,
       "fromDistanceMeters": 3978,
       "toDistanceMeters": 4006,
       "side": "right",
@@ -14933,7 +14933,7 @@
       "palette": "red-white"
     },
     {
-      "index": 31,
+      "index": 30,
       "fromDistanceMeters": 4149,
       "toDistanceMeters": 4225,
       "side": "right",
@@ -14942,17 +14942,8 @@
       "palette": "red-white"
     },
     {
-      "index": 32,
+      "index": 31,
       "fromDistanceMeters": 4173,
-      "toDistanceMeters": 4201,
-      "side": "left",
-      "widthMeters": 1,
-      "stripeLengthMeters": 2.5,
-      "palette": "red-white"
-    },
-    {
-      "index": 33,
-      "fromDistanceMeters": 4213,
       "toDistanceMeters": 4241,
       "side": "left",
       "widthMeters": 1,
@@ -14960,7 +14951,7 @@
       "palette": "red-white"
     },
     {
-      "index": 34,
+      "index": 32,
       "fromDistanceMeters": 4509,
       "toDistanceMeters": 4545,
       "side": "left",
@@ -14969,7 +14960,7 @@
       "palette": "red-white"
     },
     {
-      "index": 35,
+      "index": 33,
       "fromDistanceMeters": 4533,
       "toDistanceMeters": 4561,
       "side": "right",
@@ -14978,7 +14969,7 @@
       "palette": "red-white"
     },
     {
-      "index": 36,
+      "index": 34,
       "fromDistanceMeters": 4669,
       "toDistanceMeters": 4705,
       "side": "right",
@@ -14987,7 +14978,7 @@
       "palette": "red-white"
     },
     {
-      "index": 37,
+      "index": 35,
       "fromDistanceMeters": 4693,
       "toDistanceMeters": 4721,
       "side": "left",
@@ -14996,7 +14987,7 @@
       "palette": "red-white"
     },
     {
-      "index": 38,
+      "index": 36,
       "fromDistanceMeters": 4974,
       "toDistanceMeters": 5010,
       "side": "right",
@@ -15005,7 +14996,7 @@
       "palette": "red-white"
     },
     {
-      "index": 39,
+      "index": 37,
       "fromDistanceMeters": 4998,
       "toDistanceMeters": 5026,
       "side": "left",
@@ -15027,11 +15018,13 @@
               "widthMeters": 4
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -15045,7 +15038,8 @@
               "widthMeters": 20
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -15054,7 +15048,8 @@
               "widthMeters": 30
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -15068,7 +15063,8 @@
               "widthMeters": 20
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -15077,7 +15073,8 @@
               "widthMeters": 8
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -15091,7 +15088,8 @@
               "widthMeters": 4
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -15100,7 +15098,8 @@
               "widthMeters": 4
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -15114,7 +15113,8 @@
               "widthMeters": 8
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -15123,7 +15123,8 @@
               "widthMeters": 30
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -15137,7 +15138,8 @@
               "widthMeters": 4
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -15146,7 +15148,8 @@
               "widthMeters": 4
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -15160,7 +15163,8 @@
               "widthMeters": 12
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -15169,7 +15173,8 @@
               "widthMeters": 20
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -15183,7 +15188,8 @@
               "widthMeters": 20
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -15192,7 +15198,8 @@
               "widthMeters": 20
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -15206,7 +15213,8 @@
               "widthMeters": 12
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -15215,7 +15223,8 @@
               "widthMeters": 12
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -15229,7 +15238,8 @@
               "widthMeters": 4
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -15238,7 +15248,8 @@
               "widthMeters": 4
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -15252,7 +15263,8 @@
               "widthMeters": 30
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -15261,7 +15273,8 @@
               "widthMeters": 20
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -15275,7 +15288,8 @@
               "widthMeters": 4
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -15284,7 +15298,8 @@
               "widthMeters": 4
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -15298,7 +15313,8 @@
               "widthMeters": 20
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -15307,7 +15323,8 @@
               "widthMeters": 30
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -15316,11 +15333,13 @@
         "toDistanceMeters": 4160.24,
         "left": {
           "zones": [],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -15334,7 +15353,8 @@
               "widthMeters": 20
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -15343,7 +15363,8 @@
               "widthMeters": 12
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -15357,7 +15378,8 @@
               "widthMeters": 12
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -15366,7 +15388,8 @@
               "widthMeters": 20
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -15375,11 +15398,13 @@
         "toDistanceMeters": 5200.3,
         "left": {
           "zones": [],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -15393,11 +15418,13 @@
               "widthMeters": 4
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       }
     ]
@@ -15659,6 +15686,86 @@
         },
         "rotation": -2.9675,
         "scale": 16.5
+      },
+      {
+        "id": "main-grandstand",
+        "kind": "main-grandstand-covered",
+        "position": {
+          "x": 110.59,
+          "y": -27.769
+        },
+        "rotation": -2.967538,
+        "scale": 18,
+        "visualStyle": {
+          "primaryColor": "#d8dad8",
+          "secondaryColor": "#515a62",
+          "accentColor": "#9b2933",
+          "roofColor": "#ededeb"
+        }
+      },
+      {
+        "id": "ifema-pavilion",
+        "kind": "ifema-exhibition-building",
+        "position": {
+          "x": -571.659,
+          "y": 398.941
+        },
+        "rotation": 1.96189,
+        "scale": 22,
+        "visualStyle": {
+          "primaryColor": "#dedfdd",
+          "secondaryColor": "#4c555e",
+          "accentColor": "#9b2933",
+          "roofColor": "#efefec"
+        }
+      },
+      {
+        "id": "race-control",
+        "kind": "race-control-building",
+        "position": {
+          "x": -10.917,
+          "y": 31.071
+        },
+        "rotation": -2.967485,
+        "scale": 12,
+        "visualStyle": {
+          "primaryColor": "#e2e3e1",
+          "secondaryColor": "#4f575f",
+          "accentColor": "#9b2933",
+          "roofColor": "#f0f0ed"
+        }
+      },
+      {
+        "id": "ifema-turn-one-grandstand",
+        "kind": "grandstand-covered",
+        "position": {
+          "x": -369.6,
+          "y": 22.743
+        },
+        "rotation": 2.139321,
+        "scale": 14,
+        "visualStyle": {
+          "primaryColor": "#e2e3e1",
+          "secondaryColor": "#4f575f",
+          "accentColor": "#9b2933",
+          "roofColor": "#f0f0ed"
+        }
+      },
+      {
+        "id": "banked-corner-grandstand",
+        "kind": "grandstand-covered",
+        "position": {
+          "x": -83.281,
+          "y": 801.324
+        },
+        "rotation": -1.0616,
+        "scale": 15,
+        "visualStyle": {
+          "primaryColor": "#e2e3e1",
+          "secondaryColor": "#4f575f",
+          "accentColor": "#9b2933",
+          "roofColor": "#f0f0ed"
+        }
       }
     ]
   },
@@ -15666,7 +15773,7 @@
     "dataset": "bacinger/f1-circuits",
     "license": "MIT",
     "url": "https://github.com/bacinger/f1-circuits",
-    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery; barrier thickness extends away from the racing surface.",
+    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery. Catalog 2026.8 adds per-circuit pit architecture, major buildings, spectator grandstands and safety fencing, closes curb gaps only through continuous curvature and preserves the canonical racing geometry; barrier thickness extends away from the racing surface.",
     "environmentReferences": [
       {
         "label": "Madring official circuit-design description",
