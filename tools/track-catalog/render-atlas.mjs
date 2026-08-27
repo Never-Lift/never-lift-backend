@@ -154,6 +154,14 @@ function renderTrack(track, cardX, cardY) {
     }
   }
 
+  for (const escapeRoad of track.sceneryLayout.escapeRoads) {
+    elements.push(
+      `<polyline points="${pointsAttribute(escapeRoad.path)}" fill="none" ` +
+        `stroke="#343d49" stroke-width="${escapeRoad.widthMeters}" ` +
+        'stroke-linecap="round" stroke-linejoin="round"/>',
+    )
+  }
+
   for (let index = 0; index < track.centerline.length - 1; index += 1) {
     const from = track.centerline[index]
     const to = track.centerline[index + 1]
@@ -211,6 +219,35 @@ function renderTrack(track, cardX, cardY) {
       'stroke="#303a48" stroke-width="6" vector-effect="non-scaling-stroke" ' +
       'stroke-linecap="round" stroke-linejoin="round"/>',
   )
+  for (const escapeRoad of track.sceneryLayout.escapeRoads) {
+    for (const row of escapeRoad.obstacleRows) {
+      const lengthMeters = Math.hypot(
+        row.to.x - row.from.x,
+        row.to.y - row.from.y,
+      )
+      const blockCount = Math.max(1, Math.ceil(lengthMeters / row.blockLengthMeters))
+      for (let index = 0; index < blockCount; index += 1) {
+        const fromRatio = index / blockCount
+        const toRatio = (index + 1) / blockCount
+        const from = {
+          x: row.from.x + (row.to.x - row.from.x) * fromRatio,
+          y: row.from.y + (row.to.y - row.from.y) * fromRatio,
+        }
+        const to = {
+          x: row.from.x + (row.to.x - row.from.x) * toRatio,
+          y: row.from.y + (row.to.y - row.from.y) * toRatio,
+        }
+        elements.push(
+          line(
+            from,
+            to,
+            `stroke="${index % 2 === 0 ? '#f0f0fa' : '#c52c35'}" ` +
+              'stroke-width="0.8" stroke-linecap="butt"',
+          ),
+        )
+      }
+    }
+  }
   for (const object of track.sceneryLayout.staticObjects) {
     elements.push(renderInfrastructureObject(object))
   }

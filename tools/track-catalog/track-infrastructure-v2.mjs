@@ -6,6 +6,7 @@ const pitVisual = (
   roofColor,
   garageCount = 10,
   buildingHeightMeters = 4.2,
+  layout = {},
 ) => ({
   architecture,
   primaryColor,
@@ -14,7 +15,40 @@ const pitVisual = (
   roofColor,
   garageCount,
   buildingHeightMeters,
+  laneWidthMeters: layout.laneWidthMeters ?? 10,
+  garageStartRatio: layout.garageStartRatio ?? 0.23,
+  garageEndRatio: layout.garageEndRatio ?? 0.77,
+  pitBoxLengthMeters: layout.pitBoxLengthMeters ?? 7.5,
+  pitBoxDepthMeters: layout.pitBoxDepthMeters ?? 2.6,
+  pitBoxCenterOffsetMeters: layout.pitBoxCenterOffsetMeters ?? 2.4,
+  garageDepthMeters: layout.garageDepthMeters ?? 8,
+  garageCenterOffsetMeters: layout.garageCenterOffsetMeters ?? 10,
+  pitWallHeightMeters: layout.pitWallHeightMeters ?? 1,
+  canopyDepthMeters: layout.canopyDepthMeters ?? 1.2,
 })
+
+const structureDimensions = (kind, scale, explicit) => {
+  if (explicit) return explicit
+  if (kind.includes('grandstand')) {
+    return {
+      lengthMeters: Number((scale * 1.65).toFixed(2)),
+      depthMeters: Number((scale * 0.82).toFixed(2)),
+      heightMeters: Number((scale * 0.42).toFixed(2)),
+    }
+  }
+  if (kind.includes('tower')) {
+    return {
+      lengthMeters: Number((scale * 0.65).toFixed(2)),
+      depthMeters: Number((scale * 0.65).toFixed(2)),
+      heightMeters: Number((scale * 1.8).toFixed(2)),
+    }
+  }
+  return {
+    lengthMeters: Number((scale * 1.35).toFixed(2)),
+    depthMeters: Number((scale * 0.82).toFixed(2)),
+    heightMeters: Number((scale * 0.62).toFixed(2)),
+  }
+}
 
 const structure = (
   id,
@@ -28,6 +62,7 @@ const structure = (
   accentColor,
   roofColor,
   rotationOffset = 0,
+  dimensions,
 ) => ({
   id,
   kind,
@@ -36,7 +71,54 @@ const structure = (
   offsetMeters,
   scale,
   rotationOffset,
+  dimensions: structureDimensions(kind, scale, dimensions),
   visualStyle: { primaryColor, secondaryColor, accentColor, roofColor },
+})
+
+const fenceVisual = (
+  heightMeters,
+  postSpacingMeters,
+  postColor,
+  meshColor,
+  meshOpacity,
+  cantileverMeters = 0,
+) => ({
+  heightMeters,
+  postSpacingMeters,
+  postColor,
+  meshColor,
+  meshOpacity,
+  cantileverMeters,
+})
+
+const galvanizedFence = fenceVisual(3.2, 3, '#87929d', '#697786', 0.22, 0.2)
+const tallStreetFence = fenceVisual(4.2, 2.5, '#535e69', '#47535f', 0.28, 0.55)
+
+const fenceVisualProfilesV2 = Object.freeze({
+  'albert-park': fenceVisual(3.5, 2.8, '#77838e', '#65727e', 0.23, 0.25),
+  shanghai: fenceVisual(3.6, 3, '#7b8792', '#66737f', 0.22, 0.3),
+  suzuka: fenceVisual(3.4, 2.8, '#858f98', '#707b85', 0.2, 0.25),
+  bahrain: fenceVisual(3.4, 3, '#716f6b', '#625f5a', 0.23, 0.25),
+  jeddah: fenceVisual(4.5, 2.35, '#4f5963', '#414b55', 0.3, 0.65),
+  miami: fenceVisual(4.3, 2.4, '#586772', '#465660', 0.29, 0.6),
+  montreal: galvanizedFence,
+  monaco: fenceVisual(4.1, 2.25, '#555f68', '#454f58', 0.3, 0.7),
+  barcelona: galvanizedFence,
+  spielberg: galvanizedFence,
+  silverstone: fenceVisual(3.5, 3, '#747f89', '#626f7a', 0.22, 0.25),
+  'spa-francorchamps': galvanizedFence,
+  hungaroring: fenceVisual(3.5, 2.8, '#7b858e', '#66717b', 0.22, 0.3),
+  zandvoort: fenceVisual(3.7, 2.7, '#737f89', '#5f6c77', 0.24, 0.4),
+  monza: galvanizedFence,
+  madrid: tallStreetFence,
+  baku: fenceVisual(4.5, 2.25, '#4d5861', '#414b54', 0.31, 0.65),
+  singapore: fenceVisual(4.5, 2.3, '#4e5963', '#414c56', 0.31, 0.65),
+  austin: fenceVisual(3.6, 2.8, '#75818b', '#616e79', 0.23, 0.3),
+  'mexico-city': fenceVisual(3.6, 2.8, '#758079', '#626e67', 0.23, 0.3),
+  interlagos: fenceVisual(3.7, 2.7, '#6f7b76', '#5c6963', 0.24, 0.35),
+  'las-vegas': fenceVisual(4.5, 2.3, '#4b555f', '#3f4953', 0.31, 0.65),
+  lusail: fenceVisual(3.8, 2.7, '#66737e', '#53616d', 0.24, 0.4),
+  'yas-marina': fenceVisual(3.9, 2.6, '#64727d', '#52606c', 0.25, 0.45),
 })
 
 const profile = ({
@@ -75,8 +157,8 @@ export const trackInfrastructureProfilesV2 = Object.freeze({
     pit: pitVisual('permanent-modern', '#d7d9dc', '#444d57', '#b51e2a', '#eef0f2', 12, 5.4),
     structures: [
       structure('main-grandstand', 'main-grandstand-covered', 0.97, 'left', 43, 20, '#a41f2a', '#d8dadd', '#b79a4a', '#e9eaec'),
-      structure('lotus-grandstand', 'grandstand-covered', 0.04, 'left', 48, 17, '#a41f2a', '#d8dadd', '#b79a4a', '#e9eaec'),
-      structure('paddock-pavilion', 'paddock-building', 0.01, 'right', 30, 13, '#d7d9dc', '#444d57', '#b51e2a', '#eef0f2'),
+      structure('lotus-grandstand', 'grandstand-covered', 0.04, 'left', 53, 17, '#a41f2a', '#d8dadd', '#b79a4a', '#e9eaec'),
+      structure('paddock-pavilion', 'paddock-building', 0.99, 'right', 30, 13, '#d7d9dc', '#444d57', '#b51e2a', '#eef0f2'),
     ],
   }),
   suzuka: profile({
@@ -177,7 +259,7 @@ export const trackInfrastructureProfilesV2 = Object.freeze({
     structures: [
       structure('main-grandstand', 'main-grandstand-covered', 0.98, 'left', 39, 17, '#d1d4d2', '#50585f', '#a34d21', '#e9ebe9'),
       structure('tarzan-grandstand', 'grandstand-open', 0.055, 'left', 43, 14, '#d1d4d2', '#50585f', '#a34d21', '#e9ebe9'),
-      structure('pit-building', 'race-control-building', 0.99, 'right', 24, 10, '#d9dbd9', '#4f565d', '#a34d21', '#eceeec'),
+      structure('pit-building', 'race-control-building', 0.99, 'right', 66, 10, '#d9dbd9', '#4f565d', '#a34d21', '#eceeec'),
     ],
   }),
   monza: profile({
@@ -217,7 +299,7 @@ export const trackInfrastructureProfilesV2 = Object.freeze({
     pit: pitVisual('permanent-modern', '#d9dcdd', '#4e5760', '#8f2933', '#eceeef', 11, 5.0),
     structures: [
       structure('main-grandstand', 'main-grandstand-covered', 0.975, 'left', 43, 18, '#d2d6d7', '#505a63', '#8f2933', '#eaeced'),
-      structure('turn-one-grandstand', 'grandstand-hillside', 0.06, 'left', 52, 15, '#d2d6d7', '#505a63', '#8f2933', '#eaeced'),
+      structure('turn-one-grandstand', 'grandstand-hillside', 0.06, 'right', 52, 15, '#d2d6d7', '#505a63', '#8f2933', '#eaeced'),
       structure('cota-race-control', 'race-control-building', 0.99, 'right', 25, 11, '#d9dcdd', '#4e5760', '#8f2933', '#eceeef'),
     ],
   }),
@@ -252,7 +334,7 @@ export const trackInfrastructureProfilesV2 = Object.freeze({
     structures: [
       structure('main-grandstand', 'main-grandstand-covered', 0.975, 'left', 43, 20, '#d9d7d1', '#525c64', '#315f83', '#edebe5'),
       structure('north-grandstand', 'grandstand-covered', 0.05, 'left', 48, 15, '#d9d7d1', '#525c64', '#315f83', '#edebe5'),
-      structure('lusail-pit-building', 'race-control-building', 0.99, 'right', 25, 12, '#e2e0da', '#505a62', '#315f83', '#f0eee8'),
+      structure('lusail-pit-building', 'race-control-building', 0.99, 'right', 27.9, 12, '#e2e0da', '#505a62', '#315f83', '#f0eee8'),
     ],
   }),
   'yas-marina': profile({
@@ -284,8 +366,8 @@ const supplementaryGrandstandsV2 = Object.freeze({
     supplementalGrandstand('prost-grandstand', 0.87, 'right', 46, 12),
   ],
   shanghai: [
-    supplementalGrandstand('turn-one-grandstand', 0.13, 'right', 48, 15, 'grandstand-covered'),
-    supplementalGrandstand('hairpin-grandstand', 0.82, 'left', 46, 13),
+    supplementalGrandstand('turn-one-grandstand', 0.13, 'right', 50.1, 15, 'grandstand-covered'),
+    supplementalGrandstand('hairpin-grandstand', 0.82, 'left', 74.3, 13),
   ],
   suzuka: [
     supplementalGrandstand('s-curves-grandstand', 0.19, 'right', 46, 13),
@@ -296,7 +378,7 @@ const supplementaryGrandstandsV2 = Object.freeze({
     supplementalGrandstand('victory-grandstand', 0.79, 'left', 49, 13, 'grandstand-canopy'),
   ],
   jeddah: [
-    supplementalGrandstand('turn-one-grandstand', 0.05, 'right', 37, 13, 'grandstand-covered'),
+    supplementalGrandstand('turn-one-grandstand', 0.05, 'right', 52, 13, 'grandstand-covered'),
     supplementalGrandstand('turn-twenty-seven-grandstand', 0.89, 'right', 36, 13),
   ],
   miami: [
@@ -329,11 +411,11 @@ const supplementaryGrandstandsV2 = Object.freeze({
   ],
   hungaroring: [
     supplementalGrandstand('east-turn-one-grandstand', 0.08, 'right', 47, 14, 'grandstand-covered'),
-    supplementalGrandstand('final-sector-grandstand', 0.79, 'left', 46, 13),
+    supplementalGrandstand('final-sector-grandstand', 0.88, 'left', 46, 13),
   ],
   zandvoort: [
     supplementalGrandstand('arena-grandstand', 0.48, 'left', 44, 15, 'grandstand-covered'),
-    supplementalGrandstand('eastside-grandstand', 0.67, 'right', 43, 13),
+    supplementalGrandstand('eastside-grandstand', 0.67, 'right', 78, 13),
   ],
   monza: [
     supplementalGrandstand('ascari-grandstand', 0.68, 'right', 48, 13),
@@ -353,7 +435,7 @@ const supplementaryGrandstandsV2 = Object.freeze({
   ],
   austin: [
     supplementalGrandstand('turn-twelve-grandstand', 0.54, 'right', 50, 14),
-    supplementalGrandstand('turn-fifteen-grandstand', 0.71, 'left', 47, 14, 'grandstand-covered'),
+    supplementalGrandstand('turn-fifteen-grandstand', 0.71, 'right', 47, 14, 'grandstand-covered'),
   ],
   'mexico-city': [
     supplementalGrandstand('turn-one-grandstand', 0.08, 'right', 42, 14, 'grandstand-covered'),
@@ -375,6 +457,70 @@ const supplementaryGrandstandsV2 = Object.freeze({
     supplementalGrandstand('west-grandstand', 0.29, 'right', 45, 15, 'grandstand-covered'),
     supplementalGrandstand('marina-grandstand', 0.68, 'left', 45, 14, 'grandstand-covered'),
   ],
+})
+
+const pitLayout = ({
+  laneWidthMeters,
+  garageDepthMeters,
+  buildingHeightMeters,
+  pitOffsetMeters,
+  pitEntryFraction = 0.91,
+  pitExitFraction = 0.09,
+  garageCenterRatio = 0.5,
+  garageStartRatio = 0.2,
+  garageEndRatio = 0.8,
+  pitBoxLengthMeters = 7.5,
+  pitBoxDepthMeters = 2.6,
+  pitBoxCenterOffsetMeters = laneWidthMeters * 0.22,
+  pitWallHeightMeters = 1,
+  canopyDepthMeters = 1.2,
+}) => ({
+  garageCount: 11,
+  laneWidthMeters,
+  garageStartRatio,
+  garageEndRatio,
+  pitBoxLengthMeters,
+  pitBoxDepthMeters,
+  pitBoxCenterOffsetMeters,
+  garageDepthMeters,
+  garageCenterOffsetMeters: laneWidthMeters / 2 + garageDepthMeters / 2 + 1,
+  pitWallHeightMeters,
+  canopyDepthMeters,
+  buildingHeightMeters,
+  pitOffsetMeters,
+  pitEntryFraction,
+  pitExitFraction,
+  pitGarageCenterRatio: garageCenterRatio,
+})
+
+// Dimensions are in world metres. Where a venue publishes a full building
+// footprint, the garage depth deliberately stays below that total so the
+// façade, circulation and hospitality floors can be represented separately.
+const pitLayoutsV2 = Object.freeze({
+  'albert-park': pitLayout({ laneWidthMeters: 14, garageDepthMeters: 10, buildingHeightMeters: 8, pitOffsetMeters: 9.2, pitEntryFraction: 0.928, pitExitFraction: 0.054, garageCenterRatio: 0.53, canopyDepthMeters: 1.8 }),
+  shanghai: pitLayout({ laneWidthMeters: 12.5, garageDepthMeters: 12, buildingHeightMeters: 14, pitOffsetMeters: 8.4, pitEntryFraction: 0.955, pitExitFraction: 0.041, garageCenterRatio: 0.49, canopyDepthMeters: 2.2 }),
+  suzuka: pitLayout({ laneWidthMeters: 12, garageDepthMeters: 10.5, buildingHeightMeters: 9.5, pitOffsetMeters: 8.1, pitEntryFraction: 0.949, pitExitFraction: 0.038, garageCenterRatio: 0.52, canopyDepthMeters: 1.5 }),
+  bahrain: pitLayout({ laneWidthMeters: 12, garageDepthMeters: 11, buildingHeightMeters: 14, pitOffsetMeters: 8.2, pitEntryFraction: 0.957, pitExitFraction: 0.035, garageCenterRatio: 0.5, canopyDepthMeters: 3 }),
+  jeddah: pitLayout({ laneWidthMeters: 12, garageDepthMeters: 12.5, buildingHeightMeters: 18, pitOffsetMeters: 8.3, pitEntryFraction: 0.965, pitExitFraction: 0.028, garageCenterRatio: 0.51, canopyDepthMeters: 2.6 }),
+  miami: pitLayout({ laneWidthMeters: 12, garageDepthMeters: 10, buildingHeightMeters: 12, pitOffsetMeters: 8.1, pitEntryFraction: 0.943, pitExitFraction: 0.045, garageCenterRatio: 0.52, canopyDepthMeters: 2 }),
+  montreal: pitLayout({ laneWidthMeters: 10, garageDepthMeters: 9, buildingHeightMeters: 12, pitOffsetMeters: 7.1, pitEntryFraction: 0.932, pitExitFraction: 0.042, garageCenterRatio: 0.54, canopyDepthMeters: 1.5 }),
+  monaco: pitLayout({ laneWidthMeters: 8.5, garageDepthMeters: 7, buildingHeightMeters: 13, pitOffsetMeters: 5.4, pitEntryFraction: 0.9, pitExitFraction: 0.085, garageCenterRatio: 0.51, garageStartRatio: 0.17, garageEndRatio: 0.84, pitBoxLengthMeters: 6.4, pitBoxDepthMeters: 2.2, canopyDepthMeters: 2.4 }),
+  barcelona: pitLayout({ laneWidthMeters: 13, garageDepthMeters: 11, buildingHeightMeters: 14, pitOffsetMeters: 8.7, pitEntryFraction: 0.956, pitExitFraction: 0.031, garageCenterRatio: 0.49, canopyDepthMeters: 1.8 }),
+  spielberg: pitLayout({ laneWidthMeters: 12, garageDepthMeters: 12.5, buildingHeightMeters: 12, pitOffsetMeters: 8.3, pitEntryFraction: 0.949, pitExitFraction: 0.041, garageCenterRatio: 0.5, canopyDepthMeters: 2 }),
+  silverstone: pitLayout({ laneWidthMeters: 14, garageDepthMeters: 14, buildingHeightMeters: 18, pitOffsetMeters: 9.3, pitEntryFraction: 0.946, pitExitFraction: 0.046, garageCenterRatio: 0.5, canopyDepthMeters: 2.4 }),
+  'spa-francorchamps': pitLayout({ laneWidthMeters: 12, garageDepthMeters: 10, buildingHeightMeters: 11, pitOffsetMeters: 8.1, pitEntryFraction: 0.972, pitExitFraction: 0.033, garageCenterRatio: 0.48, canopyDepthMeters: 1.5 }),
+  hungaroring: pitLayout({ laneWidthMeters: 12, garageDepthMeters: 12.5, buildingHeightMeters: 16, pitOffsetMeters: 8.3, pitEntryFraction: 0.963, pitExitFraction: 0.035, garageCenterRatio: 0.49, canopyDepthMeters: 2.2 }),
+  zandvoort: pitLayout({ laneWidthMeters: 9, garageDepthMeters: 8, buildingHeightMeters: 9, pitOffsetMeters: 6.4, pitEntryFraction: 0.952, pitExitFraction: 0.039, garageCenterRatio: 0.5, garageStartRatio: 0.24, garageEndRatio: 0.76, pitBoxLengthMeters: 6.5, pitBoxDepthMeters: 2.2, canopyDepthMeters: 1.2 }),
+  monza: pitLayout({ laneWidthMeters: 13, garageDepthMeters: 12.9, buildingHeightMeters: 9, pitOffsetMeters: 8.8, pitEntryFraction: 0.961, pitExitFraction: 0.034, garageCenterRatio: 0.49, canopyDepthMeters: 1.5 }),
+  madrid: pitLayout({ laneWidthMeters: 14, garageDepthMeters: 14, buildingHeightMeters: 18.5, pitOffsetMeters: 9.3, pitEntryFraction: 0.94, pitExitFraction: 0.05, garageCenterRatio: 0.5, canopyDepthMeters: 2.5 }),
+  baku: pitLayout({ laneWidthMeters: 10, garageDepthMeters: 9, buildingHeightMeters: 15, pitOffsetMeters: 7.1, pitEntryFraction: 0.969, pitExitFraction: 0.024, garageCenterRatio: 0.5, canopyDepthMeters: 1.8 }),
+  singapore: pitLayout({ laneWidthMeters: 10, garageDepthMeters: 10, buildingHeightMeters: 18, pitOffsetMeters: 7.2, pitEntryFraction: 0.958, pitExitFraction: 0.042, garageCenterRatio: 0.51, canopyDepthMeters: 2.4 }),
+  austin: pitLayout({ laneWidthMeters: 12, garageDepthMeters: 11, buildingHeightMeters: 12, pitOffsetMeters: 8.2, pitEntryFraction: 0.959, pitExitFraction: 0.039, garageCenterRatio: 0.5, canopyDepthMeters: 1.8 }),
+  'mexico-city': pitLayout({ laneWidthMeters: 12, garageDepthMeters: 10, buildingHeightMeters: 12, pitOffsetMeters: 8.1, pitEntryFraction: 0.951, pitExitFraction: 0.036, garageCenterRatio: 0.5, canopyDepthMeters: 1.6 }),
+  interlagos: pitLayout({ laneWidthMeters: 10.5, garageDepthMeters: 9, buildingHeightMeters: 12, pitOffsetMeters: 7.3, pitEntryFraction: 0.919, pitExitFraction: 0.041, garageCenterRatio: 0.53, canopyDepthMeters: 2.8 }),
+  'las-vegas': pitLayout({ laneWidthMeters: 13, garageDepthMeters: 13, buildingHeightMeters: 20, pitOffsetMeters: 8.9, pitEntryFraction: 0.957, pitExitFraction: 0.032, garageCenterRatio: 0.51, canopyDepthMeters: 2.4 }),
+  lusail: pitLayout({ laneWidthMeters: 14, garageDepthMeters: 13, buildingHeightMeters: 16, pitOffsetMeters: 9.3, pitEntryFraction: 0.963, pitExitFraction: 0.035, garageCenterRatio: 0.5, canopyDepthMeters: 3 }),
+  'yas-marina': pitLayout({ laneWidthMeters: 13, garageDepthMeters: 12, buildingHeightMeters: 17, pitOffsetMeters: 8.8, pitEntryFraction: 0.936, pitExitFraction: 0.046, garageCenterRatio: 0.52, canopyDepthMeters: 3 }),
 })
 
 const infrastructureReferencesV2 = Object.freeze({
@@ -413,10 +559,46 @@ const infrastructureReferencesV2 = Object.freeze({
   ],
 })
 
+const grandPrixGuidesSlugs = Object.freeze({
+  'albert-park': 'australia',
+  shanghai: 'china',
+  suzuka: 'japan',
+  bahrain: 'bahrain',
+  jeddah: 'saudi-arabia',
+  miami: 'miami',
+  montreal: 'canada',
+  monaco: 'monaco',
+  barcelona: 'spain',
+  spielberg: 'austria',
+  silverstone: 'silverstone',
+  'spa-francorchamps': 'belgium',
+  hungaroring: 'hungary',
+  zandvoort: 'netherlands',
+  monza: 'monza',
+  madrid: 'madrid',
+  baku: 'azerbaijan',
+  singapore: 'singapore',
+  austin: 'austin',
+  'mexico-city': 'mexico',
+  interlagos: 'brazil',
+  'las-vegas': 'vegas',
+  lusail: 'qatar',
+  'yas-marina': 'abu-dhabi',
+})
+
 export function infrastructureProfileFor(trackId) {
   const resolved = trackInfrastructureProfilesV2[trackId]
   if (!resolved) throw new Error(`${trackId}: missing v2 infrastructure profile`)
-  const pit = resolved.pitVisual
+  const pitLayoutProfile = pitLayoutsV2[trackId]
+  if (!pitLayoutProfile) throw new Error(`${trackId}: missing v2 pit layout profile`)
+  const {
+    pitOffsetMeters,
+    pitEntryFraction,
+    pitExitFraction,
+    pitGarageCenterRatio,
+    ...pitVisualLayout
+  } = pitLayoutProfile
+  const pit = { ...resolved.pitVisual, ...pitVisualLayout }
   const supplementary = (supplementaryGrandstandsV2[trackId] ?? []).map(
     (object) => structure(
       object.id,
@@ -433,10 +615,29 @@ export function infrastructureProfileFor(trackId) {
   )
   return {
     ...resolved,
+    pitOffsetMeters,
+    pitEntryFraction,
+    pitExitFraction,
+    pitGarageCenterRatio,
+    pitVisual: pit,
     structures: [...resolved.structures, ...supplementary],
   }
 }
 
 export function infrastructureReferencesFor(trackId) {
-  return infrastructureReferencesV2[trackId] ?? []
+  const slug = grandPrixGuidesSlugs[trackId]
+  if (!slug) throw new Error(`${trackId}: missing Grand Prix Guides slug`)
+  return [
+    ...(infrastructureReferencesV2[trackId] ?? []),
+    {
+      label: `Grand Prix Guides satellite overview — ${trackId}`,
+      url: `https://grandprixguides.com/circuit/${slug}`,
+    },
+  ].map((reference) => ({ ...reference, checkedAt: '2026-08-27' }))
+}
+
+export function fenceVisualProfileFor(trackId) {
+  const profile = fenceVisualProfilesV2[trackId]
+  if (!profile) throw new Error(`${trackId}: missing v2 fence visual profile`)
+  return profile
 }
