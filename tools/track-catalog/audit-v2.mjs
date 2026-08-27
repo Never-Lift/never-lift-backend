@@ -11,7 +11,7 @@ const mirrorDirectory =
   mirrorFlag >= 0 ? resolve(repositoryRoot, process.argv[mirrorFlag + 1]) : null
 
 const VERSION = '2.0.0'
-const CATALOG_VERSION = '2026.8'
+const CATALOG_VERSION = '2026.9'
 const PHYSICS_VERSION = '2.0.0'
 const TRACK_COUNT = 24
 const sharedFiles = [
@@ -252,6 +252,9 @@ function sampleAtDistance(centerline, distanceMeters, lengthMeters) {
   return {
     x: start.x + (end.x - start.x) * ratio,
     y: start.y + (end.y - start.y) * ratio,
+    halfWidthMeters:
+      start.halfWidthMeters +
+      (end.halfWidthMeters - start.halfWidthMeters) * ratio,
   }
 }
 
@@ -276,6 +279,140 @@ function angleDifference(first, second) {
   return difference
 }
 
+function projectPointToPolyline(point, path) {
+  let best
+  let shortestSquaredDistance = Number.POSITIVE_INFINITY
+  for (let index = 0; index < path.length - 1; index += 1) {
+    const from = path[index]
+    const to = path[index + 1]
+    const segment = { x: to.x - from.x, y: to.y - from.y }
+    const lengthSquared = segment.x * segment.x + segment.y * segment.y
+    if (lengthSquared <= 1e-9) continue
+    const ratio = Math.max(
+      0,
+      Math.min(
+        1,
+        ((point.x - from.x) * segment.x +
+          (point.y - from.y) * segment.y) / lengthSquared,
+      ),
+    )
+    const projection = {
+      x: from.x + segment.x * ratio,
+      y: from.y + segment.y * ratio,
+    }
+    const delta = { x: point.x - projection.x, y: point.y - projection.y }
+    const squaredDistance = delta.x * delta.x + delta.y * delta.y
+    if (squaredDistance >= shortestSquaredDistance) continue
+    const tangent = normalize(segment)
+    shortestSquaredDistance = squaredDistance
+    best = {
+      distanceMeters: Math.sqrt(squaredDistance),
+      lateralMeters: tangent.x * delta.y - tangent.y * delta.x,
+    }
+  }
+  return best
+}
+
+function validateEscapeRoads(track, entry) {
+  const roads = track.sceneryLayout.escapeRoads
+  invariant(Array.isArray(roads), `${entry.id} escape roads collection`)
+  const allIds = new Set([
+    ...track.sceneryLayout.landmarks.map((object) => object.id),
+    ...track.sceneryLayout.staticObjects.map((object) => object.id),
+  ])
+  invariant(
+    !track.sceneryLayout.staticObjects.some(
+      (object) => object.kind === 'escape-bollard',
+    ),
+    `${entry.id} obsolete escape bollards removed`,
+  )
+
+  for (const road of roads) {
+    invariant(typeof road.id === 'string' && road.id.length > 0, `${entry.id} escape road id`)
+    invariant(!allIds.has(road.id), `${entry.id} unique escape road id`)
+    allIds.add(road.id)
+    invariant(road.kind === 'slalom-block-rows', `${entry.id} escape road kind`)
+    invariant(road.affectsPhysics === false, `${entry.id} escape road remains visual-only`)
+    invariant(
+      Number.isInteger(road.elevationLayer) &&
+        road.elevationLayer >= 0 && road.elevationLayer <= 3,
+      `${entry.id} escape road elevation layer`,
+    )
+    invariant(
+      Number.isFinite(road.widthMeters) &&
+        road.widthMeters >= 4 && road.widthMeters <= 16,
+      `${entry.id} escape road width`,
+    )
+    invariant(Array.isArray(road.path) && road.path.length >= 2, `${entry.id} escape road path`)
+    invariant(
+      road.path.every(
+        (point) => Number.isFinite(point.x) && Number.isFinite(point.y),
+      ),
+      `${entry.id} escape road finite path`,
+    )
+    invariant(
+      Array.isArray(road.obstacleRows) && road.obstacleRows.length >= 3,
+      `${entry.id} escape road obstacle rows`,
+    )
+    const rowLateralSigns = []
+    for (const row of road.obstacleRows) {
+      invariant(row.palette === 'red-white', `${entry.id} escape row palette`)
+      invariant(
+        Number.isFinite(row.blockLengthMeters) &&
+          row.blockLengthMeters >= 0.4 && row.blockLengthMeters <= 4,
+        `${entry.id} escape row block length`,
+      )
+      const fromProjection = projectPointToPolyline(row.from, road.path)
+      const toProjection = projectPointToPolyline(row.to, road.path)
+      invariant(Boolean(fromProjection) && Boolean(toProjection), `${entry.id} escape row projection`)
+      invariant(
+        fromProjection.distanceMeters <= road.widthMeters / 2 + 0.1 &&
+          toProjection.distanceMeters <= road.widthMeters / 2 + 0.1,
+        `${entry.id} escape row stays inside its paved corridor`,
+      )
+      const midpointProjection = projectPointToPolyline(
+        {
+          x: (row.from.x + row.to.x) / 2,
+          y: (row.from.y + row.to.y) / 2,
+        },
+        road.path,
+      )
+      invariant(
+        Math.abs(midpointProjection.lateralMeters) >= 0.35,
+        `${entry.id} escape row leaves a real side opening`,
+      )
+      rowLateralSigns.push(Math.sign(midpointProjection.lateralMeters))
+    }
+    for (let index = 1; index < rowLateralSigns.length; index += 1) {
+      invariant(
+        rowLateralSigns[index] !== rowLateralSigns[index - 1],
+        `${entry.id} escape row openings alternate`,
+      )
+    }
+  }
+
+  if (entry.id === 'monza') {
+    invariant(roads.length === 1, 'monza Rettifilo escape road')
+    const [road] = roads
+    invariant(road.id === 'rettifilo-slalom', 'monza Rettifilo escape road id')
+    invariant(road.obstacleRows.length >= 5, 'monza Rettifilo escape rows')
+    const entryProjection = projectPointToPolyline(road.path[0], track.centerline)
+    const exitProjection = projectPointToPolyline(road.path.at(-1), track.centerline)
+    invariant(entryProjection.distanceMeters <= 0.25, 'monza escape entry joins asphalt')
+    invariant(exitProjection.distanceMeters <= 0.25, 'monza escape exit joins asphalt')
+    invariant(
+      Math.max(
+        ...road.path.map(
+          (point) => projectPointToPolyline(point, track.centerline).distanceMeters,
+        ),
+      ) >= 15,
+      'monza escape road must diverge from the chicane centerline',
+    )
+  } else {
+    invariant(roads.length === 0, `${entry.id} has no authored slalom escape road`)
+  }
+}
+
 function validateTrackInfrastructure(track, entry) {
   invariant(track.pitLane.path.length >= 25, `${entry.id} detailed pit path`)
   const pitStyle = track.pitLane.visualStyle
@@ -287,8 +424,31 @@ function validateTrackInfrastructure(track, entry) {
     `${entry.id} pit garage count`,
   )
   invariant(
-    pitStyle.buildingHeightMeters >= 3 && pitStyle.buildingHeightMeters <= 8,
+    pitStyle.buildingHeightMeters >= 3 && pitStyle.buildingHeightMeters <= 24,
     `${entry.id} pit building height`,
+  )
+  for (const [field, minimum, maximum] of [
+    ['laneWidthMeters', 6, 16],
+    ['garageStartRatio', 0.05, 0.8],
+    ['garageEndRatio', 0.2, 0.95],
+    ['pitBoxLengthMeters', 3, 12],
+    ['pitBoxDepthMeters', 1.5, 4],
+    ['pitBoxCenterOffsetMeters', 1, 5],
+    ['garageDepthMeters', 3, 16],
+    ['garageCenterOffsetMeters', 6, 24],
+    ['pitWallHeightMeters', 0.6, 1.5],
+    ['canopyDepthMeters', 0, 5],
+  ]) {
+    invariant(
+      Number.isFinite(pitStyle[field]) &&
+        pitStyle[field] >= minimum &&
+        pitStyle[field] <= maximum,
+      `${entry.id} pit ${field}`,
+    )
+  }
+  invariant(
+    pitStyle.garageStartRatio < pitStyle.garageEndRatio,
+    `${entry.id} pit garage span`,
   )
   for (const colorKey of [
     'primaryColor',
@@ -308,8 +468,9 @@ function validateTrackInfrastructure(track, entry) {
     ),
     `${entry.id} start gantry`,
   )
+  validateEscapeRoads(track, entry)
   const authoredStructures = track.sceneryLayout.staticObjects.filter(
-    (object) => !['start-gantry', 'escape-bollard'].includes(object.kind),
+    (object) => object.kind !== 'start-gantry',
   )
   invariant(authoredStructures.length >= 5, `${entry.id} authored infrastructure`)
   invariant(
@@ -335,6 +496,13 @@ function validateTrackInfrastructure(track, entry) {
       ),
       `${entry.id} ${object.id} visual palette`,
     )
+    invariant(Boolean(object.dimensions), `${entry.id} ${object.id} dimensions`)
+    invariant(
+      object.dimensions.lengthMeters > 0 &&
+        object.dimensions.depthMeters > 0 &&
+        object.dimensions.heightMeters > 0,
+      `${entry.id} ${object.id} positive dimensions`,
+    )
   }
   const fencedSides = track.trackLimits.segments.reduce(
     (count, segment) =>
@@ -342,6 +510,29 @@ function validateTrackInfrastructure(track, entry) {
     0,
   )
   invariant(fencedSides >= 2, `${entry.id} spectator safety fencing`)
+  for (const segment of track.trackLimits.segments) {
+    for (const side of ['left', 'right']) {
+      const environment = segment[side]
+      if (!environment.fence) {
+        invariant(
+          !environment.fenceVisualStyle,
+          `${entry.id} ${side} orphan fence visual style`,
+        )
+        continue
+      }
+      const fence = environment.fenceVisualStyle
+      invariant(Boolean(fence), `${entry.id} ${side} fence visual style`)
+      invariant(
+        fence.heightMeters >= 2 && fence.heightMeters <= 6 &&
+          fence.postSpacingMeters >= 1.5 && fence.postSpacingMeters <= 5 &&
+          fence.meshOpacity >= 0.05 && fence.meshOpacity <= 0.5 &&
+          fence.cantileverMeters >= 0 && fence.cantileverMeters <= 1.2 &&
+          /^#[0-9a-f]{6}$/i.test(fence.postColor) &&
+          /^#[0-9a-f]{6}$/i.test(fence.meshColor),
+        `${entry.id} ${side} fence dimensions and palette`,
+      )
+    }
+  }
 
   const start = track.centerline[0]
   invariant(
@@ -380,14 +571,6 @@ function validateTrackInfrastructure(track, entry) {
     invariant(
       Math.hypot(start.x + 479.319, start.y + 493.069) <= 2,
       'monaco start must be rebased to Boulevard Albert 1er',
-    )
-  }
-  if (entry.id === 'monza') {
-    invariant(
-      track.sceneryLayout.staticObjects.filter(
-        (object) => object.kind === 'escape-bollard',
-      ).length >= 5,
-      'monza Rettifilo escape obstacles',
     )
   }
   if (entry.id === 'suzuka') {
@@ -480,6 +663,176 @@ function polygonsIntersect(first, second) {
     }
   }
   return true
+}
+
+function orientedRectangle(center, rotation, lengthMeters, depthMeters) {
+  const tangent = { x: Math.cos(rotation), y: Math.sin(rotation) }
+  const normal = { x: -tangent.y, y: tangent.x }
+  const halfLength = lengthMeters / 2
+  const halfDepth = depthMeters / 2
+  return [
+    {
+      x: center.x + tangent.x * halfLength + normal.x * halfDepth,
+      y: center.y + tangent.y * halfLength + normal.y * halfDepth,
+    },
+    {
+      x: center.x - tangent.x * halfLength + normal.x * halfDepth,
+      y: center.y - tangent.y * halfLength + normal.y * halfDepth,
+    },
+    {
+      x: center.x - tangent.x * halfLength - normal.x * halfDepth,
+      y: center.y - tangent.y * halfLength - normal.y * halfDepth,
+    },
+    {
+      x: center.x + tangent.x * halfLength - normal.x * halfDepth,
+      y: center.y + tangent.y * halfLength - normal.y * halfDepth,
+    },
+  ]
+}
+
+function roadSurfaceCollider(from, to) {
+  const direction = normalize({ x: to.x - from.x, y: to.y - from.y })
+  const normal = { x: -direction.y, y: direction.x }
+  return [
+    {
+      x: from.x + normal.x * from.halfWidthMeters,
+      y: from.y + normal.y * from.halfWidthMeters,
+    },
+    {
+      x: to.x + normal.x * to.halfWidthMeters,
+      y: to.y + normal.y * to.halfWidthMeters,
+    },
+    {
+      x: to.x - normal.x * to.halfWidthMeters,
+      y: to.y - normal.y * to.halfWidthMeters,
+    },
+    {
+      x: from.x - normal.x * from.halfWidthMeters,
+      y: from.y - normal.y * from.halfWidthMeters,
+    },
+  ]
+}
+
+function validateInfrastructureClearance(track, entry) {
+  const structures = track.sceneryLayout.staticObjects
+    .filter((object) => object.kind !== 'start-gantry')
+    .map((object) => {
+      const collider = orientedRectangle(
+        object.position,
+        object.rotation,
+        object.dimensions.lengthMeters,
+        object.dimensions.depthMeters,
+      )
+      return { id: object.id, collider, bounds: polygonBounds(collider) }
+    })
+  const road = track.centerline.slice(0, -1).map((from, index) => {
+    const to = track.centerline[index + 1]
+    const collider = roadSurfaceCollider(from, to)
+    return { collider, bounds: polygonBounds(collider) }
+  })
+  const barriers = track.barrierGeometry.segments.flatMap((segment) =>
+    segment.path.slice(0, -1).map((_, pathIndex) => {
+      const collider = barrierCollider(segment, pathIndex)
+      return {
+        id: `${segment.side}-${segment.trackLimitSegmentIndex}-${pathIndex}`,
+        collider,
+        bounds: polygonBounds(collider),
+      }
+    }),
+  )
+
+  for (const structure of structures) {
+    invariant(
+      !road.some(
+        (surface) =>
+          boundsIntersect(structure.bounds, surface.bounds) &&
+          polygonsIntersect(structure.collider, surface.collider),
+      ),
+      `${entry.id} ${structure.id} overlaps racing asphalt`,
+    )
+    const overlappingBarrier = barriers.find(
+      (barrier) =>
+        boundsIntersect(structure.bounds, barrier.bounds) &&
+        polygonsIntersect(structure.collider, barrier.collider),
+    )
+    invariant(
+      !overlappingBarrier,
+      `${entry.id} ${structure.id} overlaps barrier ${overlappingBarrier?.id}`,
+    )
+  }
+
+  for (let firstIndex = 0; firstIndex < structures.length; firstIndex += 1) {
+    for (let secondIndex = firstIndex + 1; secondIndex < structures.length; secondIndex += 1) {
+      const first = structures[firstIndex]
+      const second = structures[secondIndex]
+      invariant(
+        !boundsIntersect(first.bounds, second.bounds) ||
+          !polygonsIntersect(first.collider, second.collider),
+        `${entry.id} ${first.id} overlaps ${second.id}`,
+      )
+    }
+  }
+
+  const pit = track.pitLane
+  const style = pit.visualStyle
+  const pathLastIndex = pit.path.length - 1
+  const span = track.lengthMeters - pit.entryDistanceMeters + pit.exitDistanceMeters
+  const firstGarageIndex = Math.ceil(style.garageStartRatio * pathLastIndex)
+  const lastGarageIndex = Math.floor(style.garageEndRatio * pathLastIndex)
+  const pitPathLengthMeters = pit.path.slice(1).reduce(
+    (total, point, index) =>
+      total + Math.hypot(point.x - pit.path[index].x, point.y - pit.path[index].y),
+    0,
+  )
+  const garageSpanMeters =
+    pitPathLengthMeters * (style.garageEndRatio - style.garageStartRatio)
+  invariant(
+    garageSpanMeters >= style.garageCount * style.pitBoxLengthMeters &&
+      garageSpanMeters <=
+        style.garageCount * (style.pitBoxLengthMeters + 1.25),
+    `${entry.id} pit garage span matches the declared boxes`,
+  )
+  for (let index = firstGarageIndex; index <= lastGarageIndex; index += 1) {
+    const progress = index / pathLastIndex
+    const centerlineDistance =
+      (pit.entryDistanceMeters + span * progress) % track.lengthMeters
+    const center = sampleAtDistance(
+      track.centerline,
+      centerlineDistance,
+      track.lengthMeters,
+    )
+    const pitCenter = pit.path[index]
+    const clearGap =
+      Math.hypot(pitCenter.x - center.x, pitCenter.y - center.y) -
+      center.halfWidthMeters -
+      style.laneWidthMeters / 2
+    invariant(
+      clearGap >= 0.35,
+      `${entry.id} pit lane overlaps main track through the garage span`,
+    )
+  }
+  for (let index = firstGarageIndex; index < lastGarageIndex; index += 1) {
+    const from = {
+      ...pit.path[index],
+      halfWidthMeters: style.laneWidthMeters / 2,
+    }
+    const to = {
+      ...pit.path[index + 1],
+      halfWidthMeters: style.laneWidthMeters / 2,
+    }
+    const collider = roadSurfaceCollider(from, to)
+    const bounds = polygonBounds(collider)
+    const overlappingBarrier = barriers.find(
+      (barrier) =>
+        boundsIntersect(bounds, barrier.bounds) &&
+        polygonsIntersect(collider, barrier.collider),
+    )
+    invariant(
+      !overlappingBarrier,
+      `${entry.id} pit lane segment ${index}-${index + 1} overlaps barrier ` +
+        `${overlappingBarrier?.id} through the garage span`,
+    )
+  }
 }
 
 function barrierCollider(segment, pathIndex) {
@@ -700,6 +1053,17 @@ function validateTrack(track, entry, vehicle) {
         curb.toDistanceMeters <= track.lengthMeters,
       `${entry.id} curb bounds`,
     )
+    invariant(
+      Boolean(curb.outerColor) === Boolean(curb.outerWidthMeters),
+      `${entry.id} curb outer paint pair`,
+    )
+    if (curb.outerColor) {
+      invariant(/^#[0-9a-f]{6}$/i.test(curb.outerColor), `${entry.id} curb outer color`)
+      invariant(
+        curb.outerWidthMeters >= 0.1 && curb.outerWidthMeters <= 1.5,
+        `${entry.id} curb outer width`,
+      )
+    }
   }
   for (const side of ['left', 'right']) {
     const sideCurbs = track.curbs
@@ -782,6 +1146,7 @@ function validateTrack(track, entry, vehicle) {
     }
   }
   validateTrackInfrastructure(track, entry)
+  validateInfrastructureClearance(track, entry)
   validateCenteredVehicleClearance(track, vehicle)
 }
 

@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class TrackCatalogImporter implements ApplicationRunner {
 
     public static final String SCHEMA_VERSION = "2.0.0";
-    public static final String CATALOG_VERSION = "2026.8";
+    public static final String CATALOG_VERSION = "2026.9";
     public static final String PHYSICS_CONTRACT_VERSION = "2.0.0";
     public static final int SEASON_REFERENCE = 2026;
     public static final String CALENDAR_POLICY = "original-24-round-freeze";
@@ -241,7 +241,19 @@ public class TrackCatalogImporter implements ApplicationRunner {
                 || garageCount < 8
                 || garageCount > 16
                 || buildingHeightMeters < 3
-                || buildingHeightMeters > 8
+                || buildingHeightMeters > 24
+                || !numberInRange(visualStyle, "laneWidthMeters", 6, 16)
+                || !numberInRange(visualStyle, "garageStartRatio", 0.05, 0.8)
+                || !numberInRange(visualStyle, "garageEndRatio", 0.2, 0.95)
+                || visualStyle.path("garageStartRatio").asDouble()
+                        >= visualStyle.path("garageEndRatio").asDouble()
+                || !numberInRange(visualStyle, "pitBoxLengthMeters", 3, 12)
+                || !numberInRange(visualStyle, "pitBoxDepthMeters", 1.5, 4)
+                || !numberInRange(visualStyle, "pitBoxCenterOffsetMeters", 1, 5)
+                || !numberInRange(visualStyle, "garageDepthMeters", 3, 16)
+                || !numberInRange(visualStyle, "garageCenterOffsetMeters", 6, 24)
+                || !numberInRange(visualStyle, "pitWallHeightMeters", 0.6, 1.5)
+                || !numberInRange(visualStyle, "canopyDepthMeters", 0, 5)
                 || !isHexColor(visualStyle.path("primaryColor").asText())
                 || !isHexColor(visualStyle.path("secondaryColor").asText())
                 || !isHexColor(visualStyle.path("accentColor").asText())
@@ -254,21 +266,23 @@ public class TrackCatalogImporter implements ApplicationRunner {
         if (!sceneryLayout.path("landmarks").isArray()
                 || !sceneryLayout.path("landmarks").isEmpty()
                 || !sceneryLayout.path("staticObjects").isArray()
-                || sceneryLayout.path("staticObjects").isEmpty()) {
+                || sceneryLayout.path("staticObjects").isEmpty()
+                || !sceneryLayout.path("escapeRoads").isArray()) {
             throw invalid("infrastructure-only scenery for " + entry.id());
         }
-        Set<String> utilityKinds = Set.of("start-gantry", "escape-bollard");
+        Set<String> utilityKinds = Set.of("start-gantry");
+        Set<String> sceneryIds = new HashSet<>();
         boolean hasStartGantry = false;
-        int escapeBollards = 0;
         int authoredStructures = 0;
         int grandstands = 0;
         boolean hasStartAreaBuilding = false;
         for (JsonNode object : sceneryLayout.path("staticObjects")) {
+            String objectId = object.path("id").asText();
             String kind = object.path("kind").asText();
-            hasStartGantry |= "start-gantry".equals(kind);
-            if ("escape-bollard".equals(kind)) {
-                escapeBollards++;
+            if (objectId.isBlank() || !sceneryIds.add(objectId) || "escape-bollard".equals(kind)) {
+                throw invalid("unique visual infrastructure for " + entry.id());
             }
+            hasStartGantry |= "start-gantry".equals(kind);
             if (utilityKinds.contains(kind)) {
                 continue;
             }
@@ -277,25 +291,83 @@ public class TrackCatalogImporter implements ApplicationRunner {
             grandstands += kind.contains("grandstand") ? 1 : 0;
             hasStartAreaBuilding |= kind.contains("building") || kind.contains("tower");
             JsonNode visualStyle = object.path("visualStyle");
+            JsonNode dimensions = object.path("dimensions");
             if (!visualStyle.isObject()
                     || !isHexColor(visualStyle.path("primaryColor").asText())
                     || !isHexColor(visualStyle.path("secondaryColor").asText())
                     || !isHexColor(visualStyle.path("accentColor").asText())
-                    || !isHexColor(visualStyle.path("roofColor").asText())) {
+                    || !isHexColor(visualStyle.path("roofColor").asText())
+                    || !dimensions.isObject()
+                    || !numberInRange(dimensions, "lengthMeters", 0.01, 400)
+                    || !numberInRange(dimensions, "depthMeters", 0.01, 120)
+                    || !numberInRange(dimensions, "heightMeters", 0.01, 80)) {
                 throw invalid("authored infrastructure palette for " + entry.id());
             }
         }
         if (!hasStartGantry
                 || authoredStructures < 5
                 || grandstands < 3
-                || !hasStartAreaBuilding
-                || ("monza".equals(entry.id()) && escapeBollards < 5)) {
+                || !hasStartAreaBuilding) {
             throw invalid("required track infrastructure for " + entry.id());
+        }
+        validateEscapeRoads(entry, sceneryLayout.path("escapeRoads"), sceneryIds);
+    }
+
+    private void validateEscapeRoads(CatalogEntry entry, JsonNode escapeRoads, Set<String> sceneryIds) {
+        if (("monza".equals(entry.id()) && escapeRoads.size() != 1)
+                || (!"monza".equals(entry.id()) && !escapeRoads.isEmpty())) {
+            throw invalid("escape road assignment for " + entry.id());
+        }
+        for (JsonNode road : escapeRoads) {
+            String roadId = road.path("id").asText();
+            JsonNode path = road.path("path");
+            JsonNode rows = road.path("obstacleRows");
+            if (roadId.isBlank()
+                    || !sceneryIds.add(roadId)
+                    || !"slalom-block-rows".equals(road.path("kind").asText())
+                    || !road.path("affectsPhysics").isBoolean()
+                    || road.path("affectsPhysics").asBoolean(true)
+                    || !road.path("elevationLayer").canConvertToInt()
+                    || road.path("elevationLayer").asInt() < 0
+                    || road.path("elevationLayer").asInt() > 3
+                    || !numberInRange(road, "widthMeters", 4, 16)
+                    || !path.isArray()
+                    || path.size() < 2
+                    || !rows.isArray()
+                    || rows.size() < 3
+                    || ("monza".equals(entry.id())
+                            && (!"rettifilo-slalom".equals(roadId) || rows.size() < 5))) {
+                throw invalid("visual-only escape road for " + entry.id());
+            }
+            for (JsonNode point : path) {
+                validateVector(entry, point, "escape road path");
+            }
+            for (JsonNode row : rows) {
+                if (!"red-white".equals(row.path("palette").asText())
+                        || !numberInRange(row, "blockLengthMeters", 0.4, 4)) {
+                    throw invalid("escape road obstacle row for " + entry.id());
+                }
+                validateVector(entry, row.path("from"), "escape road row start");
+                validateVector(entry, row.path("to"), "escape road row end");
+            }
+        }
+    }
+
+    private void validateVector(CatalogEntry entry, JsonNode vector, String label) {
+        if (!vector.isObject()
+                || !vector.path("x").isNumber()
+                || !vector.path("y").isNumber()) {
+            throw invalid(label + " for " + entry.id());
         }
     }
 
     private boolean isHexColor(String value) {
         return value.matches("#[0-9a-fA-F]{6}");
+    }
+
+    private boolean numberInRange(JsonNode node, String field, double minimum, double maximum) {
+        JsonNode value = node.path(field);
+        return value.isNumber() && value.asDouble() >= minimum && value.asDouble() <= maximum;
     }
 
     private void validateBarrierGeometry(
@@ -416,6 +488,12 @@ public class TrackCatalogImporter implements ApplicationRunner {
                     || !CURB_PALETTES.contains(curb.path("palette").asText())) {
                 throw invalid("curb segment for " + entry.id());
             }
+            if (curb.has("outerColor") != curb.has("outerWidthMeters")
+                    || (curb.has("outerColor")
+                            && (!isHexColor(curb.path("outerColor").asText())
+                                    || !numberInRange(curb, "outerWidthMeters", 0.1, 1.5)))) {
+                throw invalid("curb outer paint for " + entry.id());
+            }
         }
     }
 
@@ -464,6 +542,20 @@ public class TrackCatalogImporter implements ApplicationRunner {
                         && (!side.path("fence").isTextual()
                                 || !FENCE_TYPE.equals(side.path("fence").asText())))) {
             throw invalid("side environment for " + entry.id());
+        }
+        if (side.has("fence")) {
+            JsonNode style = side.path("fenceVisualStyle");
+            if (!style.isObject()
+                    || !numberInRange(style, "heightMeters", 2, 6)
+                    || !numberInRange(style, "postSpacingMeters", 1.5, 5)
+                    || !isHexColor(style.path("postColor").asText())
+                    || !isHexColor(style.path("meshColor").asText())
+                    || !numberInRange(style, "meshOpacity", 0.05, 0.5)
+                    || !numberInRange(style, "cantileverMeters", 0, 1.2)) {
+                throw invalid("fence visual style for " + entry.id());
+            }
+        } else if (side.has("fenceVisualStyle")) {
+            throw invalid("orphan fence visual style for " + entry.id());
         }
         for (JsonNode zone : zones) {
             String surface = zone.path("surface").asText();
