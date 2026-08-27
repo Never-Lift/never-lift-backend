@@ -1,6 +1,6 @@
 {
   "schemaVersion": "2.0.0",
-  "catalogVersion": "2026.7",
+  "catalogVersion": "2026.8",
   "id": "monaco",
   "name": "Circuit de Monaco",
   "countryCode": "MC",
@@ -9028,7 +9028,16 @@
         "x": -400.069,
         "y": -265.036
       }
-    ]
+    ],
+    "visualStyle": {
+      "architecture": "urban-compact",
+      "primaryColor": "#e4e5e4",
+      "secondaryColor": "#4f555c",
+      "accentColor": "#b22a34",
+      "roofColor": "#f3f3f0",
+      "garageCount": 9,
+      "buildingHeightMeters": 3.7
+    }
   },
   "surfaceModel": {
     "onTrack": "asphalt",
@@ -9359,11 +9368,13 @@
         "toDistanceMeters": 39.88,
         "left": {
           "zones": [],
-          "barrier": "guardrail"
+          "barrier": "guardrail",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [],
-          "barrier": "guardrail"
+          "barrier": "guardrail",
+          "fence": "debris-fence"
         }
       },
       {
@@ -9372,11 +9383,13 @@
         "toDistanceMeters": 306.84,
         "left": {
           "zones": [],
-          "barrier": "tecpro"
+          "barrier": "tecpro",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [],
-          "barrier": "tecpro"
+          "barrier": "tecpro",
+          "fence": "debris-fence"
         }
       },
       {
@@ -9385,11 +9398,13 @@
         "toDistanceMeters": 840.76,
         "left": {
           "zones": [],
-          "barrier": "guardrail"
+          "barrier": "guardrail",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [],
-          "barrier": "guardrail"
+          "barrier": "guardrail",
+          "fence": "debris-fence"
         }
       },
       {
@@ -9408,7 +9423,8 @@
         },
         "right": {
           "zones": [],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -9442,11 +9458,13 @@
               "widthMeters": 4
             }
           ],
-          "barrier": "tecpro"
+          "barrier": "tecpro",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [],
-          "barrier": "guardrail"
+          "barrier": "guardrail",
+          "fence": "debris-fence"
         }
       },
       {
@@ -9460,7 +9478,8 @@
         },
         "right": {
           "zones": [],
-          "barrier": "guardrail"
+          "barrier": "guardrail",
+          "fence": "debris-fence"
         }
       },
       {
@@ -9474,7 +9493,8 @@
               "widthMeters": 4
             }
           ],
-          "barrier": "tyre-barrier"
+          "barrier": "tyre-barrier",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [],
@@ -9508,7 +9528,8 @@
         "toDistanceMeters": 2008.71,
         "left": {
           "zones": [],
-          "barrier": "guardrail"
+          "barrier": "guardrail",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [],
@@ -9527,7 +9548,8 @@
               "widthMeters": 4
             }
           ],
-          "barrier": "guardrail"
+          "barrier": "guardrail",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -9536,7 +9558,8 @@
               "widthMeters": 4
             }
           ],
-          "barrier": "guardrail"
+          "barrier": "guardrail",
+          "fence": "debris-fence"
         }
       },
       {
@@ -9550,11 +9573,13 @@
               "widthMeters": 4
             }
           ],
-          "barrier": "guardrail"
+          "barrier": "guardrail",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [],
-          "barrier": "guardrail"
+          "barrier": "guardrail",
+          "fence": "debris-fence"
         }
       },
       {
@@ -9563,11 +9588,13 @@
         "toDistanceMeters": 2542.63,
         "left": {
           "zones": [],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -9601,11 +9628,13 @@
         "toDistanceMeters": 3337,
         "left": {
           "zones": [],
-          "barrier": "guardrail"
+          "barrier": "guardrail",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [],
-          "barrier": "guardrail"
+          "barrier": "guardrail",
+          "fence": "debris-fence"
         }
       }
     ]
@@ -9779,6 +9808,86 @@
         },
         "rotation": 1.677886,
         "scale": 11
+      },
+      {
+        "id": "grandstand-k",
+        "kind": "main-grandstand-covered",
+        "position": {
+          "x": -481.03,
+          "y": -631.705
+        },
+        "rotation": 1.850027,
+        "scale": 13,
+        "visualStyle": {
+          "primaryColor": "#d6d8d8",
+          "secondaryColor": "#535a62",
+          "accentColor": "#b22a34",
+          "roofColor": "#efefed"
+        }
+      },
+      {
+        "id": "swimming-pool-grandstand",
+        "kind": "grandstand-open",
+        "position": {
+          "x": 197.687,
+          "y": 205.82
+        },
+        "rotation": 0.35479,
+        "scale": 11,
+        "visualStyle": {
+          "primaryColor": "#d6d8d8",
+          "secondaryColor": "#535a62",
+          "accentColor": "#b22a34",
+          "roofColor": "#efefed"
+        }
+      },
+      {
+        "id": "monaco-pit-control",
+        "kind": "race-control-building",
+        "position": {
+          "x": -450.302,
+          "y": -522.566
+        },
+        "rotation": 1.715099,
+        "scale": 9,
+        "visualStyle": {
+          "primaryColor": "#e4e5e4",
+          "secondaryColor": "#4f555c",
+          "accentColor": "#b22a34",
+          "roofColor": "#f3f3f0"
+        }
+      },
+      {
+        "id": "casino-grandstand",
+        "kind": "grandstand-open",
+        "position": {
+          "x": 66.637,
+          "y": 65.888
+        },
+        "rotation": 0.932338,
+        "scale": 10,
+        "visualStyle": {
+          "primaryColor": "#e4e5e4",
+          "secondaryColor": "#4f555c",
+          "accentColor": "#b22a34",
+          "roofColor": "#f3f3f0"
+        }
+      },
+      {
+        "id": "harbour-grandstand",
+        "kind": "grandstand-covered",
+        "position": {
+          "x": -245.149,
+          "y": -298.63
+        },
+        "rotation": -3.009865,
+        "scale": 11,
+        "visualStyle": {
+          "primaryColor": "#e4e5e4",
+          "secondaryColor": "#4f555c",
+          "accentColor": "#b22a34",
+          "roofColor": "#f3f3f0"
+        }
       }
     ]
   },
@@ -9786,7 +9895,7 @@
     "dataset": "bacinger/f1-circuits",
     "license": "MIT",
     "url": "https://github.com/bacinger/f1-circuits",
-    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery; barrier thickness extends away from the racing surface. In Monaco, the two coarse 20-meter left paved margins beside adjacent track arms are narrowed to 4 meters so the canonical barrier face cannot invade the neighboring roadway.",
+    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery. Catalog 2026.8 adds per-circuit pit architecture, major buildings, spectator grandstands and safety fencing, closes curb gaps only through continuous curvature and preserves the canonical racing geometry; barrier thickness extends away from the racing surface. In Monaco, the two coarse 20-meter left paved margins beside adjacent track arms are narrowed to 4 meters so the canonical barrier face cannot invade the neighboring roadway.",
     "environmentReferences": [
       {
         "label": "FIA 2026 Monaco circuit map",

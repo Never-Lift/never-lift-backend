@@ -90,6 +90,27 @@ function line(from, to, attributes) {
   return `<line x1="${from.x.toFixed(2)}" y1="${from.y.toFixed(2)}" x2="${to.x.toFixed(2)}" y2="${to.y.toFixed(2)}" ${attributes}/>`
 }
 
+function renderInfrastructureObject(object) {
+  if (object.kind === 'start-gantry') return ''
+  const style = object.visualStyle
+  if (!style) {
+    return `<circle cx="${object.position.x}" cy="${object.position.y}" r="${object.scale}" fill="#d4473f"/>`
+  }
+  const angle = (object.rotation * 180) / Math.PI
+  const isGrandstand = object.kind.includes('grandstand')
+  const width = object.scale * (isGrandstand ? 1.65 : 1.35)
+  const depth = object.scale * (isGrandstand ? 0.82 : 0.72)
+  const roof = isGrandstand &&
+    (object.kind.includes('covered') || object.kind.includes('main'))
+    ? `<rect x="${(-width * 0.52).toFixed(2)}" y="${(-depth * 0.46).toFixed(2)}" width="${(width * 1.04).toFixed(2)}" height="${(depth * 0.16).toFixed(2)}" fill="${style.roofColor}"/>`
+    : ''
+  return `<g transform="translate(${object.position.x} ${object.position.y}) rotate(${angle.toFixed(3)})">
+    <rect x="${(-width / 2).toFixed(2)}" y="${(-depth / 2).toFixed(2)}" width="${width.toFixed(2)}" height="${depth.toFixed(2)}" rx="1.5" fill="${style.secondaryColor}" stroke="${style.primaryColor}" stroke-width="1"/>
+    <rect x="${(-width * 0.42).toFixed(2)}" y="${(-depth * 0.1).toFixed(2)}" width="${(width * 0.84).toFixed(2)}" height="${(depth * 0.13).toFixed(2)}" fill="${style.accentColor}"/>
+    ${roof}
+  </g>`
+}
+
 function renderTrack(track, cardX, cardY) {
   const paddingX = requestedTrack ? 70 : 24
   const paddingTop = requestedTrack ? 100 : 56
@@ -190,6 +211,9 @@ function renderTrack(track, cardX, cardY) {
       'stroke="#303a48" stroke-width="6" vector-effect="non-scaling-stroke" ' +
       'stroke-linecap="round" stroke-linejoin="round"/>',
   )
+  for (const object of track.sceneryLayout.staticObjects) {
+    elements.push(renderInfrastructureObject(object))
+  }
   elements.push(
     `<circle cx="${track.startFinish.position.x}" cy="${track.startFinish.position.y}" ` +
       'r="4" fill="#31c7ff" vector-effect="non-scaling-stroke"/>',

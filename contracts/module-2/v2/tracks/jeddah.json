@@ -1,6 +1,6 @@
 {
   "schemaVersion": "2.0.0",
-  "catalogVersion": "2026.7",
+  "catalogVersion": "2026.8",
   "id": "jeddah",
   "name": "Jeddah Corniche Circuit",
   "countryCode": "SA",
@@ -16494,7 +16494,16 @@
         "x": -187.584,
         "y": 612.372
       }
-    ]
+    ],
+    "visualStyle": {
+      "architecture": "stepped-modern",
+      "primaryColor": "#eef0ed",
+      "secondaryColor": "#586068",
+      "accentColor": "#207a68",
+      "roofColor": "#f6f7f4",
+      "garageCount": 12,
+      "buildingHeightMeters": 6.2
+    }
   },
   "surfaceModel": {
     "onTrack": "asphalt",
@@ -16522,15 +16531,6 @@
     {
       "index": 2,
       "fromDistanceMeters": 358,
-      "toDistanceMeters": 386,
-      "side": "left",
-      "widthMeters": 0.9,
-      "stripeLengthMeters": 2.5,
-      "palette": "red-white"
-    },
-    {
-      "index": 3,
-      "fromDistanceMeters": 398,
       "toDistanceMeters": 426,
       "side": "left",
       "widthMeters": 0.9,
@@ -16538,7 +16538,7 @@
       "palette": "red-white"
     },
     {
-      "index": 4,
+      "index": 3,
       "fromDistanceMeters": 479,
       "toDistanceMeters": 515,
       "side": "left",
@@ -16547,7 +16547,7 @@
       "palette": "red-white"
     },
     {
-      "index": 5,
+      "index": 4,
       "fromDistanceMeters": 503,
       "toDistanceMeters": 531,
       "side": "right",
@@ -16556,7 +16556,7 @@
       "palette": "red-white"
     },
     {
-      "index": 6,
+      "index": 5,
       "fromDistanceMeters": 789,
       "toDistanceMeters": 825,
       "side": "left",
@@ -16565,17 +16565,8 @@
       "palette": "red-white"
     },
     {
-      "index": 7,
+      "index": 6,
       "fromDistanceMeters": 813,
-      "toDistanceMeters": 841,
-      "side": "right",
-      "widthMeters": 0.9,
-      "stripeLengthMeters": 2.5,
-      "palette": "red-white"
-    },
-    {
-      "index": 8,
-      "fromDistanceMeters": 859,
       "toDistanceMeters": 895,
       "side": "right",
       "widthMeters": 0.9,
@@ -16583,7 +16574,7 @@
       "palette": "red-white"
     },
     {
-      "index": 9,
+      "index": 7,
       "fromDistanceMeters": 883,
       "toDistanceMeters": 911,
       "side": "left",
@@ -16592,7 +16583,7 @@
       "palette": "red-white"
     },
     {
-      "index": 10,
+      "index": 8,
       "fromDistanceMeters": 914,
       "toDistanceMeters": 950,
       "side": "right",
@@ -16601,7 +16592,7 @@
       "palette": "red-white"
     },
     {
-      "index": 11,
+      "index": 9,
       "fromDistanceMeters": 938,
       "toDistanceMeters": 966,
       "side": "left",
@@ -16610,7 +16601,7 @@
       "palette": "red-white"
     },
     {
-      "index": 12,
+      "index": 10,
       "fromDistanceMeters": 979,
       "toDistanceMeters": 1015,
       "side": "right",
@@ -16619,7 +16610,7 @@
       "palette": "red-white"
     },
     {
-      "index": 13,
+      "index": 11,
       "fromDistanceMeters": 1003,
       "toDistanceMeters": 1031,
       "side": "left",
@@ -16628,7 +16619,7 @@
       "palette": "red-white"
     },
     {
-      "index": 14,
+      "index": 12,
       "fromDistanceMeters": 1064,
       "toDistanceMeters": 1100,
       "side": "left",
@@ -16637,7 +16628,7 @@
       "palette": "red-white"
     },
     {
-      "index": 15,
+      "index": 13,
       "fromDistanceMeters": 1088,
       "toDistanceMeters": 1116,
       "side": "right",
@@ -16646,7 +16637,7 @@
       "palette": "red-white"
     },
     {
-      "index": 16,
+      "index": 14,
       "fromDistanceMeters": 1179,
       "toDistanceMeters": 1215,
       "side": "left",
@@ -16655,17 +16646,8 @@
       "palette": "red-white"
     },
     {
-      "index": 17,
+      "index": 15,
       "fromDistanceMeters": 1203,
-      "toDistanceMeters": 1231,
-      "side": "right",
-      "widthMeters": 0.9,
-      "stripeLengthMeters": 2.5,
-      "palette": "red-white"
-    },
-    {
-      "index": 18,
-      "fromDistanceMeters": 1244,
       "toDistanceMeters": 1280,
       "side": "right",
       "widthMeters": 0.9,
@@ -16673,7 +16655,7 @@
       "palette": "red-white"
     },
     {
-      "index": 19,
+      "index": 16,
       "fromDistanceMeters": 1268,
       "toDistanceMeters": 1296,
       "side": "left",
@@ -16682,7 +16664,7 @@
       "palette": "red-white"
     },
     {
-      "index": 20,
+      "index": 17,
       "fromDistanceMeters": 1384,
       "toDistanceMeters": 1460,
       "side": "right",
@@ -16691,17 +16673,8 @@
       "palette": "red-white"
     },
     {
-      "index": 21,
+      "index": 18,
       "fromDistanceMeters": 1408,
-      "toDistanceMeters": 1436,
-      "side": "left",
-      "widthMeters": 0.9,
-      "stripeLengthMeters": 2.5,
-      "palette": "red-white"
-    },
-    {
-      "index": 22,
-      "fromDistanceMeters": 1448,
       "toDistanceMeters": 1476,
       "side": "left",
       "widthMeters": 0.9,
@@ -16709,7 +16682,7 @@
       "palette": "red-white"
     },
     {
-      "index": 23,
+      "index": 19,
       "fromDistanceMeters": 1494,
       "toDistanceMeters": 1530,
       "side": "left",
@@ -16718,7 +16691,7 @@
       "palette": "red-white"
     },
     {
-      "index": 24,
+      "index": 20,
       "fromDistanceMeters": 1518,
       "toDistanceMeters": 1546,
       "side": "right",
@@ -16727,16 +16700,16 @@
       "palette": "red-white"
     },
     {
-      "index": 25,
+      "index": 21,
       "fromDistanceMeters": 2169,
-      "toDistanceMeters": 2205,
+      "toDistanceMeters": 2345,
       "side": "left",
       "widthMeters": 0.9,
       "stripeLengthMeters": 2.5,
       "palette": "red-white"
     },
     {
-      "index": 26,
+      "index": 22,
       "fromDistanceMeters": 2193,
       "toDistanceMeters": 2221,
       "side": "right",
@@ -16745,16 +16718,7 @@
       "palette": "red-white"
     },
     {
-      "index": 27,
-      "fromDistanceMeters": 2219,
-      "toDistanceMeters": 2255,
-      "side": "left",
-      "widthMeters": 0.9,
-      "stripeLengthMeters": 2.5,
-      "palette": "red-white"
-    },
-    {
-      "index": 28,
+      "index": 23,
       "fromDistanceMeters": 2243,
       "toDistanceMeters": 2271,
       "side": "right",
@@ -16763,26 +16727,8 @@
       "palette": "red-white"
     },
     {
-      "index": 29,
-      "fromDistanceMeters": 2269,
-      "toDistanceMeters": 2345,
-      "side": "left",
-      "widthMeters": 0.9,
-      "stripeLengthMeters": 2.5,
-      "palette": "red-white"
-    },
-    {
-      "index": 30,
+      "index": 24,
       "fromDistanceMeters": 2293,
-      "toDistanceMeters": 2321,
-      "side": "right",
-      "widthMeters": 0.9,
-      "stripeLengthMeters": 2.5,
-      "palette": "red-white"
-    },
-    {
-      "index": 31,
-      "fromDistanceMeters": 2333,
       "toDistanceMeters": 2361,
       "side": "right",
       "widthMeters": 0.9,
@@ -16790,7 +16736,7 @@
       "palette": "red-white"
     },
     {
-      "index": 32,
+      "index": 25,
       "fromDistanceMeters": 2369,
       "toDistanceMeters": 2405,
       "side": "left",
@@ -16799,7 +16745,7 @@
       "palette": "red-white"
     },
     {
-      "index": 33,
+      "index": 26,
       "fromDistanceMeters": 2393,
       "toDistanceMeters": 2421,
       "side": "right",
@@ -16808,7 +16754,7 @@
       "palette": "red-white"
     },
     {
-      "index": 34,
+      "index": 27,
       "fromDistanceMeters": 2879,
       "toDistanceMeters": 2915,
       "side": "right",
@@ -16817,7 +16763,7 @@
       "palette": "red-white"
     },
     {
-      "index": 35,
+      "index": 28,
       "fromDistanceMeters": 2903,
       "toDistanceMeters": 2931,
       "side": "left",
@@ -16826,7 +16772,7 @@
       "palette": "red-white"
     },
     {
-      "index": 36,
+      "index": 29,
       "fromDistanceMeters": 2944,
       "toDistanceMeters": 3020,
       "side": "left",
@@ -16835,17 +16781,8 @@
       "palette": "red-white"
     },
     {
-      "index": 37,
+      "index": 30,
       "fromDistanceMeters": 2968,
-      "toDistanceMeters": 2996,
-      "side": "right",
-      "widthMeters": 0.9,
-      "stripeLengthMeters": 2.5,
-      "palette": "red-white"
-    },
-    {
-      "index": 38,
-      "fromDistanceMeters": 3008,
       "toDistanceMeters": 3036,
       "side": "right",
       "widthMeters": 0.9,
@@ -16853,7 +16790,7 @@
       "palette": "red-white"
     },
     {
-      "index": 39,
+      "index": 31,
       "fromDistanceMeters": 4089,
       "toDistanceMeters": 4125,
       "side": "left",
@@ -16862,7 +16799,7 @@
       "palette": "red-white"
     },
     {
-      "index": 40,
+      "index": 32,
       "fromDistanceMeters": 4113,
       "toDistanceMeters": 4141,
       "side": "right",
@@ -16871,7 +16808,7 @@
       "palette": "red-white"
     },
     {
-      "index": 41,
+      "index": 33,
       "fromDistanceMeters": 4184,
       "toDistanceMeters": 4220,
       "side": "right",
@@ -16880,7 +16817,7 @@
       "palette": "red-white"
     },
     {
-      "index": 42,
+      "index": 34,
       "fromDistanceMeters": 4208,
       "toDistanceMeters": 4236,
       "side": "left",
@@ -16889,7 +16826,7 @@
       "palette": "red-white"
     },
     {
-      "index": 43,
+      "index": 35,
       "fromDistanceMeters": 4309,
       "toDistanceMeters": 4345,
       "side": "right",
@@ -16898,7 +16835,7 @@
       "palette": "red-white"
     },
     {
-      "index": 44,
+      "index": 36,
       "fromDistanceMeters": 4333,
       "toDistanceMeters": 4361,
       "side": "left",
@@ -16907,7 +16844,7 @@
       "palette": "red-white"
     },
     {
-      "index": 45,
+      "index": 37,
       "fromDistanceMeters": 5329,
       "toDistanceMeters": 5405,
       "side": "left",
@@ -16916,17 +16853,8 @@
       "palette": "red-white"
     },
     {
-      "index": 46,
+      "index": 38,
       "fromDistanceMeters": 5353,
-      "toDistanceMeters": 5381,
-      "side": "right",
-      "widthMeters": 0.9,
-      "stripeLengthMeters": 2.5,
-      "palette": "red-white"
-    },
-    {
-      "index": 47,
-      "fromDistanceMeters": 5393,
       "toDistanceMeters": 5421,
       "side": "right",
       "widthMeters": 0.9,
@@ -16962,7 +16890,8 @@
               "widthMeters": 4
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -16971,7 +16900,8 @@
               "widthMeters": 30
             }
           ],
-          "barrier": "tecpro"
+          "barrier": "tecpro",
+          "fence": "debris-fence"
         }
       },
       {
@@ -16985,7 +16915,8 @@
               "widthMeters": 12
             }
           ],
-          "barrier": "tecpro"
+          "barrier": "tecpro",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -16994,7 +16925,8 @@
               "widthMeters": 4
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -17008,7 +16940,8 @@
               "widthMeters": 4
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -17017,7 +16950,8 @@
               "widthMeters": 12
             }
           ],
-          "barrier": "tecpro"
+          "barrier": "tecpro",
+          "fence": "debris-fence"
         }
       },
       {
@@ -17056,7 +16990,8 @@
               "widthMeters": 4
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -17065,7 +17000,8 @@
               "widthMeters": 8
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -17074,11 +17010,13 @@
         "toDistanceMeters": 2161.25,
         "left": {
           "zones": [],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -17092,7 +17030,8 @@
               "widthMeters": 4
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -17101,7 +17040,8 @@
               "widthMeters": 12
             }
           ],
-          "barrier": "tecpro"
+          "barrier": "tecpro",
+          "fence": "debris-fence"
         }
       },
       {
@@ -17115,7 +17055,8 @@
               "widthMeters": 4
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -17124,7 +17065,8 @@
               "widthMeters": 8
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -17133,11 +17075,13 @@
         "toDistanceMeters": 4075.5,
         "left": {
           "zones": [],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -17151,7 +17095,8 @@
               "widthMeters": 4
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -17160,7 +17105,8 @@
               "widthMeters": 20
             }
           ],
-          "barrier": "tecpro"
+          "barrier": "tecpro",
+          "fence": "debris-fence"
         }
       },
       {
@@ -17174,7 +17120,8 @@
               "widthMeters": 12
             }
           ],
-          "barrier": "tecpro"
+          "barrier": "tecpro",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -17183,7 +17130,8 @@
               "widthMeters": 4
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -17192,11 +17140,13 @@
         "toDistanceMeters": 5310.5,
         "left": {
           "zones": [],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -17205,7 +17155,8 @@
         "toDistanceMeters": 5681,
         "left": {
           "zones": [],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -17214,7 +17165,8 @@
               "widthMeters": 20
             }
           ],
-          "barrier": "tecpro"
+          "barrier": "tecpro",
+          "fence": "debris-fence"
         }
       },
       {
@@ -17524,6 +17476,86 @@
         },
         "rotation": 1.899883,
         "scale": 14.3
+      },
+      {
+        "id": "main-grandstand",
+        "kind": "main-grandstand-covered",
+        "position": {
+          "x": 40.229,
+          "y": 9.844
+        },
+        "rotation": 1.896591,
+        "scale": 17,
+        "visualStyle": {
+          "primaryColor": "#e5e8e5",
+          "secondaryColor": "#59636b",
+          "accentColor": "#207a68",
+          "roofColor": "#f5f6f3"
+        }
+      },
+      {
+        "id": "central-grandstand",
+        "kind": "grandstand-covered",
+        "position": {
+          "x": -303.633,
+          "y": 1252.52
+        },
+        "rotation": 2.521913,
+        "scale": 14,
+        "visualStyle": {
+          "primaryColor": "#e5e8e5",
+          "secondaryColor": "#59636b",
+          "accentColor": "#207a68",
+          "roofColor": "#f5f6f3"
+        }
+      },
+      {
+        "id": "pit-team-building",
+        "kind": "race-control-building",
+        "position": {
+          "x": -59.65,
+          "y": 73.769
+        },
+        "rotation": 1.899516,
+        "scale": 15,
+        "visualStyle": {
+          "primaryColor": "#eef0ed",
+          "secondaryColor": "#586068",
+          "accentColor": "#207a68",
+          "roofColor": "#f6f7f4"
+        }
+      },
+      {
+        "id": "turn-one-grandstand",
+        "kind": "grandstand-covered",
+        "position": {
+          "x": -175.751,
+          "y": 457.815
+        },
+        "rotation": -2.861524,
+        "scale": 13,
+        "visualStyle": {
+          "primaryColor": "#eef0ed",
+          "secondaryColor": "#586068",
+          "accentColor": "#207a68",
+          "roofColor": "#f6f7f4"
+        }
+      },
+      {
+        "id": "turn-twenty-seven-grandstand",
+        "kind": "grandstand-open",
+        "position": {
+          "x": 176.144,
+          "y": -501.327
+        },
+        "rotation": 1.785215,
+        "scale": 13,
+        "visualStyle": {
+          "primaryColor": "#eef0ed",
+          "secondaryColor": "#586068",
+          "accentColor": "#207a68",
+          "roofColor": "#f6f7f4"
+        }
       }
     ]
   },
@@ -17531,7 +17563,7 @@
     "dataset": "bacinger/f1-circuits",
     "license": "MIT",
     "url": "https://github.com/bacinger/f1-circuits",
-    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery; barrier thickness extends away from the racing surface.",
+    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery. Catalog 2026.8 adds per-circuit pit architecture, major buildings, spectator grandstands and safety fencing, closes curb gaps only through continuous curvature and preserves the canonical racing geometry; barrier thickness extends away from the racing surface.",
     "environmentReferences": [
       {
         "label": "FIA 2025 Jeddah circuit map",
@@ -17562,6 +17594,10 @@
         "label": "FIA 2025 Saudi Arabian GP media kit - width 10-15 m",
         "url": "https://www.fia.com/sites/default/files/pdf_saudi_media_kit-2025-english.pdf",
         "checkedAt": "2026-08-21"
+      },
+      {
+        "label": "Formula 1 official Jeddah pit and team building presentation",
+        "url": "https://www.formula1.com/en/latest/article/revealed-new-images-of-state-of-the-art-saudi-arabian-pit-and-team-building.3XR9bIkbSNnUljmD176uzD"
       }
     ]
   },

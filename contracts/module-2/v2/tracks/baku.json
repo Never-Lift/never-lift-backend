@@ -1,6 +1,6 @@
 {
   "schemaVersion": "2.0.0",
-  "catalogVersion": "2026.7",
+  "catalogVersion": "2026.8",
   "id": "baku",
   "name": "Baku City Circuit",
   "countryCode": "AZ",
@@ -16048,7 +16048,16 @@
         "x": -32.032,
         "y": 368.261
       }
-    ]
+    ],
+    "visualStyle": {
+      "architecture": "urban-compact",
+      "primaryColor": "#e3e5e4",
+      "secondaryColor": "#505961",
+      "accentColor": "#286682",
+      "roofColor": "#f0f2f0",
+      "garageCount": 11,
+      "buildingHeightMeters": 4.6
+    }
   },
   "surfaceModel": {
     "onTrack": "asphalt",
@@ -16301,7 +16310,7 @@
     {
       "index": 27,
       "fromDistanceMeters": 3878,
-      "toDistanceMeters": 3904,
+      "toDistanceMeters": 3984,
       "side": "left",
       "widthMeters": 0.8,
       "stripeLengthMeters": 2.5,
@@ -16310,42 +16319,6 @@
     {
       "index": 28,
       "fromDistanceMeters": 3898,
-      "toDistanceMeters": 3920,
-      "side": "right",
-      "widthMeters": 0.8,
-      "stripeLengthMeters": 2.5,
-      "palette": "red-white"
-    },
-    {
-      "index": 29,
-      "fromDistanceMeters": 3918,
-      "toDistanceMeters": 3944,
-      "side": "left",
-      "widthMeters": 0.8,
-      "stripeLengthMeters": 2.5,
-      "palette": "red-white"
-    },
-    {
-      "index": 30,
-      "fromDistanceMeters": 3938,
-      "toDistanceMeters": 3960,
-      "side": "right",
-      "widthMeters": 0.8,
-      "stripeLengthMeters": 2.5,
-      "palette": "red-white"
-    },
-    {
-      "index": 31,
-      "fromDistanceMeters": 3958,
-      "toDistanceMeters": 3984,
-      "side": "left",
-      "widthMeters": 0.8,
-      "stripeLengthMeters": 2.5,
-      "palette": "red-white"
-    },
-    {
-      "index": 32,
-      "fromDistanceMeters": 3978,
       "toDistanceMeters": 4000,
       "side": "right",
       "widthMeters": 0.8,
@@ -16353,7 +16326,7 @@
       "palette": "red-white"
     },
     {
-      "index": 33,
+      "index": 29,
       "fromDistanceMeters": 4108,
       "toDistanceMeters": 4134,
       "side": "right",
@@ -16362,7 +16335,7 @@
       "palette": "red-white"
     },
     {
-      "index": 34,
+      "index": 30,
       "fromDistanceMeters": 4128,
       "toDistanceMeters": 4150,
       "side": "left",
@@ -16371,7 +16344,7 @@
       "palette": "red-white"
     },
     {
-      "index": 35,
+      "index": 31,
       "fromDistanceMeters": 4363,
       "toDistanceMeters": 4389,
       "side": "left",
@@ -16380,7 +16353,7 @@
       "palette": "red-white"
     },
     {
-      "index": 36,
+      "index": 32,
       "fromDistanceMeters": 4383,
       "toDistanceMeters": 4405,
       "side": "right",
@@ -16389,7 +16362,7 @@
       "palette": "red-white"
     },
     {
-      "index": 37,
+      "index": 33,
       "fromDistanceMeters": 4503,
       "toDistanceMeters": 4529,
       "side": "right",
@@ -16398,7 +16371,7 @@
       "palette": "red-white"
     },
     {
-      "index": 38,
+      "index": 34,
       "fromDistanceMeters": 4523,
       "toDistanceMeters": 4545,
       "side": "left",
@@ -16420,7 +16393,8 @@
               "widthMeters": 2
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -16429,7 +16403,8 @@
               "widthMeters": 2
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -16443,7 +16418,8 @@
               "widthMeters": 4
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -16467,7 +16443,8 @@
               "widthMeters": 2
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -16476,7 +16453,8 @@
               "widthMeters": 2
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -16490,7 +16468,8 @@
               "widthMeters": 2
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -16499,7 +16478,8 @@
               "widthMeters": 12
             }
           ],
-          "barrier": "tecpro"
+          "barrier": "tecpro",
+          "fence": "debris-fence"
         }
       },
       {
@@ -16513,7 +16493,8 @@
               "widthMeters": 2
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -16522,7 +16503,8 @@
               "widthMeters": 2
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -16536,7 +16518,8 @@
               "widthMeters": 2
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -16545,7 +16528,8 @@
               "widthMeters": 14
             }
           ],
-          "barrier": "tecpro"
+          "barrier": "tecpro",
+          "fence": "debris-fence"
         }
       },
       {
@@ -16559,7 +16543,8 @@
               "widthMeters": 2
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -16568,7 +16553,8 @@
               "widthMeters": 2
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -16582,7 +16568,8 @@
               "widthMeters": 10
             }
           ],
-          "barrier": "tecpro"
+          "barrier": "tecpro",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -16591,7 +16578,8 @@
               "widthMeters": 2
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -16605,7 +16593,8 @@
               "widthMeters": 2
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -16614,7 +16603,8 @@
               "widthMeters": 2
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -16628,7 +16618,8 @@
               "widthMeters": 7
             }
           ],
-          "barrier": "tecpro"
+          "barrier": "tecpro",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -16637,7 +16628,8 @@
               "widthMeters": 7
             }
           ],
-          "barrier": "tecpro"
+          "barrier": "tecpro",
+          "fence": "debris-fence"
         }
       },
       {
@@ -16651,7 +16643,8 @@
               "widthMeters": 2
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -16660,7 +16653,8 @@
               "widthMeters": 2
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -16674,7 +16668,8 @@
               "widthMeters": 6
             }
           ],
-          "barrier": "tecpro"
+          "barrier": "tecpro",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -16683,7 +16678,8 @@
               "widthMeters": 2
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -16697,7 +16693,8 @@
               "widthMeters": 2
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -16706,7 +16703,8 @@
               "widthMeters": 2
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -16715,11 +16713,13 @@
         "toDistanceMeters": 3301.65,
         "left": {
           "zones": [],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -16733,7 +16733,8 @@
               "widthMeters": 2
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -16742,7 +16743,8 @@
               "widthMeters": 2
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -16756,7 +16758,8 @@
               "widthMeters": 1
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -16765,7 +16768,8 @@
               "widthMeters": 12
             }
           ],
-          "barrier": "tecpro"
+          "barrier": "tecpro",
+          "fence": "debris-fence"
         }
       },
       {
@@ -16779,7 +16783,8 @@
               "widthMeters": 1
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -16803,7 +16808,8 @@
               "widthMeters": 3
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -16812,7 +16818,8 @@
               "widthMeters": 3
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       },
       {
@@ -16826,7 +16833,8 @@
               "widthMeters": 2
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         },
         "right": {
           "zones": [
@@ -16835,7 +16843,8 @@
               "widthMeters": 2
             }
           ],
-          "barrier": "concrete-wall"
+          "barrier": "concrete-wall",
+          "fence": "debris-fence"
         }
       }
     ]
@@ -17130,6 +17139,86 @@
         },
         "rotation": 0.402948,
         "scale": 14.3
+      },
+      {
+        "id": "main-grandstand",
+        "kind": "main-grandstand-covered",
+        "position": {
+          "x": -78.484,
+          "y": -71.298
+        },
+        "rotation": 0.396644,
+        "scale": 16,
+        "visualStyle": {
+          "primaryColor": "#d8dcdb",
+          "secondaryColor": "#515b63",
+          "accentColor": "#286682",
+          "roofColor": "#eef0ee"
+        }
+      },
+      {
+        "id": "turn-one-grandstand",
+        "kind": "grandstand-open",
+        "position": {
+          "x": 182.215,
+          "y": 166.001
+        },
+        "rotation": 1.950757,
+        "scale": 12,
+        "visualStyle": {
+          "primaryColor": "#d8dcdb",
+          "secondaryColor": "#515b63",
+          "accentColor": "#286682",
+          "roofColor": "#eef0ee"
+        }
+      },
+      {
+        "id": "baku-pit-building",
+        "kind": "race-control-building",
+        "position": {
+          "x": -21.065,
+          "y": 24.404
+        },
+        "rotation": 0.400302,
+        "scale": 11,
+        "visualStyle": {
+          "primaryColor": "#e3e5e4",
+          "secondaryColor": "#505961",
+          "accentColor": "#286682",
+          "roofColor": "#f0f2f0"
+        }
+      },
+      {
+        "id": "sahil-grandstand",
+        "kind": "grandstand-covered",
+        "position": {
+          "x": -269.552,
+          "y": 314.953
+        },
+        "rotation": -2.755328,
+        "scale": 12,
+        "visualStyle": {
+          "primaryColor": "#e3e5e4",
+          "secondaryColor": "#505961",
+          "accentColor": "#286682",
+          "roofColor": "#f0f2f0"
+        }
+      },
+      {
+        "id": "old-city-grandstand",
+        "kind": "grandstand-open",
+        "position": {
+          "x": -1775.377,
+          "y": -534.601
+        },
+        "rotation": -2.591668,
+        "scale": 10,
+        "visualStyle": {
+          "primaryColor": "#e3e5e4",
+          "secondaryColor": "#505961",
+          "accentColor": "#286682",
+          "roofColor": "#f0f2f0"
+        }
       }
     ]
   },
@@ -17137,7 +17226,7 @@
     "dataset": "bacinger/f1-circuits",
     "license": "MIT",
     "url": "https://github.com/bacinger/f1-circuits",
-    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery; barrier thickness extends away from the racing surface.",
+    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery. Catalog 2026.8 adds per-circuit pit architecture, major buildings, spectator grandstands and safety fencing, closes curb gaps only through continuous curvature and preserves the canonical racing geometry; barrier thickness extends away from the racing surface.",
     "environmentReferences": [
       {
         "label": "FIA 2025 Baku circuit map",

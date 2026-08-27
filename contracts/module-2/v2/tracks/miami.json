@@ -1,6 +1,6 @@
 {
   "schemaVersion": "2.0.0",
-  "catalogVersion": "2026.7",
+  "catalogVersion": "2026.8",
   "id": "miami",
   "name": "Miami International Autodrome",
   "countryCode": "US",
@@ -14490,7 +14490,16 @@
         "x": 38.023,
         "y": -366.159
       }
-    ]
+    ],
+    "visualStyle": {
+      "architecture": "temporary-modular",
+      "primaryColor": "#eef0ef",
+      "secondaryColor": "#5b6670",
+      "accentColor": "#287f82",
+      "roofColor": "#f8f8f5",
+      "garageCount": 11,
+      "buildingHeightMeters": 4.2
+    }
   },
   "surfaceModel": {
     "onTrack": "asphalt",
@@ -14581,15 +14590,6 @@
     {
       "index": 9,
       "fromDistanceMeters": 1058,
-      "toDistanceMeters": 1086,
-      "side": "left",
-      "widthMeters": 1.2,
-      "stripeLengthMeters": 2.5,
-      "palette": "orange-white"
-    },
-    {
-      "index": 10,
-      "fromDistanceMeters": 1098,
       "toDistanceMeters": 1126,
       "side": "left",
       "widthMeters": 1.2,
@@ -14597,7 +14597,7 @@
       "palette": "orange-white"
     },
     {
-      "index": 11,
+      "index": 10,
       "fromDistanceMeters": 1199,
       "toDistanceMeters": 1235,
       "side": "left",
@@ -14606,7 +14606,7 @@
       "palette": "orange-white"
     },
     {
-      "index": 12,
+      "index": 11,
       "fromDistanceMeters": 1223,
       "toDistanceMeters": 1251,
       "side": "right",
@@ -14615,7 +14615,7 @@
       "palette": "orange-white"
     },
     {
-      "index": 13,
+      "index": 12,
       "fromDistanceMeters": 1304,
       "toDistanceMeters": 1340,
       "side": "left",
@@ -14624,7 +14624,7 @@
       "palette": "orange-white"
     },
     {
-      "index": 14,
+      "index": 13,
       "fromDistanceMeters": 1328,
       "toDistanceMeters": 1356,
       "side": "right",
@@ -14633,7 +14633,7 @@
       "palette": "orange-white"
     },
     {
-      "index": 15,
+      "index": 14,
       "fromDistanceMeters": 1384,
       "toDistanceMeters": 1460,
       "side": "left",
@@ -14642,17 +14642,8 @@
       "palette": "orange-white"
     },
     {
-      "index": 16,
+      "index": 15,
       "fromDistanceMeters": 1408,
-      "toDistanceMeters": 1436,
-      "side": "right",
-      "widthMeters": 1.2,
-      "stripeLengthMeters": 2.5,
-      "palette": "orange-white"
-    },
-    {
-      "index": 17,
-      "fromDistanceMeters": 1448,
       "toDistanceMeters": 1476,
       "side": "right",
       "widthMeters": 1.2,
@@ -14660,7 +14651,7 @@
       "palette": "orange-white"
     },
     {
-      "index": 18,
+      "index": 16,
       "fromDistanceMeters": 2904,
       "toDistanceMeters": 2940,
       "side": "left",
@@ -14669,7 +14660,7 @@
       "palette": "orange-white"
     },
     {
-      "index": 19,
+      "index": 17,
       "fromDistanceMeters": 2928,
       "toDistanceMeters": 2956,
       "side": "right",
@@ -14678,7 +14669,7 @@
       "palette": "orange-white"
     },
     {
-      "index": 20,
+      "index": 18,
       "fromDistanceMeters": 2989,
       "toDistanceMeters": 3025,
       "side": "right",
@@ -14687,7 +14678,7 @@
       "palette": "orange-white"
     },
     {
-      "index": 21,
+      "index": 19,
       "fromDistanceMeters": 3013,
       "toDistanceMeters": 3041,
       "side": "left",
@@ -14696,7 +14687,7 @@
       "palette": "orange-white"
     },
     {
-      "index": 22,
+      "index": 20,
       "fromDistanceMeters": 3049,
       "toDistanceMeters": 3085,
       "side": "right",
@@ -14705,7 +14696,7 @@
       "palette": "orange-white"
     },
     {
-      "index": 23,
+      "index": 21,
       "fromDistanceMeters": 3073,
       "toDistanceMeters": 3101,
       "side": "left",
@@ -14714,7 +14705,7 @@
       "palette": "orange-white"
     },
     {
-      "index": 24,
+      "index": 22,
       "fromDistanceMeters": 3149,
       "toDistanceMeters": 3185,
       "side": "left",
@@ -14723,7 +14714,7 @@
       "palette": "orange-white"
     },
     {
-      "index": 25,
+      "index": 23,
       "fromDistanceMeters": 3173,
       "toDistanceMeters": 3201,
       "side": "right",
@@ -14732,7 +14723,7 @@
       "palette": "orange-white"
     },
     {
-      "index": 26,
+      "index": 24,
       "fromDistanceMeters": 3224,
       "toDistanceMeters": 3260,
       "side": "left",
@@ -14741,7 +14732,7 @@
       "palette": "orange-white"
     },
     {
-      "index": 27,
+      "index": 25,
       "fromDistanceMeters": 3248,
       "toDistanceMeters": 3300,
       "side": "right",
@@ -14750,7 +14741,7 @@
       "palette": "orange-white"
     },
     {
-      "index": 28,
+      "index": 26,
       "fromDistanceMeters": 3288,
       "toDistanceMeters": 3316,
       "side": "left",
@@ -14759,7 +14750,7 @@
       "palette": "orange-white"
     },
     {
-      "index": 29,
+      "index": 27,
       "fromDistanceMeters": 3349,
       "toDistanceMeters": 3385,
       "side": "left",
@@ -14768,7 +14759,7 @@
       "palette": "orange-white"
     },
     {
-      "index": 30,
+      "index": 28,
       "fromDistanceMeters": 3373,
       "toDistanceMeters": 3401,
       "side": "right",
@@ -14777,7 +14768,7 @@
       "palette": "orange-white"
     },
     {
-      "index": 31,
+      "index": 29,
       "fromDistanceMeters": 4674,
       "toDistanceMeters": 4710,
       "side": "left",
@@ -14786,7 +14777,7 @@
       "palette": "orange-white"
     },
     {
-      "index": 32,
+      "index": 30,
       "fromDistanceMeters": 4698,
       "toDistanceMeters": 4726,
       "side": "right",
@@ -14795,7 +14786,7 @@
       "palette": "orange-white"
     },
     {
-      "index": 33,
+      "index": 31,
       "fromDistanceMeters": 4829,
       "toDistanceMeters": 4865,
       "side": "left",
@@ -14804,7 +14795,7 @@
       "palette": "orange-white"
     },
     {
-      "index": 34,
+      "index": 32,
       "fromDistanceMeters": 4853,
       "toDistanceMeters": 4881,
       "side": "right",
@@ -15449,6 +15440,86 @@
         },
         "rotation": -0.557857,
         "scale": 15.4
+      },
+      {
+        "id": "main-grandstand",
+        "kind": "main-grandstand-covered",
+        "position": {
+          "x": -96.159,
+          "y": 3.308
+        },
+        "rotation": -0.55669,
+        "scale": 17,
+        "visualStyle": {
+          "primaryColor": "#e9ecea",
+          "secondaryColor": "#59646c",
+          "accentColor": "#287f82",
+          "roofColor": "#f7f7f4"
+        }
+      },
+      {
+        "id": "turn-one-grandstand",
+        "kind": "grandstand-covered",
+        "position": {
+          "x": 216.181,
+          "y": -213.869
+        },
+        "rotation": -2.493125,
+        "scale": 14,
+        "visualStyle": {
+          "primaryColor": "#e9ecea",
+          "secondaryColor": "#59646c",
+          "accentColor": "#287f82",
+          "roofColor": "#f7f7f4"
+        }
+      },
+      {
+        "id": "hard-rock-stadium",
+        "kind": "stadium-building",
+        "position": {
+          "x": -149.821,
+          "y": -395.97
+        },
+        "rotation": 2.62026,
+        "scale": 24,
+        "visualStyle": {
+          "primaryColor": "#c8cccb",
+          "secondaryColor": "#515a62",
+          "accentColor": "#287f82",
+          "roofColor": "#e5e7e5"
+        }
+      },
+      {
+        "id": "marina-grandstand",
+        "kind": "grandstand-covered",
+        "position": {
+          "x": -491.229,
+          "y": -305.322
+        },
+        "rotation": -0.130142,
+        "scale": 14,
+        "visualStyle": {
+          "primaryColor": "#eef0ef",
+          "secondaryColor": "#5b6670",
+          "accentColor": "#287f82",
+          "roofColor": "#f8f8f5"
+        }
+      },
+      {
+        "id": "beach-grandstand",
+        "kind": "grandstand-open",
+        "position": {
+          "x": 390.364,
+          "y": 180.63
+        },
+        "rotation": 3.106165,
+        "scale": 13,
+        "visualStyle": {
+          "primaryColor": "#eef0ef",
+          "secondaryColor": "#5b6670",
+          "accentColor": "#287f82",
+          "roofColor": "#f8f8f5"
+        }
       }
     ]
   },
@@ -15456,7 +15527,7 @@
     "dataset": "bacinger/f1-circuits",
     "license": "MIT",
     "url": "https://github.com/bacinger/f1-circuits",
-    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery; barrier thickness extends away from the racing surface.",
+    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery. Catalog 2026.8 adds per-circuit pit architecture, major buildings, spectator grandstands and safety fencing, closes curb gaps only through continuous curvature and preserves the canonical racing geometry; barrier thickness extends away from the racing surface.",
     "environmentReferences": [
       {
         "label": "FIA 2026 Miami circuit map and emergency exits",

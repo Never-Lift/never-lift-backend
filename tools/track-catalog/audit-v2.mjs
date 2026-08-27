@@ -11,7 +11,7 @@ const mirrorDirectory =
   mirrorFlag >= 0 ? resolve(repositoryRoot, process.argv[mirrorFlag + 1]) : null
 
 const VERSION = '2.0.0'
-const CATALOG_VERSION = '2026.7'
+const CATALOG_VERSION = '2026.8'
 const PHYSICS_VERSION = '2.0.0'
 const TRACK_COUNT = 24
 const sharedFiles = [
@@ -278,6 +278,29 @@ function angleDifference(first, second) {
 
 function validateTrackInfrastructure(track, entry) {
   invariant(track.pitLane.path.length >= 25, `${entry.id} detailed pit path`)
+  const pitStyle = track.pitLane.visualStyle
+  invariant(Boolean(pitStyle), `${entry.id} pit visual style`)
+  invariant(
+    Number.isInteger(pitStyle.garageCount) &&
+      pitStyle.garageCount >= 8 &&
+      pitStyle.garageCount <= 16,
+    `${entry.id} pit garage count`,
+  )
+  invariant(
+    pitStyle.buildingHeightMeters >= 3 && pitStyle.buildingHeightMeters <= 8,
+    `${entry.id} pit building height`,
+  )
+  for (const colorKey of [
+    'primaryColor',
+    'secondaryColor',
+    'accentColor',
+    'roofColor',
+  ]) {
+    invariant(
+      /^#[0-9a-f]{6}$/i.test(pitStyle[colorKey]),
+      `${entry.id} pit ${colorKey}`,
+    )
+  }
   invariant(track.sceneryLayout.landmarks.length === 0, `${entry.id} provisional landmarks removed`)
   invariant(
     track.sceneryLayout.staticObjects.some(
@@ -285,12 +308,40 @@ function validateTrackInfrastructure(track, entry) {
     ),
     `${entry.id} start gantry`,
   )
-  invariant(
-    track.sceneryLayout.staticObjects.every((object) =>
-      ['start-gantry', 'escape-bollard'].includes(object.kind),
-    ),
-    `${entry.id} infrastructure-only scenery`,
+  const authoredStructures = track.sceneryLayout.staticObjects.filter(
+    (object) => !['start-gantry', 'escape-bollard'].includes(object.kind),
   )
+  invariant(authoredStructures.length >= 5, `${entry.id} authored infrastructure`)
+  invariant(
+    authoredStructures.filter((object) => object.kind.includes('grandstand')).length >= 3,
+    `${entry.id} spectator grandstand coverage`,
+  )
+  invariant(
+    authoredStructures.some((object) => object.kind.includes('grandstand')),
+    `${entry.id} spectator grandstand`,
+  )
+  invariant(
+    authoredStructures.some(
+      (object) =>
+        object.kind.includes('building') || object.kind.includes('tower'),
+    ),
+    `${entry.id} start-area building`,
+  )
+  for (const object of authoredStructures) {
+    invariant(Boolean(object.visualStyle), `${entry.id} ${object.id} visual style`)
+    invariant(
+      Object.values(object.visualStyle).every((color) =>
+        /^#[0-9a-f]{6}$/i.test(color),
+      ),
+      `${entry.id} ${object.id} visual palette`,
+    )
+  }
+  const fencedSides = track.trackLimits.segments.reduce(
+    (count, segment) =>
+      count + Number(Boolean(segment.left.fence)) + Number(Boolean(segment.right.fence)),
+    0,
+  )
+  invariant(fencedSides >= 2, `${entry.id} spectator safety fencing`)
 
   const start = track.centerline[0]
   invariant(
@@ -338,6 +389,42 @@ function validateTrackInfrastructure(track, entry) {
       ).length >= 5,
       'monza Rettifilo escape obstacles',
     )
+  }
+  if (entry.id === 'suzuka') {
+    const lower = []
+    const upper = []
+    for (let index = 0; index < track.centerline.length - 1; index += 1) {
+      const from = track.centerline[index]
+      const to = track.centerline[index + 1]
+      if (from.elevationLayer !== to.elevationLayer) continue
+      const target = from.elevationLayer > 0 ? upper : lower
+      target.push({ from, to })
+    }
+    let crossings = 0
+    for (const lowerSegment of lower) {
+      const { from: a, to: b } = lowerSegment
+      for (const upperSegment of upper) {
+        const { from: c, to: d } = upperSegment
+        const denominator =
+          (a.x - b.x) * (c.y - d.y) - (a.y - b.y) * (c.x - d.x)
+        if (Math.abs(denominator) <= 1e-9) continue
+        const first = a.x * b.y - a.y * b.x
+        const second = c.x * d.y - c.y * d.x
+        const x =
+          (first * (c.x - d.x) - (a.x - b.x) * second) / denominator
+        const y =
+          (first * (c.y - d.y) - (a.y - b.y) * second) / denominator
+        const within = (value, from, to) =>
+          value >= Math.min(from, to) - 1e-6 && value <= Math.max(from, to) + 1e-6
+        if (
+          within(x, a.x, b.x) && within(y, a.y, b.y) &&
+          within(x, c.x, d.x) && within(y, c.y, d.y)
+        ) {
+          crossings += 1
+        }
+      }
+    }
+    invariant(crossings >= 1, 'suzuka must retain a lower/upper crossover')
   }
 }
 
@@ -599,6 +686,33 @@ function validateTrack(track, entry, vehicle) {
   invariant(track.id === entry.id, `${entry.id} id`)
   invariant(track.lengthMeters === entry.lengthMeters, `${entry.id} length`)
   invariant(track.barrierGeometry?.segments?.length >= 2, `${entry.id} barriers`)
+
+  const curbIndexes = new Set()
+  for (const curb of track.curbs) {
+    invariant(!curbIndexes.has(curb.index), `${entry.id} duplicate curb index`)
+    curbIndexes.add(curb.index)
+    invariant(
+      curb.toDistanceMeters > curb.fromDistanceMeters,
+      `${entry.id} curb range`,
+    )
+    invariant(
+      curb.fromDistanceMeters >= 0 &&
+        curb.toDistanceMeters <= track.lengthMeters,
+      `${entry.id} curb bounds`,
+    )
+  }
+  for (const side of ['left', 'right']) {
+    const sideCurbs = track.curbs
+      .filter((curb) => curb.side === side)
+      .sort((first, second) => first.fromDistanceMeters - second.fromDistanceMeters)
+    for (let index = 1; index < sideCurbs.length; index += 1) {
+      invariant(
+        sideCurbs[index].fromDistanceMeters >=
+          sideCurbs[index - 1].toDistanceMeters - 0.001,
+        `${entry.id} ${side} curb overlap`,
+      )
+    }
+  }
 
   let previousIndex = -1
   const coverageBySide = new Map()
