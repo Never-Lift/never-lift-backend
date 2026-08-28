@@ -1,13 +1,55 @@
-const rettifiloEscapePath = Object.freeze([
-  // The real escape lane leaves the left side of the Rettifilo approach,
-  // stays straight alongside the chicane, and rejoins at the far end.  The
-  // path is deliberately kept on the outside of the canonical left barrier;
-  // the opening below is what connects it to the racing surface.
-  Object.freeze({ x: 31.862, y: 613.914 }),
-  Object.freeze({ x: 40.501, y: 632.356 }),
-  Object.freeze({ x: 49.186, y: 651.608 }),
-  Object.freeze({ x: 57.891, y: 670.241 }),
-])
+function round(value, digits = 3) {
+  const factor = 10 ** digits
+  return Math.round(value * factor) / factor
+}
+
+function sampleAtDistance(track, targetDistanceMeters) {
+  const clampedDistance = Math.max(0, Math.min(track.lengthMeters, targetDistanceMeters))
+  const centerline = track.centerline
+  for (let index = 0; index < centerline.length - 1; index += 1) {
+    const from = centerline[index]
+    const to = centerline[index + 1]
+    if (clampedDistance > to.distanceMeters) continue
+    const span = Math.max(to.distanceMeters - from.distanceMeters, 1e-9)
+    const ratio = (clampedDistance - from.distanceMeters) / span
+    return {
+      x: from.x + (to.x - from.x) * ratio,
+      y: from.y + (to.y - from.y) * ratio,
+    }
+  }
+  return { ...centerline.at(-1) }
+}
+
+function createRettifiloEscapePath(track) {
+  const entryDistanceMeters = 440
+  const exitDistanceMeters = 590
+  const entry = sampleAtDistance(track, entryDistanceMeters)
+  const beforeEntry = sampleAtDistance(track, entryDistanceMeters - 20)
+  const afterEntry = sampleAtDistance(track, entryDistanceMeters + 20)
+  const tangentLength = Math.max(
+    Math.hypot(afterEntry.x - beforeEntry.x, afterEntry.y - beforeEntry.y),
+    1e-9,
+  )
+  const tangent = {
+    x: (afterEntry.x - beforeEntry.x) / tangentLength,
+    y: (afterEntry.y - beforeEntry.y) / tangentLength,
+  }
+  const straightPoints = [0, 25, 50, 75, 95].map((distanceMeters) => ({
+    x: entry.x + tangent.x * distanceMeters,
+    y: entry.y + tangent.y * distanceMeters,
+  }))
+  const straightEnd = straightPoints.at(-1)
+  const exit = sampleAtDistance(track, exitDistanceMeters)
+  const transitionPoints = [0.35, 0.7].map((ratio) => ({
+    x: straightEnd.x + (exit.x - straightEnd.x) * ratio,
+    y: straightEnd.y + (exit.y - straightEnd.y) * ratio,
+  }))
+  return Object.freeze(
+    [...straightPoints, ...transitionPoints, exit].map((point) =>
+      Object.freeze({ x: round(point.x), y: round(point.y) }),
+    ),
+  )
+}
 
 function pointOnPolyline(path, distanceRatio) {
   const clampedRatio = Math.max(0, Math.min(1, distanceRatio))
@@ -36,66 +78,70 @@ function pointOnPolyline(path, distanceRatio) {
   return { ...path.at(-1), tangent: { x: 1, y: 0 } }
 }
 
-const rettifiloObstacleRows = Object.freeze(
-  [
-    [0.2, 0.9],
-    [0.36, -0.9],
-    [0.52, 0.9],
-    [0.68, -0.9],
-    [0.84, 0.9],
-  ].map(([ratio, lateralOffset]) => {
-    const { x, y, tangent } = pointOnPolyline(rettifiloEscapePath, ratio)
-    const normal = { x: -tangent.y, y: tangent.x }
-    const halfLength = 2.35
-    const center = {
-      x: x + normal.x * lateralOffset,
-      y: y + normal.y * lateralOffset,
-    }
-    return Object.freeze({
-      from: Object.freeze({
-        x: center.x - normal.x * halfLength,
-        y: center.y - normal.y * halfLength,
-      }),
-      to: Object.freeze({
-        x: center.x + normal.x * halfLength,
-        y: center.y + normal.y * halfLength,
-      }),
-      blockLengthMeters: 0.9,
-      palette: 'stone',
-      collisionMaterial: 'concrete-wall',
-    })
-  }),
-)
+function createRettifiloObstacleRows(rettifiloEscapePath) {
+  return Object.freeze(
+    [
+      [0.4, 1.45],
+      [0.5, -1.45],
+      [0.6, 1.45],
+      [0.7, -1.45],
+      [0.82, 1.45],
+    ].map(([ratio, lateralOffset]) => {
+      const { x, y, tangent } = pointOnPolyline(rettifiloEscapePath, ratio)
+      const normal = { x: -tangent.y, y: tangent.x }
+      const halfLength = 3.1
+      const center = {
+        x: x + normal.x * lateralOffset,
+        y: y + normal.y * lateralOffset,
+      }
+      return Object.freeze({
+        from: Object.freeze({
+          x: round(center.x - normal.x * halfLength),
+          y: round(center.y - normal.y * halfLength),
+        }),
+        to: Object.freeze({
+          x: round(center.x + normal.x * halfLength),
+          y: round(center.y + normal.y * halfLength),
+        }),
+        blockLengthMeters: 1.05,
+        palette: 'white-red-chevron',
+        collisionMaterial: 'concrete-wall',
+      })
+    }),
+  )
+}
 
-const monzaRettifiloSlalom = Object.freeze({
-  id: 'rettifilo-slalom',
-  kind: 'slalom-block-rows',
-  affectsPhysics: true,
-  elevationLayer: 0,
-  widthMeters: 7,
-  edgeMaterial: 'concrete-wall',
-  path: rettifiloEscapePath,
-  obstacleRows: rettifiloObstacleRows,
-})
-
-const escapeRoadsByTrack = Object.freeze({
-  monza: Object.freeze([monzaRettifiloSlalom]),
-})
+function createMonzaRettifiloSlalom(track) {
+  const path = createRettifiloEscapePath(track)
+  return Object.freeze({
+    id: 'rettifilo-slalom',
+    kind: 'slalom-block-rows',
+    affectsPhysics: true,
+    elevationLayer: 0,
+    widthMeters: 10.5,
+    edgeMaterial: 'concrete-wall',
+    edgeSides: Object.freeze(['left']),
+    path,
+    obstacleRows: createRettifiloObstacleRows(path),
+  })
+}
 
 const barrierOpeningsByTrack = Object.freeze({
   monza: Object.freeze([
     Object.freeze({
       id: 'rettifilo-escape-access',
       side: 'left',
-      fromDistanceMeters: 463.44,
-      toDistanceMeters: 566,
+      fromDistanceMeters: 440,
+      toDistanceMeters: 590,
       reason: 'escape-road-access',
     }),
   ]),
 })
 
-export function escapeRoadsFor(trackId) {
-  return structuredClone(escapeRoadsByTrack[trackId] ?? [])
+export function escapeRoadsFor(track) {
+  return track.id === 'monza'
+    ? structuredClone([createMonzaRettifiloSlalom(track)])
+    : []
 }
 
 export function barrierOpeningsFor(trackId) {
