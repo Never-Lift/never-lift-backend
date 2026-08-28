@@ -442,12 +442,12 @@ function validateEscapeRoads(track, entry) {
     const entryProjection = projectPointToPolyline(road.path[0], track.centerline)
     const exitProjection = projectPointToPolyline(road.path.at(-1), track.centerline)
     invariant(
-      entryProjection.distanceMeters <= 0.5,
-      'monza escape entry connects to the main straight',
+      entryProjection.distanceMeters >= 5.5 && entryProjection.distanceMeters <= 8,
+      'monza escape entry connects to the outer edge of the main straight',
     )
     invariant(
-      exitProjection.distanceMeters <= 0.5,
-      'monza escape exit reconnects to the racing surface',
+      exitProjection.distanceMeters >= 5.5 && exitProjection.distanceMeters <= 8,
+      'monza escape exit reconnects to the outer track edge',
     )
     invariant(
       Math.max(

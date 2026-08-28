@@ -20,32 +20,49 @@ function sampleAtDistance(track, targetDistanceMeters) {
   return { ...centerline.at(-1) }
 }
 
+function tangentAtDistance(track, targetDistanceMeters) {
+  const before = sampleAtDistance(track, targetDistanceMeters - 20)
+  const after = sampleAtDistance(track, targetDistanceMeters + 20)
+  const length = Math.max(
+    Math.hypot(after.x - before.x, after.y - before.y),
+    1e-9,
+  )
+  return {
+    x: (after.x - before.x) / length,
+    y: (after.y - before.y) / length,
+  }
+}
+
 function createRettifiloEscapePath(track) {
   const entryDistanceMeters = 440
   const exitDistanceMeters = 590
   const entry = sampleAtDistance(track, entryDistanceMeters)
-  const beforeEntry = sampleAtDistance(track, entryDistanceMeters - 20)
-  const afterEntry = sampleAtDistance(track, entryDistanceMeters + 20)
-  const tangentLength = Math.max(
-    Math.hypot(afterEntry.x - beforeEntry.x, afterEntry.y - beforeEntry.y),
-    1e-9,
-  )
-  const tangent = {
-    x: (afterEntry.x - beforeEntry.x) / tangentLength,
-    y: (afterEntry.y - beforeEntry.y) / tangentLength,
+  const tangent = tangentAtDistance(track, entryDistanceMeters)
+  const entryNormal = { x: -tangent.y, y: tangent.x }
+  const trackHalfWidthMeters = 5.5
+  const escapeCenterOffsetMeters = trackHalfWidthMeters + 0.25
+  const escapeEntry = {
+    x: entry.x + entryNormal.x * escapeCenterOffsetMeters,
+    y: entry.y + entryNormal.y * escapeCenterOffsetMeters,
   }
   const straightPoints = [0, 25, 50, 75, 95].map((distanceMeters) => ({
-    x: entry.x + tangent.x * distanceMeters,
-    y: entry.y + tangent.y * distanceMeters,
+    x: escapeEntry.x + tangent.x * distanceMeters,
+    y: escapeEntry.y + tangent.y * distanceMeters,
   }))
   const straightEnd = straightPoints.at(-1)
   const exit = sampleAtDistance(track, exitDistanceMeters)
+  const exitTangent = tangentAtDistance(track, exitDistanceMeters)
+  const exitNormal = { x: -exitTangent.y, y: exitTangent.x }
+  const escapeExit = {
+    x: exit.x + exitNormal.x * escapeCenterOffsetMeters,
+    y: exit.y + exitNormal.y * escapeCenterOffsetMeters,
+  }
   const transitionPoints = [0.35, 0.7].map((ratio) => ({
-    x: straightEnd.x + (exit.x - straightEnd.x) * ratio,
-    y: straightEnd.y + (exit.y - straightEnd.y) * ratio,
+    x: straightEnd.x + (escapeExit.x - straightEnd.x) * ratio,
+    y: straightEnd.y + (escapeExit.y - straightEnd.y) * ratio,
   }))
   return Object.freeze(
-    [...straightPoints, ...transitionPoints, exit].map((point) =>
+    [...straightPoints, ...transitionPoints, escapeExit].map((point) =>
       Object.freeze({ x: round(point.x), y: round(point.y) }),
     ),
   )
