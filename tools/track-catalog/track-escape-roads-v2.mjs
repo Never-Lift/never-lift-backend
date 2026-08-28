@@ -53,6 +53,22 @@ const escapeRoadsByTrack = Object.freeze({
   monza: Object.freeze([monzaRettifiloSlalom]),
 })
 
+const barrierOpeningsByTrack = Object.freeze({
+  monza: Object.freeze([
+    Object.freeze({
+      id: 'rettifilo-escape-access',
+      side: 'left',
+      fromDistanceMeters: 468,
+      toDistanceMeters: 566,
+      reason: 'escape-road-access',
+    }),
+  ]),
+})
+
 export function escapeRoadsFor(trackId) {
   return structuredClone(escapeRoadsByTrack[trackId] ?? [])
+}
+
+export function barrierOpeningsFor(trackId) {
+  return structuredClone(barrierOpeningsByTrack[trackId] ?? [])
 }

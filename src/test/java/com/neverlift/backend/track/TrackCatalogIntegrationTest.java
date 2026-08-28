@@ -39,7 +39,7 @@ class TrackCatalogIntegrationTest {
         mockMvc.perform(get("/api/tracks"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.schemaVersion").value("2.0.0"))
-                .andExpect(jsonPath("$.catalogVersion").value("2026.9"))
+                .andExpect(jsonPath("$.catalogVersion").value("2026.10"))
                 .andExpect(jsonPath("$.physicsContractVersion").value("2.0.0"))
                 .andExpect(jsonPath("$.seasonReference").value(2026))
                 .andExpect(jsonPath("$.calendarPolicy").value("original-24-round-freeze"))
@@ -62,7 +62,7 @@ class TrackCatalogIntegrationTest {
         for (Track track : trackRepository.findAll()) {
             JsonNode definition = objectMapper.readTree(track.getDefinitionJson());
             assertThat(definition.path("schemaVersion").asText()).isEqualTo("2.0.0");
-            assertThat(definition.path("catalogVersion").asText()).isEqualTo("2026.9");
+            assertThat(definition.path("catalogVersion").asText()).isEqualTo("2026.10");
             assertThat(definition.path("physicsContractVersion").asText()).isEqualTo("2.0.0");
             assertThat(definition.path("id").asText()).isEqualTo(track.getId());
             assertThat(definition.path("lengthMeters").asInt()).isEqualTo(track.getLengthMeters());
@@ -151,6 +151,29 @@ class TrackCatalogIntegrationTest {
             } else {
                 assertThat(escapeRoads).isEmpty();
             }
+            JsonNode brakingMarkers = sceneryLayout.path("brakingMarkers");
+            assertThat(brakingMarkers.isArray()).isTrue();
+            assertThat(brakingMarkers.size()).isGreaterThanOrEqualTo(4);
+            for (JsonNode marker : brakingMarkers) {
+                assertThat(sceneryIds.add(marker.path("id").asText())).isTrue();
+                assertThat(marker.path("cornerIndex").asInt()).isPositive();
+                assertThat(marker.path("distanceToCornerMeters").asInt())
+                        .isIn(50, 100, 150, 200, 250, 300);
+                assertThat(marker.path("side").asText()).isIn("left", "right");
+                assertThat(marker.path("position").path("x").isNumber()).isTrue();
+                assertThat(marker.path("position").path("y").isNumber()).isTrue();
+            }
+            JsonNode barrierOpenings = definition.path("barrierOpenings");
+            assertThat(barrierOpenings.isArray()).isTrue();
+            if ("monza".equals(track.getId())) {
+                assertThat(barrierOpenings).hasSize(1);
+                assertThat(barrierOpenings.get(0).path("id").asText())
+                        .isEqualTo("rettifilo-escape-access");
+                assertThat(barrierOpenings.get(0).path("reason").asText())
+                        .isEqualTo("escape-road-access");
+            } else {
+                assertThat(barrierOpenings).isEmpty();
+            }
             assertThat(authoredStructures).isGreaterThanOrEqualTo(5);
             assertThat(grandstands).isGreaterThanOrEqualTo(3);
             assertThat(hasStartAreaBuilding).isTrue();
@@ -218,7 +241,11 @@ class TrackCatalogIntegrationTest {
                 .andExpect(jsonPath("$.sceneryLayout.escapeRoads[0].id").value("rettifilo-slalom"))
                 .andExpect(jsonPath("$.sceneryLayout.escapeRoads[0].affectsPhysics").value(false))
                 .andExpect(jsonPath("$.sceneryLayout.escapeRoads[0].obstacleRows.length()")
-                        .value(org.hamcrest.Matchers.greaterThanOrEqualTo(5)));
+                        .value(org.hamcrest.Matchers.greaterThanOrEqualTo(5)))
+                .andExpect(jsonPath("$.barrierOpenings.length()").value(1))
+                .andExpect(jsonPath("$.barrierOpenings[0].id").value("rettifilo-escape-access"))
+                .andExpect(jsonPath("$.sceneryLayout.brakingMarkers[?(@.distanceToCornerMeters == 300)]")
+                        .isNotEmpty());
 
         mockMvc.perform(get("/api/tracks/lusail"))
                 .andExpect(status().isOk())

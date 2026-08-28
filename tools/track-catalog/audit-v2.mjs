@@ -11,7 +11,7 @@ const mirrorDirectory =
   mirrorFlag >= 0 ? resolve(repositoryRoot, process.argv[mirrorFlag + 1]) : null
 
 const VERSION = '2.0.0'
-const CATALOG_VERSION = '2026.9'
+const CATALOG_VERSION = '2026.10'
 const PHYSICS_VERSION = '2.0.0'
 const TRACK_COUNT = 24
 const sharedFiles = [
@@ -319,6 +319,7 @@ function validateEscapeRoads(track, entry) {
   const allIds = new Set([
     ...track.sceneryLayout.landmarks.map((object) => object.id),
     ...track.sceneryLayout.staticObjects.map((object) => object.id),
+    ...track.sceneryLayout.brakingMarkers.map((marker) => marker.id),
   ])
   invariant(
     !track.sceneryLayout.staticObjects.some(
@@ -413,6 +414,82 @@ function validateEscapeRoads(track, entry) {
   }
 }
 
+function properSegmentsIntersect(a, b, c, d) {
+  const cross = (origin, first, second) =>
+    (first.x - origin.x) * (second.y - origin.y) -
+    (first.y - origin.y) * (second.x - origin.x)
+  const abC = cross(a, b, c)
+  const abD = cross(a, b, d)
+  const cdA = cross(c, d, a)
+  const cdB = cross(c, d, b)
+  return abC * abD < -1e-8 && cdA * cdB < -1e-8
+}
+
+function validateBrakingMarkers(track, entry) {
+  const markers = track.sceneryLayout.brakingMarkers
+  invariant(Array.isArray(markers), `${entry.id} braking marker collection`)
+  invariant(markers.length >= 4, `${entry.id} meaningful braking marker coverage`)
+  const ids = new Set()
+  const byCorner = new Map()
+  const allowedDistances = new Set([50, 100, 150, 200, 250, 300])
+
+  for (const marker of markers) {
+    invariant(typeof marker.id === 'string' && marker.id.length > 0, `${entry.id} braking marker id`)
+    invariant(!ids.has(marker.id), `${entry.id} unique braking marker id`)
+    ids.add(marker.id)
+    invariant(
+      Number.isInteger(marker.cornerIndex) && marker.cornerIndex >= 1,
+      `${entry.id} braking marker corner`,
+    )
+    invariant(
+      allowedDistances.has(marker.distanceToCornerMeters),
+      `${entry.id} braking marker distance`,
+    )
+    invariant(
+      marker.trackDistanceMeters >= 0 && marker.trackDistanceMeters < track.lengthMeters,
+      `${entry.id} braking marker track distance`,
+    )
+    invariant(marker.side === 'left' || marker.side === 'right', `${entry.id} braking marker side`)
+    invariant(
+      Number.isFinite(marker.position.x) && Number.isFinite(marker.position.y),
+      `${entry.id} braking marker position`,
+    )
+    invariant(Number.isFinite(marker.rotation), `${entry.id} braking marker rotation`)
+    const barrier = track.barrierGeometry.segments.find(
+      (segment) =>
+        segment.side === marker.side &&
+        marker.trackDistanceMeters >= segment.fromDistanceMeters - 0.001 &&
+        marker.trackDistanceMeters <= segment.toDistanceMeters + 0.001,
+    )
+    invariant(Boolean(barrier), `${entry.id} braking marker canonical barrier`)
+    invariant(
+      marker.elevationLayer === barrier.path[0].elevationLayer,
+      `${entry.id} braking marker elevation`,
+    )
+    const projection = projectPointToPolyline(marker.position, barrier.path)
+    invariant(Boolean(projection), `${entry.id} braking marker barrier projection`)
+    invariant(
+      projection.distanceMeters >= 0.2 && projection.distanceMeters <= 1.15,
+      `${entry.id} braking marker stays beside canonical protection`,
+    )
+    const cornerMarkers = byCorner.get(marker.cornerIndex) ?? []
+    cornerMarkers.push(marker.distanceToCornerMeters)
+    byCorner.set(marker.cornerIndex, cornerMarkers)
+  }
+
+  invariant(byCorner.size >= 2, `${entry.id} braking marker zones`)
+  for (const [cornerIndex, distances] of byCorner) {
+    distances.sort((first, second) => second - first)
+    invariant(distances.at(-1) === 50, `${entry.id} turn ${cornerIndex} 50 m board`)
+    for (let index = 1; index < distances.length; index += 1) {
+      invariant(
+        distances[index - 1] - distances[index] === 50,
+        `${entry.id} turn ${cornerIndex} descending braking boards`,
+      )
+    }
+  }
+}
+
 function validateTrackInfrastructure(track, entry) {
   invariant(track.pitLane.path.length >= 25, `${entry.id} detailed pit path`)
   const pitStyle = track.pitLane.visualStyle
@@ -469,6 +546,7 @@ function validateTrackInfrastructure(track, entry) {
     `${entry.id} start gantry`,
   )
   validateEscapeRoads(track, entry)
+  validateBrakingMarkers(track, entry)
   const authoredStructures = track.sceneryLayout.staticObjects.filter(
     (object) => object.kind !== 'start-gantry',
   )
@@ -1039,6 +1117,26 @@ function validateTrack(track, entry, vehicle) {
   invariant(track.id === entry.id, `${entry.id} id`)
   invariant(track.lengthMeters === entry.lengthMeters, `${entry.id} length`)
   invariant(track.barrierGeometry?.segments?.length >= 2, `${entry.id} barriers`)
+  invariant(Array.isArray(track.barrierOpenings), `${entry.id} barrier openings`)
+  const openingIds = new Set()
+  for (const opening of track.barrierOpenings) {
+    invariant(typeof opening.id === 'string' && opening.id.length > 0, `${entry.id} barrier opening id`)
+    invariant(!openingIds.has(opening.id), `${entry.id} unique barrier opening id`)
+    openingIds.add(opening.id)
+    invariant(opening.side === 'left' || opening.side === 'right', `${entry.id} barrier opening side`)
+    invariant(
+      opening.fromDistanceMeters >= 0 &&
+        opening.toDistanceMeters <= track.lengthMeters &&
+        opening.toDistanceMeters > opening.fromDistanceMeters,
+      `${entry.id} barrier opening range`,
+    )
+    invariant(opening.reason === 'escape-road-access', `${entry.id} barrier opening reason`)
+  }
+  if (entry.id === 'monza') {
+    invariant(track.barrierOpenings.length === 1, 'monza Rettifilo barrier opening')
+  } else {
+    invariant(track.barrierOpenings.length === 0, `${entry.id} has no barrier opening`)
+  }
 
   const curbIndexes = new Set()
   for (const curb of track.curbs) {
@@ -1103,6 +1201,19 @@ function validateTrack(track, entry, vehicle) {
         )
       }
     }
+    for (let firstIndex = 0; firstIndex < segment.path.length - 1; firstIndex += 1) {
+      for (let secondIndex = firstIndex + 2; secondIndex < segment.path.length - 1; secondIndex += 1) {
+        invariant(
+          !properSegmentsIntersect(
+            segment.path[firstIndex],
+            segment.path[firstIndex + 1],
+            segment.path[secondIndex],
+            segment.path[secondIndex + 1],
+          ),
+          `${entry.id} ${segment.side} canonical barrier self-intersection in segment ${segment.index} between edges ${firstIndex}-${firstIndex + 1} and ${secondIndex}-${secondIndex + 1}`,
+        )
+      }
+    }
     const coverageKey = `${segment.trackLimitSegmentIndex}:${segment.side}`
     const coverage = coverageBySide.get(coverageKey) ?? []
     coverage.push(segment)
@@ -1112,7 +1223,26 @@ function validateTrack(track, entry, vehicle) {
   for (const trackLimit of track.trackLimits.segments) {
     for (const side of ['left', 'right']) {
       const coverageKey = `${trackLimit.index}:${side}`
-      const coverage = (coverageBySide.get(coverageKey) ?? [])
+      const coverage = [
+        ...(coverageBySide.get(coverageKey) ?? []),
+        ...track.barrierOpenings
+          .filter(
+            (opening) =>
+              opening.side === side &&
+              opening.fromDistanceMeters < trackLimit.toDistanceMeters - 0.001 &&
+              opening.toDistanceMeters > trackLimit.fromDistanceMeters + 0.001,
+          )
+          .map((opening) => ({
+            fromDistanceMeters: Math.max(
+              opening.fromDistanceMeters,
+              trackLimit.fromDistanceMeters,
+            ),
+            toDistanceMeters: Math.min(
+              opening.toDistanceMeters,
+              trackLimit.toDistanceMeters,
+            ),
+          })),
+      ]
         .sort((left, right) => left.fromDistanceMeters - right.fromDistanceMeters)
       invariant(coverage.length > 0, `${entry.id} ${side} barrier coverage`)
       let expectedFrom = trackLimit.fromDistanceMeters
@@ -1137,8 +1267,17 @@ function validateTrack(track, entry, vehicle) {
           first.fromDistanceMeters - second.fromDistanceMeters,
       )
     for (let index = 1; index < segments.length; index += 1) {
-      const previous = segments[index - 1].path.at(-1)
-      const current = segments[index].path[0]
+      const previousSegment = segments[index - 1]
+      const currentSegment = segments[index]
+      const openingBetween = track.barrierOpenings.some(
+        (opening) =>
+          opening.side === side &&
+          Math.abs(opening.fromDistanceMeters - previousSegment.toDistanceMeters) <= 0.001 &&
+          Math.abs(opening.toDistanceMeters - currentSegment.fromDistanceMeters) <= 0.001,
+      )
+      if (openingBetween) continue
+      const previous = previousSegment.path.at(-1)
+      const current = currentSegment.path[0]
       invariant(
         Math.hypot(previous.x - current.x, previous.y - current.y) <= 0.002,
         `${entry.id} ${side} canonical barrier continuity`,

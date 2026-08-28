@@ -7,8 +7,12 @@ import {
   infrastructureReferencesFor,
 } from './track-infrastructure-v2.mjs'
 import { curbFidelityProfileFor } from './track-curbs-v2.mjs'
-import { escapeRoadsFor } from './track-escape-roads-v2.mjs'
+import {
+  barrierOpeningsFor,
+  escapeRoadsFor,
+} from './track-escape-roads-v2.mjs'
 import { turnAnchorsFor } from './track-turn-anchors-v2.mjs'
+import { brakingMarkerProfileFor } from './track-braking-markers-v2.mjs'
 
 const toolDirectory = dirname(fileURLToPath(import.meta.url))
 const repositoryRoot = resolve(toolDirectory, '..', '..')
@@ -17,7 +21,7 @@ const v2Directory = resolve(repositoryRoot, 'contracts', 'module-2', 'v2')
 const checkOnly = process.argv.includes('--check')
 
 const SCHEMA_VERSION = '2.0.0'
-const CATALOG_VERSION = '2026.9'
+const CATALOG_VERSION = '2026.10'
 const PHYSICS_CONTRACT_VERSION = '2.0.0'
 const ROUND_DECIMALS = 3
 const CHUNK_LENGTH_METERS = 250
@@ -28,6 +32,7 @@ const CURB_CONTINUITY_GAP_METERS = 1.5
 const GRANDSTAND_FENCE_MARGIN_METERS = 54
 const STRUCTURE_BARRIER_CLEARANCE_METERS = 4
 const PIT_BARRIER_CLEARANCE_METERS = 2
+const MAX_BARRIER_OFFSET_SLOPE = 0.42
 
 const fullyFencedStreetCircuits = new Set([
   'baku',
@@ -169,6 +174,31 @@ function adjacentArmSafeOffset(track, side, distanceMeters, desiredOffset) {
   }
   let safeOffset = desiredOffset
 
+  const beforeTangent = tangentAtDistance(
+    track.centerline,
+    moduloDistance(distanceMeters - 6, track.lengthMeters),
+    track.lengthMeters,
+  )
+  const afterTangent = tangentAtDistance(
+    track.centerline,
+    moduloDistance(distanceMeters + 6, track.lengthMeters),
+    track.lengthMeters,
+  )
+  const signedAngle = Math.atan2(
+    beforeTangent.x * afterTangent.y - beforeTangent.y * afterTangent.x,
+    beforeTangent.x * afterTangent.x + beforeTangent.y * afterTangent.y,
+  )
+  const sideIsInsideTurn =
+    (signedAngle > 0 && side === 'left') ||
+    (signedAngle < 0 && side === 'right')
+  if (sideIsInsideTurn && Math.abs(signedAngle) > 0.01) {
+    const localRadiusMeters = 12 / Math.abs(signedAngle)
+    // An inner offset that reaches the curve radius folds back over itself.
+    // Keep a conservative margin so the canonical wall remains a single,
+    // smooth face even through tight chicanes and hairpins.
+    safeOffset = Math.min(safeOffset, localRadiusMeters * 0.72)
+  }
+
   for (const candidate of track.centerline) {
     if (candidate.elevationLayer !== center.elevationLayer) continue
     if (
@@ -203,7 +233,7 @@ function adjacentArmSafeOffset(track, side, distanceMeters, desiredOffset) {
   return Math.max(center.halfWidthMeters + 0.35, safeOffset)
 }
 
-function smoothedBarrierFaceOffset(track, side, distanceMeters) {
+function desiredBarrierFaceOffset(track, side, distanceMeters) {
   const sampleOffsets = [-1, -2 / 3, -1 / 3, 0, 1 / 3, 2 / 3, 1].map(
     (factor) => factor * BARRIER_TRANSITION_RADIUS_METERS,
   )
@@ -215,7 +245,89 @@ function smoothedBarrierFaceOffset(track, side, distanceMeters) {
         weights[index],
     0,
   ) / weights.reduce((total, weight) => total + weight, 0)
-  return adjacentArmSafeOffset(track, side, distanceMeters, desired)
+  return desired
+}
+
+const stabilizedBarrierOffsetCache = new WeakMap()
+
+function stabilizedBarrierOffsets(track, side) {
+  let bySide = stabilizedBarrierOffsetCache.get(track)
+  if (!bySide) {
+    bySide = new Map()
+    stabilizedBarrierOffsetCache.set(track, bySide)
+  }
+  const cached = bySide.get(side)
+  if (cached) return cached
+
+  const distances = [...new Set([
+    0,
+    track.lengthMeters,
+    ...track.centerline.map((point) => point.distanceMeters),
+    ...track.trackLimits.segments.flatMap((segment) => [
+      segment.fromDistanceMeters,
+      segment.toDistanceMeters,
+    ]),
+  ].map((distance) => round(distance)))].sort((first, second) => first - second)
+
+  const samples = distances.map((distanceMeters) => {
+    const desired = desiredBarrierFaceOffset(track, side, distanceMeters)
+    return {
+      distanceMeters,
+      offsetMeters: adjacentArmSafeOffset(
+        track,
+        side,
+        distanceMeters,
+        desired,
+      ),
+    }
+  })
+
+  // A protection face may move inward to clear a neighboring track arm, but
+  // it cannot jump there between two five-metre samples. Propagate every local
+  // cap in both directions, producing a continuous, bounded transition. This
+  // replaces the jagged saw-tooth offsets that were especially visible on
+  // thick Tecpro and tyre barriers.
+  for (let pass = 0; pass < 4; pass += 1) {
+    for (let index = 1; index < samples.length; index += 1) {
+      const span = samples[index].distanceMeters - samples[index - 1].distanceMeters
+      samples[index].offsetMeters = Math.min(
+        samples[index].offsetMeters,
+        samples[index - 1].offsetMeters + span * MAX_BARRIER_OFFSET_SLOPE,
+      )
+    }
+    for (let index = samples.length - 2; index >= 0; index -= 1) {
+      const span = samples[index + 1].distanceMeters - samples[index].distanceMeters
+      samples[index].offsetMeters = Math.min(
+        samples[index].offsetMeters,
+        samples[index + 1].offsetMeters + span * MAX_BARRIER_OFFSET_SLOPE,
+      )
+    }
+  }
+  const closedOffset = Math.min(
+    samples[0].offsetMeters,
+    samples.at(-1).offsetMeters,
+  )
+  samples[0].offsetMeters = closedOffset
+  samples.at(-1).offsetMeters = closedOffset
+  bySide.set(side, samples)
+  return samples
+}
+
+function smoothedBarrierFaceOffset(track, side, distanceMeters) {
+  const normalized = Math.max(
+    0,
+    Math.min(track.lengthMeters, distanceMeters),
+  )
+  const samples = stabilizedBarrierOffsets(track, side)
+  const nextIndex = samples.findIndex(
+    (sample) => sample.distanceMeters >= normalized - 1e-6,
+  )
+  if (nextIndex <= 0) return samples[0].offsetMeters
+  const end = samples[nextIndex]
+  const start = samples[nextIndex - 1]
+  const span = end.distanceMeters - start.distanceMeters
+  const ratio = span <= 1e-9 ? 0 : (normalized - start.distanceMeters) / span
+  return start.offsetMeters + (end.offsetMeters - start.offsetMeters) * ratio
 }
 
 function barrierFacePoint(track, side, distanceMeters) {
@@ -296,34 +408,244 @@ function splitPathByElevationLayer(path) {
   return groups
 }
 
+function roundBarrierPathCorners(path) {
+  if (path.length < 3) return path
+  const rounded = [path[0]]
+  for (let index = 1; index < path.length - 1; index += 1) {
+    const previous = path[index - 1]
+    const corner = path[index]
+    const next = path[index + 1]
+    const incoming = { x: corner.x - previous.x, y: corner.y - previous.y }
+    const outgoing = { x: next.x - corner.x, y: next.y - corner.y }
+    const incomingLength = Math.hypot(incoming.x, incoming.y)
+    const outgoingLength = Math.hypot(outgoing.x, outgoing.y)
+    if (incomingLength <= 1e-6 || outgoingLength <= 1e-6) continue
+    const incomingDirection = {
+      x: incoming.x / incomingLength,
+      y: incoming.y / incomingLength,
+    }
+    const outgoingDirection = {
+      x: outgoing.x / outgoingLength,
+      y: outgoing.y / outgoingLength,
+    }
+    const angle = Math.abs(Math.atan2(
+      incomingDirection.x * outgoingDirection.y -
+        incomingDirection.y * outgoingDirection.x,
+      incomingDirection.x * outgoingDirection.x +
+        incomingDirection.y * outgoingDirection.y,
+    ))
+    if (angle < 0.32) {
+      rounded.push(corner)
+      continue
+    }
+    const trimMeters = Math.min(incomingLength, outgoingLength) * 0.28
+    const entryRatio = trimMeters / incomingLength
+    const exitRatio = trimMeters / outgoingLength
+    const entry = {
+      x: corner.x - incomingDirection.x * trimMeters,
+      y: corner.y - incomingDirection.y * trimMeters,
+      distanceMeters:
+        corner.distanceMeters -
+        (corner.distanceMeters - previous.distanceMeters) * entryRatio,
+      elevationLayer: corner.elevationLayer,
+    }
+    const exit = {
+      x: corner.x + outgoingDirection.x * trimMeters,
+      y: corner.y + outgoingDirection.y * trimMeters,
+      distanceMeters:
+        corner.distanceMeters +
+        (next.distanceMeters - corner.distanceMeters) * exitRatio,
+      elevationLayer: corner.elevationLayer,
+    }
+    for (const ratio of [0, 0.25, 0.5, 0.75, 1]) {
+      const inverse = 1 - ratio
+      rounded.push({
+        x: round(
+          inverse * inverse * entry.x +
+            2 * inverse * ratio * corner.x +
+            ratio * ratio * exit.x,
+        ),
+        y: round(
+          inverse * inverse * entry.y +
+            2 * inverse * ratio * corner.y +
+            ratio * ratio * exit.y,
+        ),
+        distanceMeters: round(
+          entry.distanceMeters +
+            (exit.distanceMeters - entry.distanceMeters) * ratio,
+        ),
+        elevationLayer: corner.elevationLayer,
+      })
+    }
+  }
+  rounded.push(path.at(-1))
+  return rounded.filter(
+    (point, index) =>
+      index === 0 ||
+      point.distanceMeters > rounded[index - 1].distanceMeters + 1e-4,
+  )
+}
+
+function signedArea(first, second, third) {
+  return (
+    (second.x - first.x) * (third.y - first.y) -
+    (second.y - first.y) * (third.x - first.x)
+  )
+}
+
+function properSegmentsIntersect(firstStart, firstEnd, secondStart, secondEnd) {
+  const firstSideStart = signedArea(firstStart, firstEnd, secondStart)
+  const firstSideEnd = signedArea(firstStart, firstEnd, secondEnd)
+  const secondSideStart = signedArea(secondStart, secondEnd, firstStart)
+  const secondSideEnd = signedArea(secondStart, secondEnd, firstEnd)
+  return (
+    firstSideStart * firstSideEnd < -1e-8 &&
+    secondSideStart * secondSideEnd < -1e-8
+  )
+}
+
+function segmentIntersectionPoint(firstStart, firstEnd, secondStart, secondEnd) {
+  const firstDirection = {
+    x: firstEnd.x - firstStart.x,
+    y: firstEnd.y - firstStart.y,
+  }
+  const secondDirection = {
+    x: secondEnd.x - secondStart.x,
+    y: secondEnd.y - secondStart.y,
+  }
+  const denominator =
+    firstDirection.x * secondDirection.y -
+    firstDirection.y * secondDirection.x
+  const betweenStarts = {
+    x: secondStart.x - firstStart.x,
+    y: secondStart.y - firstStart.y,
+  }
+  const ratio =
+    (betweenStarts.x * secondDirection.y -
+      betweenStarts.y * secondDirection.x) /
+    denominator
+  return {
+    x: round(firstStart.x + firstDirection.x * ratio),
+    y: round(firstStart.y + firstDirection.y * ratio),
+  }
+}
+
+function removeBarrierPathLoops(path) {
+  const simplePath = [...path]
+  let changed = true
+  while (changed) {
+    changed = false
+    for (let firstIndex = 0; firstIndex < simplePath.length - 1; firstIndex += 1) {
+      for (
+        let secondIndex = firstIndex + 2;
+        secondIndex < simplePath.length - 1;
+        secondIndex += 1
+      ) {
+        if (
+          !properSegmentsIntersect(
+            simplePath[firstIndex],
+            simplePath[firstIndex + 1],
+            simplePath[secondIndex],
+            simplePath[secondIndex + 1],
+          )
+        ) {
+          continue
+        }
+        const intersection = segmentIntersectionPoint(
+          simplePath[firstIndex],
+          simplePath[firstIndex + 1],
+          simplePath[secondIndex],
+          simplePath[secondIndex + 1],
+        )
+        simplePath.splice(firstIndex + 1, secondIndex - firstIndex, {
+          ...intersection,
+          distanceMeters: round(
+            (simplePath[firstIndex].distanceMeters +
+              simplePath[secondIndex + 1].distanceMeters) /
+              2,
+          ),
+          elevationLayer: simplePath[firstIndex].elevationLayer,
+        })
+        changed = true
+        break
+      }
+      if (changed) break
+    }
+  }
+  return simplePath
+}
+
 function createBarrierGeometry(track) {
   const segments = []
   for (const trackLimitSegment of track.trackLimits.segments) {
     for (const side of ['left', 'right']) {
       const sideEnvironment = trackLimitSegment[side]
-      const distances = distancesForSegment(track, trackLimitSegment)
-      const path = distances.map((distanceMeters) =>
-        barrierFacePoint(track, side, distanceMeters),
+      const baseDistances = distancesForSegment(track, trackLimitSegment)
+      const breakpoints = new Set(baseDistances)
+      const openings = (track.barrierOpenings ?? []).filter(
+        (opening) =>
+          opening.side === side &&
+          opening.fromDistanceMeters < trackLimitSegment.toDistanceMeters - 1e-6 &&
+          opening.toDistanceMeters > trackLimitSegment.fromDistanceMeters + 1e-6,
       )
-      for (const layerPath of splitPathByElevationLayer(path)) {
-        const fromDistanceMeters = layerPath[0].distanceMeters
-        const toDistanceMeters = layerPath.at(-1).distanceMeters
-        segments.push({
-          index: segments.length,
-          trackLimitSegmentIndex: trackLimitSegment.index,
-          side,
-          fromDistanceMeters,
-          toDistanceMeters,
-          material: sideEnvironment.barrier,
-          thicknessMeters: barrierThicknessMeters[sideEnvironment.barrier],
-          collisionLayer: 'track-barrier',
-          chunkIndexes: chunksForRange(
-            track.chunks,
+      for (const opening of openings) {
+        breakpoints.add(
+          Math.max(trackLimitSegment.fromDistanceMeters, opening.fromDistanceMeters),
+        )
+        breakpoints.add(
+          Math.min(trackLimitSegment.toDistanceMeters, opening.toDistanceMeters),
+        )
+      }
+      const distances = [...breakpoints].sort((first, second) => first - second)
+      const visibleRanges = []
+      let currentRange = []
+      for (let rangeIndex = 0; rangeIndex < distances.length - 1; rangeIndex += 1) {
+        const from = distances[rangeIndex]
+        const to = distances[rangeIndex + 1]
+        const midpoint = (from + to) / 2
+        const isOpening =
+          openings.some(
+            (opening) =>
+              midpoint > opening.fromDistanceMeters + 1e-6 &&
+              midpoint < opening.toDistanceMeters - 1e-6,
+          )
+        if (isOpening) {
+          if (currentRange.length >= 2) visibleRanges.push(currentRange)
+          currentRange = []
+          continue
+        }
+        if (currentRange.length === 0) currentRange.push(from)
+        currentRange.push(to)
+      }
+      if (currentRange.length >= 2) visibleRanges.push(currentRange)
+
+      for (const rangeDistances of visibleRanges) {
+        const path = rangeDistances.map((distanceMeters) =>
+          barrierFacePoint(track, side, distanceMeters),
+        )
+        for (const rawLayerPath of splitPathByElevationLayer(path)) {
+          const layerPath = removeBarrierPathLoops(
+            roundBarrierPathCorners(rawLayerPath),
+          )
+          const fromDistanceMeters = layerPath[0].distanceMeters
+          const toDistanceMeters = layerPath.at(-1).distanceMeters
+          segments.push({
+            index: segments.length,
+            trackLimitSegmentIndex: trackLimitSegment.index,
+            side,
             fromDistanceMeters,
             toDistanceMeters,
-          ),
-          path: layerPath,
-        })
+            material: sideEnvironment.barrier,
+            thicknessMeters: barrierThicknessMeters[sideEnvironment.barrier],
+            collisionLayer: 'track-barrier',
+            chunkIndexes: chunksForRange(
+              track.chunks,
+              fromDistanceMeters,
+              toDistanceMeters,
+            ),
+            path: layerPath,
+          })
+        }
       }
     }
   }
@@ -1223,7 +1545,67 @@ function createSceneryLayout(track, profile) {
     landmarks: [],
     staticObjects,
     escapeRoads: escapeRoadsFor(track.id),
+    brakingMarkers: createBrakingMarkers(track),
   }
+}
+
+function createBrakingMarkers(track) {
+  const markerProfiles = brakingMarkerProfileFor(track.id)
+  const anchors = detectTurnAnchors(
+    track,
+    curbFidelityProfileFor(track.id).turnCount,
+  )
+  const markers = []
+
+  for (const profile of markerProfiles) {
+    const turn = anchors[profile.cornerIndex - 1]
+    if (!turn) {
+      throw new Error(
+        `${track.id}: braking marker corner ${profile.cornerIndex} is not defined`,
+      )
+    }
+    const side = turn.signedCurvature >= 0 ? 'right' : 'left'
+    for (
+      let distanceToCornerMeters = profile.maximumDistanceMeters;
+      distanceToCornerMeters >= 50;
+      distanceToCornerMeters -= 50
+    ) {
+      const trackDistanceMeters = moduloDistance(
+        turn.distanceMeters - distanceToCornerMeters,
+        track.lengthMeters,
+      )
+      const tangent = tangentAtDistance(
+        track.centerline,
+        trackDistanceMeters,
+        track.lengthMeters,
+      )
+      const direction = side === 'left' ? 1 : -1
+      const outward = {
+        x: -tangent.y * direction,
+        y: tangent.x * direction,
+      }
+      const face = barrierFacePoint(track, side, trackDistanceMeters)
+      // Boards sit just track-side of the canonical protection face. This
+      // keeps them readable beside the outer fence without placing scenery
+      // behind a wall or introducing a collider into the runoff area.
+      const position = {
+        x: round(face.x - outward.x * 0.75),
+        y: round(face.y - outward.y * 0.75),
+      }
+      markers.push({
+        id: `turn-${profile.cornerIndex}-${distanceToCornerMeters}m`,
+        cornerIndex: profile.cornerIndex,
+        distanceToCornerMeters,
+        trackDistanceMeters: round(trackDistanceMeters),
+        side,
+        position,
+        rotation: round(Math.atan2(tangent.y, tangent.x), 6),
+        elevationLayer: face.elevationLayer,
+      })
+    }
+  }
+
+  return markers
 }
 
 function createBaseTrackLimitsV2(track) {
@@ -1311,6 +1693,7 @@ function createTrackV2(track) {
     { ...track, trackLimits: baseTrackLimits, curbs: [] },
     infrastructure.startOffsetMeters ?? 0,
   )
+  rebasedBaseTrack.barrierOpenings = barrierOpeningsFor(track.id)
   const authoredCurbs = createAuthoredCurbs(
     rebasedBaseTrack,
     curbFidelityProfileFor(track.id),
@@ -1415,7 +1798,11 @@ function createTrackV2(track) {
         'that do not participate in physics. It also uses Grand Prix Guides as a ' +
         'secondary satellite cross-check while FIA and circuit material remain primary, ' +
         'and records the last technically verifiable 2025 configuration for Mexico ' +
-        `City and the latest official project for Madrid.${clearanceTransformation}`,
+        'City and the latest official project for Madrid. Catalog 2026.10 publishes ' +
+        'authored braking-reference boards only on material braking approaches and ' +
+        'keeps their placement immediately track-side of the canonical outer protection; ' +
+        'it also refines the Rettifilo escape corridor for uninterrupted clearance. ' +
+        `${clearanceTransformation}`,
     },
   }
 }
@@ -1444,7 +1831,12 @@ function createTrackSchema(v1Schema) {
   const required = [...v1Schema.required]
   required.splice(required.indexOf('id'), 0, 'physicsContractVersion')
   const sourceIndex = required.indexOf('source')
-  required.splice(sourceIndex < 0 ? required.length : sourceIndex, 0, 'barrierGeometry')
+  required.splice(
+    sourceIndex < 0 ? required.length : sourceIndex,
+    0,
+    'barrierOpenings',
+    'barrierGeometry',
+  )
   const pitLane = v1Schema.properties.pitLane
   const sceneryLayout = v1Schema.properties.sceneryLayout
   const sceneryObject = v1Schema.$defs.sceneryObject
@@ -1470,14 +1862,26 @@ function createTrackSchema(v1Schema) {
       },
       sceneryLayout: {
         ...sceneryLayout,
-        required: [...sceneryLayout.required, 'escapeRoads'],
+        required: [
+          ...sceneryLayout.required,
+          'escapeRoads',
+          'brakingMarkers',
+        ],
         properties: {
           ...sceneryLayout.properties,
           escapeRoads: {
             type: 'array',
             items: { $ref: '#/$defs/escapeRoad' },
           },
+          brakingMarkers: {
+            type: 'array',
+            items: { $ref: '#/$defs/brakingMarker' },
+          },
         },
+      },
+      barrierOpenings: {
+        type: 'array',
+        items: { $ref: '#/$defs/barrierOpening' },
       },
       barrierGeometry: { $ref: '#/$defs/barrierGeometry' },
     },
@@ -1612,6 +2016,50 @@ function createTrackSchema(v1Schema) {
             minItems: 3,
             items: { $ref: '#/$defs/escapeObstacleRow' },
           },
+        },
+      },
+      brakingMarker: {
+        type: 'object',
+        additionalProperties: false,
+        required: [
+          'id',
+          'cornerIndex',
+          'distanceToCornerMeters',
+          'trackDistanceMeters',
+          'side',
+          'position',
+          'rotation',
+          'elevationLayer',
+        ],
+        properties: {
+          id: { type: 'string', minLength: 1 },
+          cornerIndex: { type: 'integer', minimum: 1, maximum: 30 },
+          distanceToCornerMeters: {
+            enum: [50, 100, 150, 200, 250, 300],
+          },
+          trackDistanceMeters: { type: 'number', minimum: 0 },
+          side: { enum: ['left', 'right'] },
+          position: { $ref: '#/$defs/vector' },
+          rotation: { type: 'number' },
+          elevationLayer: { type: 'integer', minimum: 0, maximum: 3 },
+        },
+      },
+      barrierOpening: {
+        type: 'object',
+        additionalProperties: false,
+        required: [
+          'id',
+          'side',
+          'fromDistanceMeters',
+          'toDistanceMeters',
+          'reason',
+        ],
+        properties: {
+          id: { type: 'string', minLength: 1 },
+          side: { enum: ['left', 'right'] },
+          fromDistanceMeters: { type: 'number', minimum: 0 },
+          toDistanceMeters: { type: 'number', exclusiveMinimum: 0 },
+          reason: { const: 'escape-road-access' },
         },
       },
       curbSegment: {
