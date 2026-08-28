@@ -58,7 +58,7 @@ class LocalRaceResultIntegrationTest {
         mockMvc.perform(post("/api/races/local-result")
                         .header(HttpHeaders.AUTHORIZATION, bearer(session.token()))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(request("interlagos", "2026.10", "local", entries)))
+                        .content(request("interlagos", "2026.11", "local", entries)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.persistedCount").value(2))
                 .andExpect(jsonPath("$.resultIds.length()").value(2));
@@ -66,7 +66,7 @@ class LocalRaceResultIntegrationTest {
         List<RaceResult> stored = raceResultRepository.findAll();
         assertThat(stored).hasSize(2);
         assertThat(stored).extracting(RaceResult::getTrackId).containsOnly("interlagos");
-        assertThat(stored).extracting(RaceResult::getTrackCatalogVersion).containsOnly("2026.10");
+        assertThat(stored).extracting(RaceResult::getTrackCatalogVersion).containsOnly("2026.11");
         assertThat(stored).extracting(RaceResult::getPhysicsContractVersion).containsOnly("2.0.0");
         assertThat(stored).extracting(RaceResult::getMode).containsOnly(RaceMode.LOCAL);
         assertThat(stored).extracting(RaceResult::getPosition).containsExactlyInAnyOrder(1, 2);
@@ -84,7 +84,7 @@ class LocalRaceResultIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request(
                                 "monaco",
-                                "2026.10",
+                                "2026.11",
                                 "solo",
                                 List.of(entry(null, 1, 205_000, 68_000, true)))))
                 .andExpect(status().isCreated())
@@ -100,7 +100,7 @@ class LocalRaceResultIntegrationTest {
     void shouldRejectMissingAuthenticationAndInvalidModeWithoutPersisting() throws Exception {
         String body = request(
                 "monaco",
-                "2026.10",
+                "2026.11",
                 "online",
                 List.of(entry(null, 1, 205_000, 68_000, true)));
 
@@ -130,7 +130,7 @@ class LocalRaceResultIntegrationTest {
         mockMvc.perform(post("/api/races/local-result")
                         .header(HttpHeaders.AUTHORIZATION, bearer(session.token()))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(request("unknown", "2026.10", "solo", entries)))
+                        .content(request("unknown", "2026.11", "solo", entries)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value("track_not_found"));
 
@@ -152,7 +152,7 @@ class LocalRaceResultIntegrationTest {
 
         Map<String, Object> missingVersion = new LinkedHashMap<>();
         missingVersion.put("trackId", "interlagos");
-        missingVersion.put("trackCatalogVersion", "2026.10");
+        missingVersion.put("trackCatalogVersion", "2026.11");
         missingVersion.put("mode", "solo");
         missingVersion.put("results", entries);
         mockMvc.perform(post("/api/races/local-result")
@@ -181,7 +181,7 @@ class LocalRaceResultIntegrationTest {
         Session other = register("identity-other");
         String spoofedBody = request(
                 "monaco",
-                "2026.10",
+                "2026.11",
                 "solo",
                 List.of(entry(other.userId(), 1, 205_000, 68_000, true)));
 
@@ -212,7 +212,7 @@ class LocalRaceResultIntegrationTest {
         mockMvc.perform(post("/api/races/local-result")
                         .header(HttpHeaders.AUTHORIZATION, bearer(session.token()))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(request("interlagos", "2026.10", "local", duplicatePositions)))
+                        .content(request("interlagos", "2026.11", "local", duplicatePositions)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("invalid_positions"));
 
@@ -221,7 +221,7 @@ class LocalRaceResultIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request(
                                 "interlagos",
-                                "2026.10",
+                                "2026.11",
                                 "solo",
                                 List.of(entry(session.userId(), 1, 50_000, 60_000, true)))))
                 .andExpect(status().isBadRequest())

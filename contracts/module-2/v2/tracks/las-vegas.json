@@ -1,6 +1,6 @@
 {
   "schemaVersion": "2.0.0",
-  "catalogVersion": "2026.10",
+  "catalogVersion": "2026.11",
   "id": "las-vegas",
   "name": "Las Vegas Street Circuit",
   "countryCode": "US",
@@ -16429,17 +16429,116 @@
         "y": 140.569
       }
     ],
+    "garageBarrier": {
+      "side": "left",
+      "material": "concrete-wall",
+      "thicknessMeters": 0.35,
+      "path": [
+        {
+          "x": -98.757,
+          "y": -53.186
+        },
+        {
+          "x": -92.53,
+          "y": -46.529
+        },
+        {
+          "x": -86.522,
+          "y": -40
+        },
+        {
+          "x": -80.376,
+          "y": -33.275
+        },
+        {
+          "x": -74.517,
+          "y": -26.726
+        },
+        {
+          "x": -68.478,
+          "y": -19.906
+        },
+        {
+          "x": -62.439,
+          "y": -13.084
+        },
+        {
+          "x": -56.398,
+          "y": -6.262
+        },
+        {
+          "x": -50.353,
+          "y": 0.564
+        },
+        {
+          "x": -44.311,
+          "y": 7.385
+        },
+        {
+          "x": -38.268,
+          "y": 14.206
+        },
+        {
+          "x": -32.225,
+          "y": 21.026
+        },
+        {
+          "x": -26.175,
+          "y": 27.851
+        },
+        {
+          "x": -20.128,
+          "y": 34.669
+        },
+        {
+          "x": -14.072,
+          "y": 41.494
+        },
+        {
+          "x": -8.02,
+          "y": 48.312
+        },
+        {
+          "x": -1.955,
+          "y": 55.139
+        },
+        {
+          "x": 4.101,
+          "y": 61.95
+        },
+        {
+          "x": 8.835,
+          "y": 67.59
+        },
+        {
+          "x": 14.306,
+          "y": 74.921
+        },
+        {
+          "x": 17.405,
+          "y": 79.42
+        },
+        {
+          "x": 21.569,
+          "y": 87.857
+        },
+        {
+          "x": 24.515,
+          "y": 93.984
+        }
+      ]
+    },
     "visualStyle": {
       "architecture": "permanent-modern",
       "primaryColor": "#d9dad8",
       "secondaryColor": "#333941",
       "accentColor": "#8f6e32",
       "roofColor": "#ecece9",
-      "garageCount": 11,
+      "garageCount": 22,
       "buildingHeightMeters": 20,
       "laneWidthMeters": 13,
-      "garageStartRatio": 0.402269,
-      "garageEndRatio": 0.617731,
+      "garageStartRatio": 0.294539,
+      "garageEndRatio": 0.725461,
       "pitBoxLengthMeters": 7.5,
       "pitBoxDepthMeters": 2.6,
       "pitBoxCenterOffsetMeters": 2.86,
@@ -18032,7 +18131,7 @@
     "dataset": "bacinger/f1-circuits",
     "license": "MIT",
     "url": "https://github.com/bacinger/f1-circuits",
-    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery. Catalog 2026.8 adds per-circuit pit architecture, major buildings, spectator grandstands and safety fencing, closes curb gaps only through continuous curvature and preserves the canonical racing geometry; barrier thickness extends away from the racing surface. Catalog 2026.9 authors curb presence, dimensions and outer paint per numbered corner, publishes measured pit and structure footprints, and represents the Rettifilo straight-ahead escape route with staggered visual block rows that do not participate in physics. It also uses Grand Prix Guides as a secondary satellite cross-check while FIA and circuit material remain primary, and records the last technically verifiable 2025 configuration for Mexico City and the latest official project for Madrid. Catalog 2026.10 publishes authored braking-reference boards only on material braking approaches and keeps their placement immediately track-side of the canonical outer protection; it also refines the Rettifilo escape corridor for uninterrupted clearance. ",
+    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery. Catalog 2026.8 adds per-circuit pit architecture, major buildings, spectator grandstands and safety fencing, closes curb gaps only through continuous curvature and preserves the canonical racing geometry; barrier thickness extends away from the racing surface. Catalog 2026.9 authors curb presence, dimensions and outer paint per numbered corner, publishes measured pit and structure footprints, and represents the Rettifilo straight-ahead escape route with staggered visual block rows that do not participate in physics. It also uses Grand Prix Guides as a secondary satellite cross-check while FIA and circuit material remain primary, and records the last technically verifiable 2025 configuration for Mexico City and the latest official project for Madrid. Catalog 2026.11 publishes authored braking-reference boards only on material braking approaches and keeps their placement immediately track-side of the canonical outer protection; it also refines the Rettifilo escape corridor for uninterrupted clearance. Pit lanes publish physical entry/exit openings and an opaque rear garage barrier aligned to the 22 visual bays, leaving the driving corridor open. ",
     "environmentReferences": [
       {
         "label": "FIA 2025 Las Vegas race director event notes",
@@ -18071,7 +18170,22 @@
       }
     ]
   },
-  "barrierOpenings": [],
+  "barrierOpenings": [
+    {
+      "id": "las-vegas-pit-entry-1",
+      "side": "left",
+      "fromDistanceMeters": 5934.357,
+      "toDistanceMeters": 6011.869,
+      "reason": "pit-entry"
+    },
+    {
+      "id": "las-vegas-pit-exit-1",
+      "side": "left",
+      "fromDistanceMeters": 124.795,
+      "toDistanceMeters": 198.432,
+      "reason": "pit-exit"
+    }
+  ],
   "barrierGeometry": {
     "segments": [
       {
@@ -18373,14 +18487,12 @@
         "trackLimitSegmentIndex": 1,
         "side": "left",
         "fromDistanceMeters": 62.01,
-        "toDistanceMeters": 589.095,
+        "toDistanceMeters": 124.795,
         "material": "tecpro",
         "thicknessMeters": 1.5,
         "collisionLayer": "track-barrier",
         "chunkIndexes": [
-          0,
-          1,
-          2
+          0
         ],
         "path": [
           {
@@ -18510,93 +18622,32 @@
             "elevationLayer": 0
           },
           {
-            "x": 56.25,
-            "y": 109.268,
-            "distanceMeters": 124.919,
+            "x": 56.271,
+            "y": 109.225,
+            "distanceMeters": 124.795,
             "elevationLayer": 0
-          },
+          }
+        ]
+      },
+      {
+        "index": 3,
+        "trackLimitSegmentIndex": 1,
+        "side": "left",
+        "fromDistanceMeters": 198.432,
+        "toDistanceMeters": 589.095,
+        "material": "tecpro",
+        "thicknessMeters": 1.5,
+        "collisionLayer": "track-barrier",
+        "chunkIndexes": [
+          0,
+          1,
+          2
+        ],
+        "path": [
           {
-            "x": 54.681,
-            "y": 111.14,
-            "distanceMeters": 129.916,
-            "elevationLayer": 0
-          },
-          {
-            "x": 52.855,
-            "y": 112.737,
-            "distanceMeters": 134.913,
-            "elevationLayer": 0
-          },
-          {
-            "x": 50.445,
-            "y": 114.295,
-            "distanceMeters": 139.91,
-            "elevationLayer": 0
-          },
-          {
-            "x": 47.355,
-            "y": 115.898,
-            "distanceMeters": 144.907,
-            "elevationLayer": 0
-          },
-          {
-            "x": 43.787,
-            "y": 117.446,
-            "distanceMeters": 149.903,
-            "elevationLayer": 0
-          },
-          {
-            "x": 39.91,
-            "y": 118.889,
-            "distanceMeters": 154.9,
-            "elevationLayer": 0
-          },
-          {
-            "x": 35.909,
-            "y": 120.187,
-            "distanceMeters": 159.897,
-            "elevationLayer": 0
-          },
-          {
-            "x": 31.903,
-            "y": 121.288,
-            "distanceMeters": 164.894,
-            "elevationLayer": 0
-          },
-          {
-            "x": 27.912,
-            "y": 122.176,
-            "distanceMeters": 169.89,
-            "elevationLayer": 0
-          },
-          {
-            "x": 23.911,
-            "y": 122.845,
-            "distanceMeters": 174.887,
-            "elevationLayer": 0
-          },
-          {
-            "x": 19.899,
-            "y": 123.299,
-            "distanceMeters": 179.884,
-            "elevationLayer": 0
-          },
-          {
-            "x": 15.905,
-            "y": 123.531,
-            "distanceMeters": 184.881,
-            "elevationLayer": 0
-          },
-          {
-            "x": 11.936,
-            "y": 123.533,
-            "distanceMeters": 189.878,
-            "elevationLayer": 0
-          },
-          {
-            "x": 7.995,
-            "y": 123.304,
-            "distanceMeters": 194.874,
+            "x": 5.139,
+            "y": 122.96,
+            "distanceMeters": 198.432,
             "elevationLayer": 0
           },
           {
@@ -19100,7 +19151,7 @@
         ]
       },
       {
-        "index": 3,
+        "index": 4,
         "trackLimitSegmentIndex": 1,
         "side": "right",
         "fromDistanceMeters": 62.01,
@@ -19807,7 +19858,7 @@
         ]
       },
       {
-        "index": 4,
+        "index": 5,
         "trackLimitSegmentIndex": 2,
         "side": "left",
         "fromDistanceMeters": 589.095,
@@ -20779,7 +20830,7 @@
         ]
       },
       {
-        "index": 5,
+        "index": 6,
         "trackLimitSegmentIndex": 2,
         "side": "right",
         "fromDistanceMeters": 589.095,
@@ -21751,7 +21802,7 @@
         ]
       },
       {
-        "index": 6,
+        "index": 7,
         "trackLimitSegmentIndex": 3,
         "side": "left",
         "fromDistanceMeters": 1333.215,
@@ -22350,7 +22401,7 @@
         ]
       },
       {
-        "index": 7,
+        "index": 8,
         "trackLimitSegmentIndex": 3,
         "side": "right",
         "fromDistanceMeters": 1333.215,
@@ -22997,7 +23048,7 @@
         ]
       },
       {
-        "index": 8,
+        "index": 9,
         "trackLimitSegmentIndex": 4,
         "side": "left",
         "fromDistanceMeters": 1767.285,
@@ -23126,7 +23177,7 @@
         ]
       },
       {
-        "index": 9,
+        "index": 10,
         "trackLimitSegmentIndex": 4,
         "side": "right",
         "fromDistanceMeters": 1767.285,
@@ -23255,7 +23306,7 @@
         ]
       },
       {
-        "index": 10,
+        "index": 11,
         "trackLimitSegmentIndex": 5,
         "side": "left",
         "fromDistanceMeters": 1829.295,
@@ -23787,7 +23838,7 @@
         ]
       },
       {
-        "index": 11,
+        "index": 12,
         "trackLimitSegmentIndex": 5,
         "side": "right",
         "fromDistanceMeters": 1829.295,
@@ -24295,7 +24346,7 @@
         ]
       },
       {
-        "index": 12,
+        "index": 13,
         "trackLimitSegmentIndex": 6,
         "side": "left",
         "fromDistanceMeters": 2170.35,
@@ -24732,7 +24783,7 @@
         ]
       },
       {
-        "index": 13,
+        "index": 14,
         "trackLimitSegmentIndex": 6,
         "side": "right",
         "fromDistanceMeters": 2170.35,
@@ -25193,7 +25244,7 @@
         ]
       },
       {
-        "index": 14,
+        "index": 15,
         "trackLimitSegmentIndex": 7,
         "side": "left",
         "fromDistanceMeters": 2511.405,
@@ -25731,7 +25782,7 @@
         ]
       },
       {
-        "index": 15,
+        "index": 16,
         "trackLimitSegmentIndex": 7,
         "side": "right",
         "fromDistanceMeters": 2511.405,
@@ -26317,7 +26368,7 @@
         ]
       },
       {
-        "index": 16,
+        "index": 17,
         "trackLimitSegmentIndex": 8,
         "side": "left",
         "fromDistanceMeters": 2914.47,
@@ -26753,7 +26804,7 @@
         ]
       },
       {
-        "index": 17,
+        "index": 18,
         "trackLimitSegmentIndex": 8,
         "side": "right",
         "fromDistanceMeters": 2914.47,
@@ -27141,7 +27192,7 @@
         ]
       },
       {
-        "index": 18,
+        "index": 19,
         "trackLimitSegmentIndex": 9,
         "side": "left",
         "fromDistanceMeters": 3193.515,
@@ -29293,7 +29344,7 @@
         ]
       },
       {
-        "index": 19,
+        "index": 20,
         "trackLimitSegmentIndex": 9,
         "side": "right",
         "fromDistanceMeters": 3193.515,
@@ -31493,7 +31544,7 @@
         ]
       },
       {
-        "index": 20,
+        "index": 21,
         "trackLimitSegmentIndex": 10,
         "side": "left",
         "fromDistanceMeters": 4960.8,
@@ -31767,7 +31818,7 @@
         ]
       },
       {
-        "index": 21,
+        "index": 22,
         "trackLimitSegmentIndex": 10,
         "side": "right",
         "fromDistanceMeters": 4960.8,
@@ -32017,7 +32068,7 @@
         ]
       },
       {
-        "index": 22,
+        "index": 23,
         "trackLimitSegmentIndex": 11,
         "side": "left",
         "fromDistanceMeters": 5084.82,
@@ -32230,7 +32281,7 @@
         ]
       },
       {
-        "index": 23,
+        "index": 24,
         "trackLimitSegmentIndex": 11,
         "side": "right",
         "fromDistanceMeters": 5084.82,
@@ -32467,7 +32518,7 @@
         ]
       },
       {
-        "index": 24,
+        "index": 25,
         "trackLimitSegmentIndex": 12,
         "side": "left",
         "fromDistanceMeters": 5239.845,
@@ -33241,7 +33292,7 @@
         ]
       },
       {
-        "index": 25,
+        "index": 26,
         "trackLimitSegmentIndex": 12,
         "side": "right",
         "fromDistanceMeters": 5239.845,
@@ -34015,17 +34066,16 @@
         ]
       },
       {
-        "index": 26,
+        "index": 27,
         "trackLimitSegmentIndex": 13,
         "side": "left",
         "fromDistanceMeters": 5859.945,
-        "toDistanceMeters": 6076.98,
+        "toDistanceMeters": 5934.357,
         "material": "concrete-wall",
         "thicknessMeters": 0.35,
         "collisionLayer": "track-barrier",
         "chunkIndexes": [
-          23,
-          24
+          23
         ],
         "path": [
           {
@@ -34125,99 +34175,30 @@
             "elevationLayer": 0
           },
           {
-            "x": -167.167,
-            "y": -170.683,
-            "distanceMeters": 5936.171,
+            "x": -168.472,
+            "y": -171.546,
+            "distanceMeters": 5934.357,
             "elevationLayer": 0
-          },
+          }
+        ]
+      },
+      {
+        "index": 28,
+        "trackLimitSegmentIndex": 13,
+        "side": "left",
+        "fromDistanceMeters": 6011.869,
+        "toDistanceMeters": 6076.98,
+        "material": "concrete-wall",
+        "thicknessMeters": 0.35,
+        "collisionLayer": "track-barrier",
+        "chunkIndexes": [
+          24
+        ],
+        "path": [
           {
-            "x": -163.626,
-            "y": -168.031,
-            "distanceMeters": 5941.168,
-            "elevationLayer": 0
-          },
-          {
-            "x": -160.305,
-            "y": -165.212,
-            "distanceMeters": 5946.164,
-            "elevationLayer": 0
-          },
-          {
-            "x": -157.175,
-            "y": -162.147,
-            "distanceMeters": 5951.161,
-            "elevationLayer": 0
-          },
-          {
-            "x": -153.991,
-            "y": -158.658,
-            "distanceMeters": 5956.158,
-            "elevationLayer": 0
-          },
-          {
-            "x": -150.628,
-            "y": -154.978,
-            "distanceMeters": 5961.155,
-            "elevationLayer": 0
-          },
-          {
-            "x": -147.288,
-            "y": -151.306,
-            "distanceMeters": 5966.151,
-            "elevationLayer": 0
-          },
-          {
-            "x": -143.966,
-            "y": -147.622,
-            "distanceMeters": 5971.148,
-            "elevationLayer": 0
-          },
-          {
-            "x": -140.642,
-            "y": -143.913,
-            "distanceMeters": 5976.145,
-            "elevationLayer": 0
-          },
-          {
-            "x": -137.308,
-            "y": -140.192,
-            "distanceMeters": 5981.142,
-            "elevationLayer": 0
-          },
-          {
-            "x": -133.976,
-            "y": -136.472,
-            "distanceMeters": 5986.139,
-            "elevationLayer": 0
-          },
-          {
-            "x": -130.649,
-            "y": -132.753,
-            "distanceMeters": 5991.135,
-            "elevationLayer": 0
-          },
-          {
-            "x": -127.327,
-            "y": -129.033,
-            "distanceMeters": 5996.132,
-            "elevationLayer": 0
-          },
-          {
-            "x": -124.008,
-            "y": -125.31,
-            "distanceMeters": 6001.129,
-            "elevationLayer": 0
-          },
-          {
-            "x": -120.692,
-            "y": -121.582,
-            "distanceMeters": 6006.126,
-            "elevationLayer": 0
-          },
-          {
-            "x": -117.374,
-            "y": -117.849,
-            "distanceMeters": 6011.122,
+            "x": -116.878,
+            "y": -117.291,
+            "distanceMeters": 6011.869,
             "elevationLayer": 0
           },
           {
@@ -34307,7 +34288,7 @@
         ]
       },
       {
-        "index": 27,
+        "index": 29,
         "trackLimitSegmentIndex": 13,
         "side": "right",
         "fromDistanceMeters": 5859.945,
@@ -34599,7 +34580,7 @@
         ]
       },
       {
-        "index": 28,
+        "index": 30,
         "trackLimitSegmentIndex": 14,
         "side": "left",
         "fromDistanceMeters": 6076.98,
@@ -34770,7 +34751,7 @@
         ]
       },
       {
-        "index": 29,
+        "index": 31,
         "trackLimitSegmentIndex": 14,
         "side": "right",
         "fromDistanceMeters": 6076.98,

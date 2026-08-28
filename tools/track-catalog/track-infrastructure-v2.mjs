@@ -475,7 +475,8 @@ const pitLayout = ({
   pitWallHeightMeters = 1,
   canopyDepthMeters = 1.2,
 }) => ({
-  garageCount: 11,
+  // Two visual bays per each of the 11 2026 teams.
+  garageCount: 22,
   laneWidthMeters,
   garageStartRatio,
   garageEndRatio,

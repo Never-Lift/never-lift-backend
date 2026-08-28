@@ -103,6 +103,10 @@ class PhysicsContractV2Test {
 
         assertThat(decisions.path("boostPolicy").asText()).isEqualTo("removed");
         assertThat(decisions.path("shiftKeyPolicy").asText()).isEqualTo("unassigned");
+        assertThat(decisions.path("pitPolicy").asText())
+                .isEqualTo("navigable-lane-garage-shell-collision");
+        assertThat(decisions.path("garagePolicy").asText())
+                .isEqualTo("22-opaque-bays-rear-barrier");
         assertThat(decisions.path("inputActions")).hasSize(3);
         assertThat(decisions.path("inputActions").toString())
                 .isEqualTo("[\"throttle\",\"brake\",\"steer\"]");

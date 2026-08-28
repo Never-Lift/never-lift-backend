@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.StreamSupport;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,7 +40,7 @@ class TrackCatalogIntegrationTest {
         mockMvc.perform(get("/api/tracks"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.schemaVersion").value("2.0.0"))
-                .andExpect(jsonPath("$.catalogVersion").value("2026.10"))
+                .andExpect(jsonPath("$.catalogVersion").value("2026.11"))
                 .andExpect(jsonPath("$.physicsContractVersion").value("2.0.0"))
                 .andExpect(jsonPath("$.seasonReference").value(2026))
                 .andExpect(jsonPath("$.calendarPolicy").value("original-24-round-freeze"))
@@ -62,7 +63,7 @@ class TrackCatalogIntegrationTest {
         for (Track track : trackRepository.findAll()) {
             JsonNode definition = objectMapper.readTree(track.getDefinitionJson());
             assertThat(definition.path("schemaVersion").asText()).isEqualTo("2.0.0");
-            assertThat(definition.path("catalogVersion").asText()).isEqualTo("2026.10");
+            assertThat(definition.path("catalogVersion").asText()).isEqualTo("2026.11");
             assertThat(definition.path("physicsContractVersion").asText()).isEqualTo("2.0.0");
             assertThat(definition.path("id").asText()).isEqualTo(track.getId());
             assertThat(definition.path("lengthMeters").asInt()).isEqualTo(track.getLengthMeters());
@@ -96,9 +97,14 @@ class TrackCatalogIntegrationTest {
             assertThat(definition.path("startFinish").isObject()).isTrue();
             JsonNode pitLane = definition.path("pitLane");
             assertThat(pitLane.path("path").size()).isGreaterThanOrEqualTo(25);
+            JsonNode garageBarrier = pitLane.path("garageBarrier");
+            assertThat(garageBarrier.path("side").asText()).isIn("left", "right");
+            assertThat(garageBarrier.path("material").asText()).isEqualTo("concrete-wall");
+            assertThat(garageBarrier.path("thicknessMeters").asDouble()).isBetween(0.1, 2.0);
+            assertThat(garageBarrier.path("path").size()).isGreaterThanOrEqualTo(2);
             JsonNode pitVisualStyle = pitLane.path("visualStyle");
             assertThat(pitVisualStyle.path("architecture").isTextual()).isTrue();
-            assertThat(pitVisualStyle.path("garageCount").asInt()).isBetween(8, 16);
+            assertThat(pitVisualStyle.path("garageCount").asInt()).isEqualTo(22);
             assertThat(pitVisualStyle.path("buildingHeightMeters").asDouble()).isBetween(3.0, 24.0);
             assertThat(pitVisualStyle.path("laneWidthMeters").asDouble()).isBetween(6.0, 16.0);
             assertThat(pitVisualStyle.path("garageStartRatio").asDouble()).isBetween(0.05, 0.8);
@@ -173,14 +179,21 @@ class TrackCatalogIntegrationTest {
             }
             JsonNode barrierOpenings = definition.path("barrierOpenings");
             assertThat(barrierOpenings.isArray()).isTrue();
+            assertThat(barrierOpenings).isNotEmpty();
+            assertThat(StreamSupport.stream(barrierOpenings.spliterator(), false)
+                    .map(node -> node.path("reason").asText()).toList())
+                    .contains("pit-entry", "pit-exit");
             if ("monza".equals(track.getId())) {
-                assertThat(barrierOpenings).hasSize(1);
-                assertThat(barrierOpenings.get(0).path("id").asText())
-                        .isEqualTo("rettifilo-escape-access");
-                assertThat(barrierOpenings.get(0).path("reason").asText())
-                        .isEqualTo("escape-road-access");
+                assertThat(StreamSupport.stream(barrierOpenings.spliterator(), false)
+                        .filter(node -> "escape-road-access".equals(node.path("reason").asText()))
+                        .count()).isEqualTo(1);
+                assertThat(StreamSupport.stream(barrierOpenings.spliterator(), false)
+                        .filter(node -> "rettifilo-escape-access".equals(node.path("id").asText()))
+                        .count()).isEqualTo(1);
             } else {
-                assertThat(barrierOpenings).isEmpty();
+                assertThat(StreamSupport.stream(barrierOpenings.spliterator(), false)
+                        .noneMatch(node -> "escape-road-access".equals(node.path("reason").asText())))
+                        .isTrue();
             }
             assertThat(authoredStructures).isGreaterThanOrEqualTo(5);
             assertThat(grandstands).isGreaterThanOrEqualTo(3);
@@ -252,8 +265,10 @@ class TrackCatalogIntegrationTest {
                 .andExpect(jsonPath("$.sceneryLayout.escapeRoads[0].edgeSides[0]").value("left"))
                 .andExpect(jsonPath("$.sceneryLayout.escapeRoads[0].obstacleRows.length()")
                         .value(org.hamcrest.Matchers.greaterThanOrEqualTo(5)))
-                .andExpect(jsonPath("$.barrierOpenings.length()").value(1))
-                .andExpect(jsonPath("$.barrierOpenings[0].id").value("rettifilo-escape-access"))
+                .andExpect(jsonPath("$.barrierOpenings.length()")
+                        .value(org.hamcrest.Matchers.greaterThanOrEqualTo(3)))
+                .andExpect(jsonPath("$.barrierOpenings[?(@.id == 'rettifilo-escape-access')]")
+                        .isNotEmpty())
                 .andExpect(jsonPath("$.sceneryLayout.brakingMarkers[?(@.distanceToCornerMeters == 300)]")
                         .isNotEmpty());
 
@@ -299,6 +314,17 @@ class TrackCatalogIntegrationTest {
                         barrier.path("trackLimitSegmentIndex").asInt()
                                 + ":"
                                 + barrier.path("side").asText());
+            }
+            for (JsonNode opening : definition.path("barrierOpenings")) {
+                for (int index = 0; index < trackLimits.size(); index++) {
+                    JsonNode limit = trackLimits.get(index);
+                    if (opening.path("fromDistanceMeters").asDouble()
+                                    < limit.path("toDistanceMeters").asDouble()
+                            && opening.path("toDistanceMeters").asDouble()
+                                    > limit.path("fromDistanceMeters").asDouble()) {
+                        coveredSides.add(index + ":" + opening.path("side").asText());
+                    }
+                }
             }
             for (int index = 0; index < trackLimits.size(); index++) {
                 assertThat(coveredSides).contains(index + ":left", index + ":right");

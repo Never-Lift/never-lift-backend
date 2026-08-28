@@ -61,7 +61,7 @@ Antes de começar um módulo, confira se as dependências dele já estão marcad
 |---|---|
 | 0 — Fundação e deploy | pronto |
 | 1 — Usuários e autenticação | pronto |
-| 2 — Suporte a corrida local | catálogo `2026.5` validado manualmente em 24/08/2026; simplificação #72 para F1 único concluída no contrato histórico `1.3.0`; Parte 2d (contrato físico v2, faces canônicas de barreira, versionamento de resultado e remoção de boost): implementação automatizada concluída; catálogo `2026.10` com zebras autorais preservadas, proteções contínuas e placas métricas de frenagem; Rettifilo de Monza corrigido com corredor asfaltado reto ligado à pista, blocos brancos com chevrons vermelhos e muro físico somente na borda externa, aguardando validação manual integrada; Parte 2d e Módulo 2 ainda não estão prontos |
+| 2 — Suporte a corrida local | catálogo `2026.5` validado manualmente em 24/08/2026; simplificação #72 para F1 único concluída no contrato histórico `1.3.0`; Parte 2d (contrato físico v2, faces canônicas de barreira, versionamento de resultado e remoção de boost): implementação automatizada concluída; catálogo `2026.11` com zebras autorais preservadas, proteções contínuas, placas métricas de frenagem, aberturas físicas de entrada/saída do pit e 22 vagas visuais opacas por circuito, com face traseira das garagens publicada como collider; Rettifilo de Monza corrigido com corredor asfaltado reto ligado à pista, blocos brancos com chevrons vermelhos e muro físico somente na borda externa, aguardando validação manual integrada; Parte 2d e Módulo 2 ainda não estão prontos |
 | 3 — Motor autoritativo online | não iniciado |
 | 4 — Ambiente e modo caos | não iniciado |
 | 5 — Corrida completa (dano/vácuo/pits) | não iniciado |

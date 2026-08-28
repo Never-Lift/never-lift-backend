@@ -85,7 +85,7 @@ O gamertag é único e não aceita espaços. Senhas devem ter pelo menos quatro 
 
 ## Pistas e resultados locais
 
-O catálogo público `2026.10` contém as 24 definições métricas canônicas do schema de pista `2.0.0`. Cada definição usa centerline fechada suavizada e amostrada a cada aproximadamente 5 m e inclui zebras externas autorais por curva, zonas ordenadas de asfalto, grama ou brita, pit lane visual, cercas, placas regressivas e faces explícitas das barreiras. A face voltada à pista é simultaneamente visual e física; a cerca externa e as placas permanecem apenas visuais. Muros e grades usam transições limitadas para não criar laços ou quinas. Em Monza, a abertura declarada do Rettifilo é removida tanto da colisão quanto do desenho do traçado principal, enquanto o corredor reto usa o mesmo asfalto da pista, fileiras alternadas de blocos brancos com chevrons vermelhos e um muro físico apenas na borda externa. Os perfis guardam as fontes consultadas e são validados e importados no banco ao iniciar a aplicação; os endpoints não exigem autenticação:
+ O catálogo público `2026.11` contém as 24 definições métricas canônicas do schema de pista `2.0.0`. Cada definição usa centerline fechada suavizada e amostrada a cada aproximadamente 5 m e inclui zebras externas autorais por curva, zonas ordenadas de asfalto, grama ou brita, pit lane navegável, cercas, placas regressivas e faces explícitas das barreiras. A face voltada à pista é simultaneamente visual e física; a cerca externa e as placas permanecem apenas visuais. Muros e grades usam transições limitadas para não criar laços ou quinas. As entradas e saídas do pit são aberturas físicas publicadas no mesmo contrato, enquanto a face traseira opaca das 22 garagens (duas vagas por equipe) também possui collider, sem bloquear o corredor. Em Monza, a abertura declarada do Rettifilo é removida tanto da colisão quanto do desenho do traçado principal, enquanto o corredor reto usa o mesmo asfalto da pista, fileiras alternadas de blocos brancos com chevrons vermelhos e um muro físico apenas na borda externa. Os perfis guardam as fontes consultadas e são validados e importados no banco ao iniciar a aplicação; os endpoints não exigem autenticação:
 
 | Método | Endpoint | Descrição |
 |---|---|---|
@@ -97,7 +97,7 @@ Resultados de corridas simuladas localmente pelo frontend são enviados para `PO
 ```json
 {
   "trackId": "interlagos",
-  "trackCatalogVersion": "2026.10",
+  "trackCatalogVersion": "2026.11",
   "physicsContractVersion": "2.0.0",
   "mode": "local",
   "results": [
