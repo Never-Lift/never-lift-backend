@@ -333,7 +333,20 @@ function validateEscapeRoads(track, entry) {
     invariant(!allIds.has(road.id), `${entry.id} unique escape road id`)
     allIds.add(road.id)
     invariant(road.kind === 'slalom-block-rows', `${entry.id} escape road kind`)
-    invariant(road.affectsPhysics === false, `${entry.id} escape road remains visual-only`)
+    invariant(
+      typeof road.affectsPhysics === 'boolean',
+      `${entry.id} escape road physics flag`,
+    )
+    invariant(
+      entry.id === 'monza' ? road.affectsPhysics === true : road.affectsPhysics === false,
+      `${entry.id} escape road physics assignment`,
+    )
+    if (road.affectsPhysics) {
+      invariant(
+        road.edgeMaterial === 'concrete-wall',
+        `${entry.id} physical escape road edge material`,
+      )
+    }
     invariant(
       Number.isInteger(road.elevationLayer) &&
         road.elevationLayer >= 0 && road.elevationLayer <= 3,
@@ -357,7 +370,17 @@ function validateEscapeRoads(track, entry) {
     )
     const rowLateralSigns = []
     for (const row of road.obstacleRows) {
-      invariant(row.palette === 'red-white', `${entry.id} escape row palette`)
+      invariant(
+        row.palette === 'red-white' || row.palette === 'stone',
+        `${entry.id} escape row palette`,
+      )
+      if (road.affectsPhysics) {
+        invariant(row.palette === 'stone', `${entry.id} physical escape row palette`)
+        invariant(
+          row.collisionMaterial === 'concrete-wall',
+          `${entry.id} physical escape row material`,
+        )
+      }
       invariant(
         Number.isFinite(row.blockLengthMeters) &&
           row.blockLengthMeters >= 0.4 && row.blockLengthMeters <= 4,
@@ -383,6 +406,14 @@ function validateEscapeRoads(track, entry) {
         `${entry.id} escape row leaves a real side opening`,
       )
       rowLateralSigns.push(Math.sign(midpointProjection.lateralMeters))
+      if (road.affectsPhysics) {
+        const fromTrack = projectPointToPolyline(row.from, track.centerline)
+        const toTrack = projectPointToPolyline(row.to, track.centerline)
+        invariant(
+          fromTrack.distanceMeters >= 15 && toTrack.distanceMeters >= 15,
+          `${entry.id} physical escape row outside racing surface`,
+        )
+      }
     }
     for (let index = 1; index < rowLateralSigns.length; index += 1) {
       invariant(
@@ -399,8 +430,14 @@ function validateEscapeRoads(track, entry) {
     invariant(road.obstacleRows.length >= 5, 'monza Rettifilo escape rows')
     const entryProjection = projectPointToPolyline(road.path[0], track.centerline)
     const exitProjection = projectPointToPolyline(road.path.at(-1), track.centerline)
-    invariant(entryProjection.distanceMeters <= 0.25, 'monza escape entry joins asphalt')
-    invariant(exitProjection.distanceMeters <= 0.25, 'monza escape exit joins asphalt')
+    invariant(
+      entryProjection.distanceMeters >= 20 && entryProjection.distanceMeters <= 45,
+      'monza escape entry stays outside racing surface',
+    )
+    invariant(
+      exitProjection.distanceMeters >= 20 && exitProjection.distanceMeters <= 45,
+      'monza escape exit stays outside racing surface',
+    )
     invariant(
       Math.max(
         ...road.path.map(

@@ -16497,87 +16497,93 @@
       {
         "id": "rettifilo-slalom",
         "kind": "slalom-block-rows",
-        "affectsPhysics": false,
+        "affectsPhysics": true,
         "elevationLayer": 0,
         "widthMeters": 7,
+        "edgeMaterial": "concrete-wall",
         "path": [
           {
-            "x": 49.28,
-            "y": 567.41
+            "x": 31.862,
+            "y": 613.914
           },
           {
-            "x": 54.2,
-            "y": 620
+            "x": 40.501,
+            "y": 632.356
           },
           {
-            "x": 62,
-            "y": 650
+            "x": 49.186,
+            "y": 651.608
           },
           {
-            "x": 89.43,
-            "y": 672.09
+            "x": 57.891,
+            "y": 670.241
           }
         ],
         "obstacleRows": [
           {
             "from": {
-              "x": 55.743,
-              "y": 602.672
+              "x": 38.43959193626348,
+              "y": 624.5372747437856
             },
             "to": {
-              "x": 51.561,
-              "y": 603.063
+              "x": 34.18343063244578,
+              "y": 626.5310377577581
             },
             "blockLengthMeters": 0.9,
-            "palette": "red-white"
+            "palette": "stone",
+            "collisionMaterial": "concrete-wall"
           },
           {
             "from": {
-              "x": 54.982,
-              "y": 617.09
+              "x": 44.27500273087521,
+              "y": 632.8184062282038
             },
             "to": {
-              "x": 50.801,
-              "y": 617.481
+              "x": 39.99077230095997,
+              "y": 634.7511166626424
             },
             "blockLengthMeters": 0.9,
-            "palette": "red-white"
+            "palette": "stone",
+            "collisionMaterial": "concrete-wall"
           },
           {
             "from": {
-              "x": 60.132,
-              "y": 630.298
+              "x": 46.71688313099739,
+              "y": 642.6085837836492
             },
             "to": {
-              "x": 56.067,
-              "y": 631.355
+              "x": 42.43265270108215,
+              "y": 644.5412942180878
             },
             "blockLengthMeters": 0.9,
-            "palette": "red-white"
+            "palette": "stone",
+            "collisionMaterial": "concrete-wall"
           },
           {
             "from": {
-              "x": 61.694,
-              "y": 644.652
+              "x": 52.43086900887941,
+              "y": 650.8752855700493
             },
             "to": {
-              "x": 57.629,
-              "y": 645.708
+              "x": 48.172649359410215,
+              "y": 652.8646486381881
             },
             "blockLengthMeters": 0.9,
-            "palette": "red-white"
+            "palette": "stone",
+            "collisionMaterial": "concrete-wall"
           },
           {
             "from": {
-              "x": 71.009,
-              "y": 653.211
+              "x": 55.002383772810525,
+              "y": 660.6322148141575
             },
             "to": {
-              "x": 68.375,
-              "y": 656.482
+              "x": 50.74416412334133,
+              "y": 662.6215778822963
             },
             "blockLengthMeters": 0.9,
-            "palette": "red-white"
+            "palette": "stone",
+            "collisionMaterial": "concrete-wall"
           }
         ]
       }
@@ -16861,7 +16867,7 @@
     {
       "id": "rettifilo-escape-access",
       "side": "left",
-      "fromDistanceMeters": 468,
+      "fromDistanceMeters": 463.44,
       "toDistanceMeters": 566,
       "reason": "escape-road-access"
     }
@@ -18212,39 +18218,6 @@
         "index": 6,
         "trackLimitSegmentIndex": 3,
         "side": "left",
-        "fromDistanceMeters": 463.44,
-        "toDistanceMeters": 468,
-        "material": "tyre-barrier",
-        "thicknessMeters": 1.2,
-        "collisionLayer": "track-barrier",
-        "chunkIndexes": [
-          1
-        ],
-        "path": [
-          {
-            "x": 31.862,
-            "y": 613.914,
-            "distanceMeters": 463.44,
-            "elevationLayer": 0
-          },
-          {
-            "x": 31.76,
-            "y": 617.16,
-            "distanceMeters": 464.84,
-            "elevationLayer": 0
-          },
-          {
-            "x": 32.408,
-            "y": 623.448,
-            "distanceMeters": 468,
-            "elevationLayer": 0
-          }
-        ]
-      },
-      {
-        "index": 7,
-        "trackLimitSegmentIndex": 3,
-        "side": "left",
         "fromDistanceMeters": 566,
         "toDistanceMeters": 811.02,
         "material": "tyre-barrier",
@@ -18588,7 +18561,7 @@
         ]
       },
       {
-        "index": 8,
+        "index": 7,
         "trackLimitSegmentIndex": 3,
         "side": "right",
         "fromDistanceMeters": 463.44,
@@ -19133,7 +19106,7 @@
         ]
       },
       {
-        "index": 9,
+        "index": 8,
         "trackLimitSegmentIndex": 4,
         "side": "left",
         "fromDistanceMeters": 811.02,
@@ -20279,7 +20252,7 @@
         ]
       },
       {
-        "index": 10,
+        "index": 9,
         "trackLimitSegmentIndex": 4,
         "side": "right",
         "fromDistanceMeters": 811.02,
@@ -21425,7 +21398,7 @@
         ]
       },
       {
-        "index": 11,
+        "index": 10,
         "trackLimitSegmentIndex": 5,
         "side": "left",
         "fromDistanceMeters": 1679.97,
@@ -21964,7 +21937,7 @@
         ]
       },
       {
-        "index": 12,
+        "index": 11,
         "trackLimitSegmentIndex": 5,
         "side": "right",
         "fromDistanceMeters": 1679.97,
@@ -22503,7 +22476,7 @@
         ]
       },
       {
-        "index": 13,
+        "index": 12,
         "trackLimitSegmentIndex": 6,
         "side": "left",
         "fromDistanceMeters": 2027.55,
@@ -23041,7 +23014,7 @@
         ]
       },
       {
-        "index": 14,
+        "index": 13,
         "trackLimitSegmentIndex": 6,
         "side": "right",
         "fromDistanceMeters": 2027.55,
@@ -23555,7 +23528,7 @@
         ]
       },
       {
-        "index": 15,
+        "index": 14,
         "trackLimitSegmentIndex": 7,
         "side": "left",
         "fromDistanceMeters": 2433.06,
@@ -24004,7 +23977,7 @@
         ]
       },
       {
-        "index": 16,
+        "index": 15,
         "trackLimitSegmentIndex": 7,
         "side": "right",
         "fromDistanceMeters": 2433.06,
@@ -24477,7 +24450,7 @@
         ]
       },
       {
-        "index": 17,
+        "index": 16,
         "trackLimitSegmentIndex": 8,
         "side": "left",
         "fromDistanceMeters": 2780.64,
@@ -25412,7 +25385,7 @@
         ]
       },
       {
-        "index": 18,
+        "index": 17,
         "trackLimitSegmentIndex": 8,
         "side": "right",
         "fromDistanceMeters": 2780.64,
@@ -26299,7 +26272,7 @@
         ]
       },
       {
-        "index": 19,
+        "index": 18,
         "trackLimitSegmentIndex": 9,
         "side": "left",
         "fromDistanceMeters": 3475.8,
@@ -26916,7 +26889,7 @@
         ]
       },
       {
-        "index": 20,
+        "index": 19,
         "trackLimitSegmentIndex": 9,
         "side": "right",
         "fromDistanceMeters": 3475.8,
@@ -27461,7 +27434,7 @@
         ]
       },
       {
-        "index": 21,
+        "index": 20,
         "trackLimitSegmentIndex": 10,
         "side": "left",
         "fromDistanceMeters": 3885.239,
@@ -27614,7 +27587,7 @@
         ]
       },
       {
-        "index": 22,
+        "index": 21,
         "trackLimitSegmentIndex": 10,
         "side": "right",
         "fromDistanceMeters": 3885.239,
@@ -27767,7 +27740,7 @@
         ]
       },
       {
-        "index": 23,
+        "index": 22,
         "trackLimitSegmentIndex": 11,
         "side": "left",
         "fromDistanceMeters": 3993.239,
@@ -27800,7 +27773,7 @@
         ]
       },
       {
-        "index": 24,
+        "index": 23,
         "trackLimitSegmentIndex": 11,
         "side": "right",
         "fromDistanceMeters": 3993.239,
@@ -27833,7 +27806,7 @@
         ]
       },
       {
-        "index": 25,
+        "index": 24,
         "trackLimitSegmentIndex": 12,
         "side": "left",
         "fromDistanceMeters": 3997.17,
@@ -28745,7 +28718,7 @@
         ]
       },
       {
-        "index": 26,
+        "index": 25,
         "trackLimitSegmentIndex": 12,
         "side": "right",
         "fromDistanceMeters": 3997.17,
@@ -29633,7 +29606,7 @@
         ]
       },
       {
-        "index": 27,
+        "index": 26,
         "trackLimitSegmentIndex": 13,
         "side": "left",
         "fromDistanceMeters": 4692.33,
@@ -29925,7 +29898,7 @@
         ]
       },
       {
-        "index": 28,
+        "index": 27,
         "trackLimitSegmentIndex": 13,
         "side": "right",
         "fromDistanceMeters": 4692.33,
@@ -30217,7 +30190,7 @@
         ]
       },
       {
-        "index": 29,
+        "index": 28,
         "trackLimitSegmentIndex": 14,
         "side": "left",
         "fromDistanceMeters": 4912.464,
@@ -30358,7 +30331,7 @@
         ]
       },
       {
-        "index": 30,
+        "index": 29,
         "trackLimitSegmentIndex": 14,
         "side": "right",
         "fromDistanceMeters": 4912.464,
@@ -30475,7 +30448,7 @@
         ]
       },
       {
-        "index": 31,
+        "index": 30,
         "trackLimitSegmentIndex": 15,
         "side": "left",
         "fromDistanceMeters": 4985.833,
@@ -30605,7 +30578,7 @@
         ]
       },
       {
-        "index": 32,
+        "index": 31,
         "trackLimitSegmentIndex": 15,
         "side": "right",
         "fromDistanceMeters": 4985.833,
@@ -30735,7 +30708,7 @@
         ]
       },
       {
-        "index": 33,
+        "index": 32,
         "trackLimitSegmentIndex": 16,
         "side": "left",
         "fromDistanceMeters": 5068.875,
@@ -30840,7 +30813,7 @@
         ]
       },
       {
-        "index": 34,
+        "index": 33,
         "trackLimitSegmentIndex": 16,
         "side": "right",
         "fromDistanceMeters": 5068.875,
@@ -30897,7 +30870,7 @@
         ]
       },
       {
-        "index": 35,
+        "index": 34,
         "trackLimitSegmentIndex": 17,
         "side": "left",
         "fromDistanceMeters": 5093.833,
@@ -31526,7 +31499,7 @@
         ]
       },
       {
-        "index": 36,
+        "index": 35,
         "trackLimitSegmentIndex": 17,
         "side": "right",
         "fromDistanceMeters": 5093.833,
@@ -32155,7 +32128,7 @@
         ]
       },
       {
-        "index": 37,
+        "index": 36,
         "trackLimitSegmentIndex": 18,
         "side": "left",
         "fromDistanceMeters": 5594.215,
@@ -32308,7 +32281,7 @@
         ]
       },
       {
-        "index": 38,
+        "index": 37,
         "trackLimitSegmentIndex": 18,
         "side": "right",
         "fromDistanceMeters": 5594.215,
@@ -32461,7 +32434,7 @@
         ]
       },
       {
-        "index": 39,
+        "index": 38,
         "trackLimitSegmentIndex": 19,
         "side": "left",
         "fromDistanceMeters": 5702.215,
@@ -32597,7 +32570,7 @@
         ]
       },
       {
-        "index": 40,
+        "index": 39,
         "trackLimitSegmentIndex": 19,
         "side": "right",
         "fromDistanceMeters": 5702.215,
