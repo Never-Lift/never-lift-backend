@@ -158,7 +158,7 @@ function renderTrack(track, cardX, cardY) {
     elements.push(
       `<polyline points="${pointsAttribute(escapeRoad.path)}" fill="none" ` +
         `stroke="#343d49" stroke-width="${escapeRoad.widthMeters}" ` +
-        'stroke-linecap="round" stroke-linejoin="round"/>',
+        'stroke-linecap="butt" stroke-linejoin="round"/>',
     )
   }
 
@@ -179,9 +179,9 @@ function renderTrack(track, cardX, cardY) {
       barrier.trackLimitSegmentIndex
     ][barrier.side]
     elements.push(
-      `<polyline points="${pointsAttribute(barrier.path)}" fill="none" ` +
+        `<polyline points="${pointsAttribute(barrier.path)}" fill="none" ` +
         `stroke="${barrierColors[barrier.material]}" stroke-width="2" ` +
-        'vector-effect="non-scaling-stroke" stroke-linecap="round" ' +
+        'vector-effect="non-scaling-stroke" stroke-linecap="butt" ' +
         'stroke-linejoin="round"/>',
     )
     if (environment.fence) {
@@ -247,6 +247,16 @@ function renderTrack(track, cardX, cardY) {
         )
       }
     }
+  }
+  for (const marker of track.sceneryLayout.brakingMarkers) {
+    const angle = (marker.rotation * 180) / Math.PI
+    elements.push(
+      `<g transform="translate(${marker.position.x} ${marker.position.y}) rotate(${angle.toFixed(3)})">` +
+        '<line x1="0" y1="-0.8" x2="0" y2="0.8" stroke="#8b929c" stroke-width="0.18"/>' +
+        '<rect x="-0.9" y="-0.72" width="1.8" height="1.44" rx="0.08" fill="#f5f5f0" stroke="#171b21" stroke-width="0.12"/>' +
+        `<text x="0" y="0.23" fill="#11151b" font-family="Arial, sans-serif" font-size="0.67" font-weight="700" text-anchor="middle">${marker.distanceToCornerMeters}</text>` +
+      '</g>',
+    )
   }
   for (const object of track.sceneryLayout.staticObjects) {
     elements.push(renderInfrastructureObject(object))

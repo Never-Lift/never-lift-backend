@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class TrackCatalogImporter implements ApplicationRunner {
 
     public static final String SCHEMA_VERSION = "2.0.0";
-    public static final String CATALOG_VERSION = "2026.9";
+    public static final String CATALOG_VERSION = "2026.10";
     public static final String PHYSICS_CONTRACT_VERSION = "2.0.0";
     public static final int SEASON_REFERENCE = 2026;
     public static final String CALENDAR_POLICY = "original-24-round-freeze";
@@ -218,7 +218,7 @@ public class TrackCatalogImporter implements ApplicationRunner {
         validateInfrastructure(entry, definition.path("sceneryLayout"));
         validateTrackLimits(entry, definition.path("trackLimits"));
         validateBarrierGeometry(entry, definition.path("trackLimits"), definition.path("chunks"),
-                definition.path("barrierGeometry"));
+                definition.path("barrierGeometry"), definition.path("barrierOpenings"));
     }
 
     private void validatePitLane(CatalogEntry entry, JsonNode pitLane) {
@@ -374,7 +374,8 @@ public class TrackCatalogImporter implements ApplicationRunner {
             CatalogEntry entry,
             JsonNode trackLimits,
             JsonNode chunks,
-            JsonNode barrierGeometry) {
+            JsonNode barrierGeometry,
+            JsonNode barrierOpenings) {
         JsonNode limitSegments = trackLimits.path("segments");
         JsonNode barriers = barrierGeometry.path("segments");
         if (!barrierGeometry.isObject()
@@ -384,6 +385,42 @@ public class TrackCatalogImporter implements ApplicationRunner {
         }
 
         Map<String, List<BarrierCoverage>> coverageBySide = new HashMap<>();
+        Set<String> openingIds = new HashSet<>();
+        if (!barrierOpenings.isArray()
+                || ("monza".equals(entry.id()) && barrierOpenings.size() != 1)
+                || (!"monza".equals(entry.id()) && !barrierOpenings.isEmpty())) {
+            throw invalid("barrier openings for " + entry.id());
+        }
+        for (JsonNode opening : barrierOpenings) {
+            String openingId = opening.path("id").asText();
+            String sideName = opening.path("side").asText();
+            double from = opening.path("fromDistanceMeters").asDouble(-1);
+            double to = opening.path("toDistanceMeters").asDouble(-1);
+            if (openingId.isBlank()
+                    || !openingIds.add(openingId)
+                    || !Set.of("left", "right").contains(sideName)
+                    || from < 0
+                    || to <= from
+                    || !"escape-road-access".equals(opening.path("reason").asText())) {
+                throw invalid("barrier opening definition for " + entry.id());
+            }
+            boolean belongsToTrackLimit = false;
+            for (int index = 0; index < limitSegments.size(); index++) {
+                JsonNode limitSegment = limitSegments.get(index);
+                double segmentFrom = limitSegment.path("fromDistanceMeters").asDouble();
+                double segmentTo = limitSegment.path("toDistanceMeters").asDouble();
+                if (from >= segmentFrom - 0.001 && to <= segmentTo + 0.001) {
+                    belongsToTrackLimit = true;
+                    coverageBySide
+                            .computeIfAbsent(index + ":" + sideName, ignored -> new ArrayList<>())
+                            .add(new BarrierCoverage(from, to));
+                    break;
+                }
+            }
+            if (!belongsToTrackLimit) {
+                throw invalid("barrier opening range for " + entry.id());
+            }
+        }
         for (int index = 0; index < barriers.size(); index++) {
             JsonNode barrier = barriers.get(index);
             int trackLimitIndex = barrier.path("trackLimitSegmentIndex").asInt(-1);

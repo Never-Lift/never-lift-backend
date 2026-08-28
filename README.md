@@ -85,7 +85,7 @@ O gamertag é único e não aceita espaços. Senhas devem ter pelo menos quatro 
 
 ## Pistas e resultados locais
 
-O catálogo público `2026.9` contém as 24 definições métricas canônicas do schema de pista `2.0.0`. Cada definição usa centerline fechada suavizada e amostrada a cada aproximadamente 5 m e inclui zebras externas autorais por curva, zonas ordenadas de asfalto, grama ou brita, pit lane visual, cercas e faces explícitas das barreiras. A face voltada à pista é simultaneamente visual e física; a cerca externa permanece apenas visual. A revisão publica medidas por circuito para boxes, arquibancadas e construções principais, impede sobreposições e admite vias especiais declaradamente visuais; em Monza, o Rettifilo contém o corredor asfaltado e fileiras alternadas do slalom sem alterar a física. Os perfis guardam as fontes consultadas e são validados e importados no banco ao iniciar a aplicação; os endpoints não exigem autenticação:
+O catálogo público `2026.10` contém as 24 definições métricas canônicas do schema de pista `2.0.0`. Cada definição usa centerline fechada suavizada e amostrada a cada aproximadamente 5 m e inclui zebras externas autorais por curva, zonas ordenadas de asfalto, grama ou brita, pit lane visual, cercas, placas regressivas e faces explícitas das barreiras. A face voltada à pista é simultaneamente visual e física; a cerca externa e as placas permanecem apenas visuais. Muros e grades usam transições limitadas para não criar laços ou quinas. Em Monza, a abertura declarada do Rettifilo é removida tanto da colisão quanto do desenho, enquanto o corredor e os blocos continuam visuais. Os perfis guardam as fontes consultadas e são validados e importados no banco ao iniciar a aplicação; os endpoints não exigem autenticação:
 
 | Método | Endpoint | Descrição |
 |---|---|---|
@@ -97,7 +97,7 @@ Resultados de corridas simuladas localmente pelo frontend são enviados para `PO
 ```json
 {
   "trackId": "interlagos",
-  "trackCatalogVersion": "2026.9",
+  "trackCatalogVersion": "2026.10",
   "physicsContractVersion": "2.0.0",
   "mode": "local",
   "results": [
@@ -121,7 +121,7 @@ Resultados de corridas simuladas localmente pelo frontend são enviados para `PO
 
 O backend valida pista, versão, modo, posições e tempos antes de persistir tudo atomicamente. Para um JWT de usuário, exatamente um item deve usar o `subject` autenticado; nenhum outro UUID é aceito. Resultados de guest e bot usam `null`. A consulta pública do histórico permanece reservada ao Módulo 8.
 
-O backend exige `physicsContractVersion=2.0.0` junto do catálogo `2026.9` e persiste a versão em cada resultado; versões físicas incompatíveis não são comparadas diretamente. Na Parte 2d, a implementação automatizada está concluída e a validação manual permanece pendente. A especificação e as fontes estão em [`docs/contracts/module-2-physics-v2-proposal.md`](docs/contracts/module-2-physics-v2-proposal.md), e a revisão atual das pistas está registrada em [`docs/module-2-track-visual-audit-2026.9.md`](docs/module-2-track-visual-audit-2026.9.md).
+O backend exige `physicsContractVersion=2.0.0` junto do catálogo `2026.10` e persiste a versão em cada resultado; versões físicas incompatíveis não são comparadas diretamente. Na Parte 2d, a implementação automatizada está concluída e a validação manual permanece pendente. A especificação e as fontes estão em [`docs/contracts/module-2-physics-v2-proposal.md`](docs/contracts/module-2-physics-v2-proposal.md), e a revisão atual das pistas está registrada em [`docs/module-2-track-safety-audit-2026.10.md`](docs/module-2-track-safety-audit-2026.10.md).
 
 ## Testes
 
@@ -151,7 +151,7 @@ Os Módulos 0–9 formam o MVP planejado. A expansão pós-MVP aprovada está re
 
 A direção de jogo e apresentação aprovada está em [`docs/game-design-guide.md`](docs/game-design-guide.md). Para o backend, ela é normativa somente onde define contratos compartilhados: unidade métrica, catálogo de pistas, vetor de velocidade, metadados e campos de entidades. Decisões exclusivamente visuais permanecem responsabilidade do frontend e entram apenas em seus módulos correspondentes.
 
-Os contratos implementados pelo Módulo 2 estão em [`docs/contracts/module-2-shared-contracts.md`](docs/contracts/module-2-shared-contracts.md), [`contracts/module-2/v2/`](contracts/module-2/v2/) e na [proposta aprovada da física v2](docs/contracts/module-2-physics-v2-proposal.md). O `v1` permanece histórico e imutável. O catálogo `2026.9` contém 24 definições métricas reproduzíveis, infraestrutura visual auditada, vias especiais sem física e faces canônicas de barreira; rode `node tools/track-catalog/generate-v2.mjs --check` e `node tools/track-catalog/audit-v2.mjs --mirror <pasta-v2-do-frontend>` para conferir geração, invariantes e espelho byte a byte.
+Os contratos implementados pelo Módulo 2 estão em [`docs/contracts/module-2-shared-contracts.md`](docs/contracts/module-2-shared-contracts.md), [`contracts/module-2/v2/`](contracts/module-2/v2/) e na [proposta aprovada da física v2](docs/contracts/module-2-physics-v2-proposal.md). O `v1` permanece histórico e imutável. O catálogo `2026.10` contém 24 definições métricas reproduzíveis, proteções contínuas, placas de frenagem, vias especiais declaradas e faces canônicas de barreira; rode `node tools/track-catalog/generate-v2.mjs --check` e `node tools/track-catalog/audit-v2.mjs --mirror <pasta-v2-do-frontend>` para conferir geração, invariantes e espelho byte a byte.
 
 - [`docs/backend-implementation-plan.md`](docs/backend-implementation-plan.md) — arquitetura, protocolo e módulos do backend.
 - [`docs/frontend-implementation-plan.md`](docs/frontend-implementation-plan.md) — referência do consumidor da API e do WebSocket.
