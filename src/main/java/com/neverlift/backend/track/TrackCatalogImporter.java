@@ -322,11 +322,14 @@ public class TrackCatalogImporter implements ApplicationRunner {
             String roadId = road.path("id").asText();
             JsonNode path = road.path("path");
             JsonNode rows = road.path("obstacleRows");
+            boolean physicalRoad = road.path("affectsPhysics").asBoolean(false);
             if (roadId.isBlank()
                     || !sceneryIds.add(roadId)
                     || !"slalom-block-rows".equals(road.path("kind").asText())
                     || !road.path("affectsPhysics").isBoolean()
-                    || road.path("affectsPhysics").asBoolean(true)
+                    || ("monza".equals(entry.id()) && !physicalRoad)
+                    || (physicalRoad && !"monza".equals(entry.id()))
+                    || (physicalRoad && !"concrete-wall".equals(road.path("edgeMaterial").asText()))
                     || !road.path("elevationLayer").canConvertToInt()
                     || road.path("elevationLayer").asInt() < 0
                     || road.path("elevationLayer").asInt() > 3
@@ -337,13 +340,16 @@ public class TrackCatalogImporter implements ApplicationRunner {
                     || rows.size() < 3
                     || ("monza".equals(entry.id())
                             && (!"rettifilo-slalom".equals(roadId) || rows.size() < 5))) {
-                throw invalid("visual-only escape road for " + entry.id());
+                    throw invalid("escape road for " + entry.id());
             }
             for (JsonNode point : path) {
                 validateVector(entry, point, "escape road path");
             }
             for (JsonNode row : rows) {
-                if (!"red-white".equals(row.path("palette").asText())
+                boolean stone = "stone".equals(row.path("palette").asText());
+                if ((!stone && !"red-white".equals(row.path("palette").asText()))
+                        || (physicalRoad && (!stone
+                                || !"concrete-wall".equals(row.path("collisionMaterial").asText())))
                         || !numberInRange(row, "blockLengthMeters", 0.4, 4)) {
                     throw invalid("escape road obstacle row for " + entry.id());
                 }

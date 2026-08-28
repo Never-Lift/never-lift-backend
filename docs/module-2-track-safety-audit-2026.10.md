@@ -40,12 +40,15 @@ circuito construído.
 
 ## Rettifilo, Monza
 
-A via asfaltada segue reta quando o circuito principal contorna a primeira
-chicane e mantém as cinco fileiras alternadas de blocos. O acesso agora publica
-`barrierOpenings` entre `468 m` e `566 m` no lado esquerdo. O mesmo intervalo é
-removido da colisão e do desenho, portanto o muro não corta a via e não existe
-parede invisível. A via e os blocos continuam sem collider próprio; ao deixar a
-pista principal, a física normal de superfície externa continua valendo.
+A via asfaltada sai reta da aproximação do Rettifilo enquanto o circuito
+principal contorna a primeira chicane e mantém as cinco fileiras alternadas de
+blocos. O acesso publica `barrierOpenings` entre `463,44 m` e `566 m` no lado
+esquerdo. O mesmo intervalo é removido da colisão e do desenho do traçado
+principal, portanto o muro não corta a via. O corredor externo tem
+`affectsPhysics: true`: seus blocos de pedra são obstáculos rígidos
+indestrutíveis e as bordas contínuas usam `concrete-wall`; renderer, frontend e
+backend derivam esses colliders da mesma polilinha, sem colisão invisível sobre
+o asfalto da chicane.
 
 ## Placas regressivas de frenagem
 
@@ -88,7 +91,9 @@ em baixa velocidade não recebem decoração artificial.
 - schema exige placas completas e aberturas de barreira explícitas;
 - auditoria verifica IDs, sequência regressiva, lado, elevação, proximidade da
   proteção e cobertura composta por faces mais aberturas declaradas;
-- somente Monza possui a abertura `escape-road-access` nesta revisão;
+- somente Monza possui a abertura `escape-road-access` nesta revisão, e somente
+  o Rettifilo possui uma via de escape física com blocos de pedra e bordas de
+  concreto;
 - as 24 pistas mantêm ao menos duas zonas materiais de frenagem, com a exceção
   deliberadamente compacta de Mônaco ainda coberta por duas aproximações;
 - testes do renderer verificam faixa única de barreira, tampas apenas nas pontas
@@ -100,6 +105,8 @@ em baixa velocidade não recebem decoração artificial.
 
 Repassar as 24 pistas no preview, com atenção especial a muros grossos em
 chicanes/hairpins, transições entre materiais, começo e fim de grades e leitura
-das placas em velocidade. Em Monza, confirmar que o corredor do Rettifilo fica
-inteiro visível e livre de muro. Em Suzuka, confirmar que não restou nenhum
-semicírculo escuro nas duas extremidades da camada superior transparente.
+das placas em velocidade. Em Monza, confirmar que o corredor reto do Rettifilo
+fica inteiro visível fora da chicane, que cada bloco de pedra colide sem invadir
+o traçado principal e que as bordas não deixam lacunas. Em Suzuka, confirmar que
+não restou nenhum semicírculo escuro nas duas extremidades da camada superior
+transparente.

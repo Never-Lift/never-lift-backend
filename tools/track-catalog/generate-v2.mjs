@@ -1985,7 +1985,8 @@ function createTrackSchema(v1Schema) {
           from: { $ref: '#/$defs/vector' },
           to: { $ref: '#/$defs/vector' },
           blockLengthMeters: { type: 'number', minimum: 0.4, maximum: 4 },
-          palette: { const: 'red-white' },
+          palette: { enum: ['red-white', 'stone'] },
+          collisionMaterial: { const: 'concrete-wall' },
         },
       },
       escapeRoad: {
@@ -2003,7 +2004,7 @@ function createTrackSchema(v1Schema) {
         properties: {
           id: { type: 'string', minLength: 1 },
           kind: { const: 'slalom-block-rows' },
-          affectsPhysics: { const: false },
+          affectsPhysics: { type: 'boolean' },
           elevationLayer: { type: 'integer', minimum: 0, maximum: 3 },
           widthMeters: { type: 'number', minimum: 4, maximum: 16 },
           path: {
@@ -2016,6 +2017,7 @@ function createTrackSchema(v1Schema) {
             minItems: 3,
             items: { $ref: '#/$defs/escapeObstacleRow' },
           },
+          edgeMaterial: { const: 'concrete-wall' },
         },
       },
       brakingMarker: {

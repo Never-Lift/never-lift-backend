@@ -67,6 +67,10 @@ function offsetPoint(points, index, side, offsetMeters) {
   }
 }
 
+function offsetPolyline(points, side, offsetMeters) {
+  return points.map((_, index) => offsetPoint(points, index, side, offsetMeters))
+}
+
 function pointsAttribute(points) {
   return points.map((point) => `${point.x.toFixed(2)},${point.y.toFixed(2)}`).join(' ')
 }
@@ -157,9 +161,25 @@ function renderTrack(track, cardX, cardY) {
   for (const escapeRoad of track.sceneryLayout.escapeRoads) {
     elements.push(
       `<polyline points="${pointsAttribute(escapeRoad.path)}" fill="none" ` +
+        `stroke="#8d949d" stroke-width="${(escapeRoad.widthMeters + 0.18).toFixed(2)}" ` +
+        'stroke-linecap="butt" stroke-linejoin="round"/>',
+    )
+    elements.push(
+      `<polyline points="${pointsAttribute(escapeRoad.path)}" fill="none" ` +
         `stroke="#343d49" stroke-width="${escapeRoad.widthMeters}" ` +
         'stroke-linecap="butt" stroke-linejoin="round"/>',
     )
+    if (escapeRoad.edgeMaterial === 'concrete-wall') {
+      for (const side of ['left', 'right']) {
+        const edge = offsetPolyline(escapeRoad.path, side, escapeRoad.widthMeters / 2)
+        elements.push(
+          `<polyline points="${pointsAttribute(edge)}" fill="none" stroke="#242b32" stroke-width="0.42" stroke-linecap="butt" stroke-linejoin="round"/>`,
+        )
+        elements.push(
+          `<polyline points="${pointsAttribute(edge)}" fill="none" stroke="#89939d" stroke-width="0.16" stroke-linecap="butt" stroke-linejoin="round"/>`,
+        )
+      }
+    }
   }
 
   for (let index = 0; index < track.centerline.length - 1; index += 1) {
@@ -237,11 +257,12 @@ function renderTrack(track, cardX, cardY) {
           x: row.from.x + (row.to.x - row.from.x) * toRatio,
           y: row.from.y + (row.to.y - row.from.y) * toRatio,
         }
+        const stone = row.palette === 'stone'
         elements.push(
           line(
             from,
             to,
-            `stroke="${index % 2 === 0 ? '#f0f0fa' : '#c52c35'}" ` +
+            `stroke="${stone ? (index % 2 === 0 ? '#858b8e' : '#697176') : index % 2 === 0 ? '#f0f0fa' : '#c52c35'}" ` +
               'stroke-width="0.8" stroke-linecap="butt"',
           ),
         )
@@ -252,9 +273,9 @@ function renderTrack(track, cardX, cardY) {
     const angle = (marker.rotation * 180) / Math.PI
     elements.push(
       `<g transform="translate(${marker.position.x} ${marker.position.y}) rotate(${angle.toFixed(3)})">` +
-        '<line x1="0" y1="-0.8" x2="0" y2="0.8" stroke="#8b929c" stroke-width="0.18"/>' +
-        '<rect x="-0.9" y="-0.72" width="1.8" height="1.44" rx="0.08" fill="#f5f5f0" stroke="#171b21" stroke-width="0.12"/>' +
-        `<text x="0" y="0.23" fill="#11151b" font-family="Arial, sans-serif" font-size="0.67" font-weight="700" text-anchor="middle">${marker.distanceToCornerMeters}</text>` +
+        '<line x1="0" y1="-1.15" x2="0" y2="1.15" stroke="#8b929c" stroke-width="0.18"/>' +
+        '<rect x="-1.05" y="-1.05" width="2.1" height="2.1" rx="0.08" fill="#f5f5f0" stroke="#171b21" stroke-width="0.12"/>' +
+        `<text x="0" y="0.29" fill="#11151b" font-family="Arial, sans-serif" font-size="0.82" font-weight="700" text-anchor="middle">${marker.distanceToCornerMeters}</text>` +
       '</g>',
     )
   }
