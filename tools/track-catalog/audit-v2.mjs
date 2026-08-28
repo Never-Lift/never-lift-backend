@@ -346,6 +346,14 @@ function validateEscapeRoads(track, entry) {
         road.edgeMaterial === 'concrete-wall',
         `${entry.id} physical escape road edge material`,
       )
+      invariant(
+        Array.isArray(road.edgeSides) &&
+          road.edgeSides.length >= 1 &&
+          road.edgeSides.length <= 2 &&
+          new Set(road.edgeSides).size === road.edgeSides.length &&
+          road.edgeSides.every((side) => side === 'left' || side === 'right'),
+        `${entry.id} physical escape road edge sides`,
+      )
     }
     invariant(
       Number.isInteger(road.elevationLayer) &&
@@ -371,11 +379,14 @@ function validateEscapeRoads(track, entry) {
     const rowLateralSigns = []
     for (const row of road.obstacleRows) {
       invariant(
-        row.palette === 'red-white' || row.palette === 'stone',
+        row.palette === 'white-red-chevron',
         `${entry.id} escape row palette`,
       )
       if (road.affectsPhysics) {
-        invariant(row.palette === 'stone', `${entry.id} physical escape row palette`)
+        invariant(
+          row.palette === 'white-red-chevron',
+          `${entry.id} physical escape row palette`,
+        )
         invariant(
           row.collisionMaterial === 'concrete-wall',
           `${entry.id} physical escape row material`,
@@ -431,20 +442,24 @@ function validateEscapeRoads(track, entry) {
     const entryProjection = projectPointToPolyline(road.path[0], track.centerline)
     const exitProjection = projectPointToPolyline(road.path.at(-1), track.centerline)
     invariant(
-      entryProjection.distanceMeters >= 20 && entryProjection.distanceMeters <= 45,
-      'monza escape entry stays outside racing surface',
+      entryProjection.distanceMeters >= 5.5 && entryProjection.distanceMeters <= 8,
+      'monza escape entry connects to the outer edge of the main straight',
     )
     invariant(
-      exitProjection.distanceMeters >= 20 && exitProjection.distanceMeters <= 45,
-      'monza escape exit stays outside racing surface',
+      exitProjection.distanceMeters >= 5.5 && exitProjection.distanceMeters <= 8,
+      'monza escape exit reconnects to the outer track edge',
     )
     invariant(
       Math.max(
         ...road.path.map(
           (point) => projectPointToPolyline(point, track.centerline).distanceMeters,
         ),
-      ) >= 15,
+      ) >= 25,
       'monza escape road must diverge from the chicane centerline',
+    )
+    invariant(
+      JSON.stringify(road.edgeSides) === JSON.stringify(['left']),
+      'monza escape road retains only the external left wall',
     )
   } else {
     invariant(roads.length === 0, `${entry.id} has no authored slalom escape road`)

@@ -533,6 +533,18 @@ const infrastructureReferencesV2 = Object.freeze({
   suzuka: [
     { label: 'Suzuka Circuit official 2026 spectator map', url: 'https://www.suzukacircuit.jp/f1/map/pdf/map.pdf' },
   ],
+  monza: [
+    {
+      label: 'FIA 2025 Monza F3 event notes — Turns 1–2 escape-road block procedure',
+      url: 'https://www.fia.com/system/files/decision-document/2025_monza_event_-_f3_monza_event_notes_2025_v2.pdf',
+      checkedAt: '2026-08-28',
+    },
+    {
+      label: 'Monza Rettifilo photographic reference — white polystyrene blocks with red chevrons',
+      url: 'https://www.gpfans.com/en/f1-news/56682/vettel-lucky-after-surprising-monza-brake-failure/',
+      checkedAt: '2026-08-28',
+    },
+  ],
   bahrain: [
     { label: 'Bahrain International Circuit official grandstand map', url: 'https://www.bahrain.gp/en/map-of-the-grandstands-24' },
   ],
@@ -633,7 +645,10 @@ export function infrastructureReferencesFor(trackId) {
       label: `Grand Prix Guides satellite overview — ${trackId}`,
       url: `https://grandprixguides.com/circuit/${slug}`,
     },
-  ].map((reference) => ({ ...reference, checkedAt: '2026-08-27' }))
+  ].map((reference) => ({
+    ...reference,
+    checkedAt: reference.checkedAt ?? '2026-08-27',
+  }))
 }
 
 export function fenceVisualProfileFor(trackId) {

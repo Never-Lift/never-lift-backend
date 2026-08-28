@@ -1544,7 +1544,7 @@ function createSceneryLayout(track, profile) {
     preset: track.sceneryLayout.preset,
     landmarks: [],
     staticObjects,
-    escapeRoads: escapeRoadsFor(track.id),
+    escapeRoads: escapeRoadsFor(track),
     brakingMarkers: createBrakingMarkers(track),
   }
 }
@@ -1801,7 +1801,10 @@ function createTrackV2(track) {
         'City and the latest official project for Madrid. Catalog 2026.10 publishes ' +
         'authored braking-reference boards only on material braking approaches and ' +
         'keeps their placement immediately track-side of the canonical outer protection; ' +
-        'it also refines the Rettifilo escape corridor for uninterrupted clearance. ' +
+        (track.id === 'monza'
+          ? 'it also publishes the Rettifilo straight-ahead asphalt corridor as physical ' +
+            'geometry, with white polystyrene rows, red chevrons and only its external wall. '
+          : 'it also refines the Rettifilo escape corridor for uninterrupted clearance. ') +
         `${clearanceTransformation}`,
     },
   }
@@ -1985,7 +1988,7 @@ function createTrackSchema(v1Schema) {
           from: { $ref: '#/$defs/vector' },
           to: { $ref: '#/$defs/vector' },
           blockLengthMeters: { type: 'number', minimum: 0.4, maximum: 4 },
-          palette: { enum: ['red-white', 'stone'] },
+          palette: { const: 'white-red-chevron' },
           collisionMaterial: { const: 'concrete-wall' },
         },
       },
@@ -2018,6 +2021,13 @@ function createTrackSchema(v1Schema) {
             items: { $ref: '#/$defs/escapeObstacleRow' },
           },
           edgeMaterial: { const: 'concrete-wall' },
+          edgeSides: {
+            type: 'array',
+            minItems: 1,
+            maxItems: 2,
+            uniqueItems: true,
+            items: { enum: ['left', 'right'] },
+          },
         },
       },
       brakingMarker: {

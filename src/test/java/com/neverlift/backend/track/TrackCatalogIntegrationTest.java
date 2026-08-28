@@ -147,10 +147,13 @@ class TrackCatalogIntegrationTest {
                 assertThat(escapeRoad.path("kind").asText()).isEqualTo("slalom-block-rows");
                 assertThat(escapeRoad.path("affectsPhysics").asBoolean()).isTrue();
                 assertThat(escapeRoad.path("edgeMaterial").asText()).isEqualTo("concrete-wall");
+                assertThat(escapeRoad.path("edgeSides")).hasSize(1);
+                assertThat(escapeRoad.path("edgeSides").get(0).asText()).isEqualTo("left");
+                assertThat(escapeRoad.path("widthMeters").asDouble()).isEqualTo(10.5);
                 assertThat(escapeRoad.path("path").size()).isGreaterThanOrEqualTo(2);
                 assertThat(escapeRoad.path("obstacleRows").size()).isGreaterThanOrEqualTo(5);
                 for (JsonNode row : escapeRoad.path("obstacleRows")) {
-                    assertThat(row.path("palette").asText()).isEqualTo("stone");
+                    assertThat(row.path("palette").asText()).isEqualTo("white-red-chevron");
                     assertThat(row.path("collisionMaterial").asText()).isEqualTo("concrete-wall");
                 }
             } else {
@@ -246,6 +249,7 @@ class TrackCatalogIntegrationTest {
                 .andExpect(jsonPath("$.sceneryLayout.escapeRoads[0].id").value("rettifilo-slalom"))
                 .andExpect(jsonPath("$.sceneryLayout.escapeRoads[0].affectsPhysics").value(true))
                 .andExpect(jsonPath("$.sceneryLayout.escapeRoads[0].edgeMaterial").value("concrete-wall"))
+                .andExpect(jsonPath("$.sceneryLayout.escapeRoads[0].edgeSides[0]").value("left"))
                 .andExpect(jsonPath("$.sceneryLayout.escapeRoads[0].obstacleRows.length()")
                         .value(org.hamcrest.Matchers.greaterThanOrEqualTo(5)))
                 .andExpect(jsonPath("$.barrierOpenings.length()").value(1))

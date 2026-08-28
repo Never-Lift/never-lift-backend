@@ -322,6 +322,7 @@ public class TrackCatalogImporter implements ApplicationRunner {
             String roadId = road.path("id").asText();
             JsonNode path = road.path("path");
             JsonNode rows = road.path("obstacleRows");
+            JsonNode edgeSides = road.path("edgeSides");
             boolean physicalRoad = road.path("affectsPhysics").asBoolean(false);
             if (roadId.isBlank()
                     || !sceneryIds.add(roadId)
@@ -330,6 +331,9 @@ public class TrackCatalogImporter implements ApplicationRunner {
                     || ("monza".equals(entry.id()) && !physicalRoad)
                     || (physicalRoad && !"monza".equals(entry.id()))
                     || (physicalRoad && !"concrete-wall".equals(road.path("edgeMaterial").asText()))
+                    || (physicalRoad && (!edgeSides.isArray()
+                            || edgeSides.size() != 1
+                            || !"left".equals(edgeSides.get(0).asText())))
                     || !road.path("elevationLayer").canConvertToInt()
                     || road.path("elevationLayer").asInt() < 0
                     || road.path("elevationLayer").asInt() > 3
@@ -346,10 +350,10 @@ public class TrackCatalogImporter implements ApplicationRunner {
                 validateVector(entry, point, "escape road path");
             }
             for (JsonNode row : rows) {
-                boolean stone = "stone".equals(row.path("palette").asText());
-                if ((!stone && !"red-white".equals(row.path("palette").asText()))
-                        || (physicalRoad && (!stone
-                                || !"concrete-wall".equals(row.path("collisionMaterial").asText())))
+                boolean whiteRedChevron = "white-red-chevron".equals(row.path("palette").asText());
+                if (!whiteRedChevron
+                        || (physicalRoad
+                                && !"concrete-wall".equals(row.path("collisionMaterial").asText()))
                         || !numberInRange(row, "blockLengthMeters", 0.4, 4)) {
                     throw invalid("escape road obstacle row for " + entry.id());
                 }
@@ -410,20 +414,21 @@ public class TrackCatalogImporter implements ApplicationRunner {
                     || !"escape-road-access".equals(opening.path("reason").asText())) {
                 throw invalid("barrier opening definition for " + entry.id());
             }
-            boolean belongsToTrackLimit = false;
+            double coveredLength = 0;
             for (int index = 0; index < limitSegments.size(); index++) {
                 JsonNode limitSegment = limitSegments.get(index);
                 double segmentFrom = limitSegment.path("fromDistanceMeters").asDouble();
                 double segmentTo = limitSegment.path("toDistanceMeters").asDouble();
-                if (from >= segmentFrom - 0.001 && to <= segmentTo + 0.001) {
-                    belongsToTrackLimit = true;
+                double overlapFrom = Math.max(from, segmentFrom);
+                double overlapTo = Math.min(to, segmentTo);
+                if (overlapTo > overlapFrom) {
+                    coveredLength += overlapTo - overlapFrom;
                     coverageBySide
                             .computeIfAbsent(index + ":" + sideName, ignored -> new ArrayList<>())
-                            .add(new BarrierCoverage(from, to));
-                    break;
+                            .add(new BarrierCoverage(overlapFrom, overlapTo));
                 }
             }
-            if (!belongsToTrackLimit) {
+            if (Math.abs(coveredLength - (to - from)) > 0.001) {
                 throw invalid("barrier opening range for " + entry.id());
             }
         }

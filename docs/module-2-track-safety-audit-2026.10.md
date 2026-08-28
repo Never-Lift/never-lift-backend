@@ -40,20 +40,25 @@ circuito construído.
 
 ## Rettifilo, Monza
 
-A via asfaltada sai reta da aproximação do Rettifilo enquanto o circuito
-principal contorna a primeira chicane e mantém as cinco fileiras alternadas de
-blocos. O acesso publica `barrierOpenings` entre `463,44 m` e `566 m` no lado
+A via asfaltada usa a mesma cor e superfície física do circuito, sai tangente à
+borda externa esquerda da reta de aproximação do Rettifilo, permanece
+predominantemente reta enquanto o circuito contorna a primeira chicane e
+reconecta pela borda externa depois dela. O acesso publica
+`barrierOpenings` entre `440 m` e `590 m` no lado
 esquerdo. O mesmo intervalo é removido da colisão e do desenho do traçado
-principal, portanto o muro não corta a via. O corredor externo tem
-`affectsPhysics: true`: seus blocos de pedra são obstáculos rígidos
-indestrutíveis e as bordas contínuas usam `concrete-wall`; renderer, frontend e
-backend derivam esses colliders da mesma polilinha, sem colisão invisível sobre
-o asfalto da chicane.
+principal, portanto o muro não corta a via. Cinco fileiras alternadas de blocos
+brancos com chevrons vermelhos reproduzem o procedimento publicado pela FIA
+para as curvas 1–2 e a aparência da referência fotográfica. O corredor tem
+`affectsPhysics: true`: as fileiras dificultam a passagem e somente a borda
+esquerda/externa usa `concrete-wall`; renderer, frontend e backend derivam esses
+colliders da mesma polilinha, sem uma parede interna falsa.
 
 ## Placas regressivas de frenagem
 
 `sceneryLayout.brakingMarkers` publica placas brancas com texto preto, em escala
-métrica, imediatamente antes da face canônica da proteção externa. Cada
+métrica, imediatamente antes da face canônica da proteção externa. O renderer
+usa placas de 3 m de largura e 2,1 m de altura para preservar a leitura no
+enquadramento 2.5D sem desproporção com o mundo. Cada
 sequência termina em `50 m` e regride de 50 em 50. Placas de `250 m` e `300 m`
 existem somente em aproximações excepcionalmente rápidas; curvas já abordadas
 em baixa velocidade não recebem decoração artificial.
@@ -92,8 +97,8 @@ em baixa velocidade não recebem decoração artificial.
 - auditoria verifica IDs, sequência regressiva, lado, elevação, proximidade da
   proteção e cobertura composta por faces mais aberturas declaradas;
 - somente Monza possui a abertura `escape-road-access` nesta revisão, e somente
-  o Rettifilo possui uma via de escape física com blocos de pedra e bordas de
-  concreto;
+  o Rettifilo possui uma via de escape física com blocos brancos/chevrons
+  vermelhos e muro de concreto limitado à borda externa;
 - as 24 pistas mantêm ao menos duas zonas materiais de frenagem, com a exceção
   deliberadamente compacta de Mônaco ainda coberta por duas aproximações;
 - testes do renderer verificam faixa única de barreira, tampas apenas nas pontas
@@ -106,7 +111,8 @@ em baixa velocidade não recebem decoração artificial.
 Repassar as 24 pistas no preview, com atenção especial a muros grossos em
 chicanes/hairpins, transições entre materiais, começo e fim de grades e leitura
 das placas em velocidade. Em Monza, confirmar que o corredor reto do Rettifilo
-fica inteiro visível fora da chicane, que cada bloco de pedra colide sem invadir
-o traçado principal e que as bordas não deixam lacunas. Em Suzuka, confirmar que
+parte da reta e reconecta depois da chicane, que cada fileira branca/vermelha
+colide sem invadir o traçado principal, que não existe muro na borda interna e
+que o muro externo não deixa lacunas. Em Suzuka, confirmar que
 não restou nenhum semicírculo escuro nas duas extremidades da camada superior
 transparente.
