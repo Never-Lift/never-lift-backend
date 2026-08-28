@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class TrackCatalogImporter implements ApplicationRunner {
 
     public static final String SCHEMA_VERSION = "2.0.0";
-    public static final String CATALOG_VERSION = "2026.10";
+    public static final String CATALOG_VERSION = "2026.11";
     public static final String PHYSICS_CONTRACT_VERSION = "2.0.0";
     public static final int SEASON_REFERENCE = 2026;
     public static final String CALENDAR_POLICY = "original-24-round-freeze";
@@ -223,6 +223,7 @@ public class TrackCatalogImporter implements ApplicationRunner {
 
     private void validatePitLane(CatalogEntry entry, JsonNode pitLane) {
         JsonNode visualStyle = pitLane.path("visualStyle");
+        JsonNode garageBarrier = pitLane.path("garageBarrier");
         int garageCount = visualStyle.path("garageCount").asInt(-1);
         double buildingHeightMeters = visualStyle.path("buildingHeightMeters").asDouble(-1);
         Set<String> architectures = Set.of(
@@ -238,8 +239,7 @@ public class TrackCatalogImporter implements ApplicationRunner {
                 "exhibition");
         if (!visualStyle.isObject()
                 || !architectures.contains(visualStyle.path("architecture").asText())
-                || garageCount < 8
-                || garageCount > 16
+                || garageCount != 22
                 || buildingHeightMeters < 3
                 || buildingHeightMeters > 24
                 || !numberInRange(visualStyle, "laneWidthMeters", 6, 16)
@@ -260,6 +260,28 @@ public class TrackCatalogImporter implements ApplicationRunner {
                 || !isHexColor(visualStyle.path("roofColor").asText())) {
             throw invalid("pit visual style for " + entry.id());
         }
+        if (!garageBarrier.isObject()
+                || !Set.of("left", "right").contains(garageBarrier.path("side").asText())
+                || !"concrete-wall".equals(garageBarrier.path("material").asText())
+                || !numberInRange(garageBarrier, "thicknessMeters", 0.1, 2)
+                || !garageBarrier.path("path").isArray()
+                || garageBarrier.path("path").size() < 2
+                || !allFiniteVectors(garageBarrier.path("path"))) {
+            throw invalid("pit garage collision boundary for " + entry.id());
+        }
+    }
+
+    private boolean allFiniteVectors(JsonNode points) {
+        for (JsonNode point : points) {
+            if (!point.isObject()
+                    || !point.path("x").isNumber()
+                    || !Double.isFinite(point.path("x").asDouble())
+                    || !point.path("y").isNumber()
+                    || !Double.isFinite(point.path("y").asDouble())) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void validateInfrastructure(CatalogEntry entry, JsonNode sceneryLayout) {
@@ -396,11 +418,12 @@ public class TrackCatalogImporter implements ApplicationRunner {
 
         Map<String, List<BarrierCoverage>> coverageBySide = new HashMap<>();
         Set<String> openingIds = new HashSet<>();
-        if (!barrierOpenings.isArray()
-                || ("monza".equals(entry.id()) && barrierOpenings.size() != 1)
-                || (!"monza".equals(entry.id()) && !barrierOpenings.isEmpty())) {
+        if (!barrierOpenings.isArray()) {
             throw invalid("barrier openings for " + entry.id());
         }
+        boolean hasPitEntry = false;
+        boolean hasPitExit = false;
+        int escapeOpeningCount = 0;
         for (JsonNode opening : barrierOpenings) {
             String openingId = opening.path("id").asText();
             String sideName = opening.path("side").asText();
@@ -411,9 +434,14 @@ public class TrackCatalogImporter implements ApplicationRunner {
                     || !Set.of("left", "right").contains(sideName)
                     || from < 0
                     || to <= from
-                    || !"escape-road-access".equals(opening.path("reason").asText())) {
+                    || !Set.of("escape-road-access", "pit-entry", "pit-exit")
+                            .contains(opening.path("reason").asText())) {
                 throw invalid("barrier opening definition for " + entry.id());
             }
+            String reason = opening.path("reason").asText();
+            hasPitEntry |= "pit-entry".equals(reason);
+            hasPitExit |= "pit-exit".equals(reason);
+            escapeOpeningCount += "escape-road-access".equals(reason) ? 1 : 0;
             double coveredLength = 0;
             for (int index = 0; index < limitSegments.size(); index++) {
                 JsonNode limitSegment = limitSegments.get(index);
@@ -431,6 +459,11 @@ public class TrackCatalogImporter implements ApplicationRunner {
             if (Math.abs(coveredLength - (to - from)) > 0.001) {
                 throw invalid("barrier opening range for " + entry.id());
             }
+        }
+        if (!hasPitEntry || !hasPitExit
+                || ("monza".equals(entry.id()) && escapeOpeningCount != 1)
+                || (!"monza".equals(entry.id()) && escapeOpeningCount != 0)) {
+            throw invalid("barrier opening reasons for " + entry.id());
         }
         for (int index = 0; index < barriers.size(); index++) {
             JsonNode barrier = barriers.get(index);

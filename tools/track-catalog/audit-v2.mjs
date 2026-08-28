@@ -11,7 +11,7 @@ const mirrorDirectory =
   mirrorFlag >= 0 ? resolve(repositoryRoot, process.argv[mirrorFlag + 1]) : null
 
 const VERSION = '2.0.0'
-const CATALOG_VERSION = '2026.10'
+const CATALOG_VERSION = '2026.11'
 const PHYSICS_VERSION = '2.0.0'
 const TRACK_COUNT = 24
 const sharedFiles = [
@@ -513,6 +513,23 @@ function validateBrakingMarkers(track, entry) {
         marker.trackDistanceMeters >= segment.fromDistanceMeters - 0.001 &&
         marker.trackDistanceMeters <= segment.toDistanceMeters + 0.001,
     )
+    if (!barrier) {
+      const isPitTransition = track.barrierOpenings.some(
+        (opening) =>
+          opening.side === marker.side &&
+          (opening.reason === 'pit-entry' || opening.reason === 'pit-exit') &&
+          marker.trackDistanceMeters >= opening.fromDistanceMeters - 0.001 &&
+          marker.trackDistanceMeters <= opening.toDistanceMeters + 0.001,
+      )
+      invariant(isPitTransition, `${entry.id} braking marker canonical barrier`)
+      // Pit transitions intentionally remove the canonical barrier.  The
+      // board remains valid beside the asphalt edge, but has no protection
+      // polyline to project against in this short opening interval.
+      const cornerMarkers = byCorner.get(marker.cornerIndex) ?? []
+      cornerMarkers.push(marker.distanceToCornerMeters)
+      byCorner.set(marker.cornerIndex, cornerMarkers)
+      continue
+    }
     invariant(Boolean(barrier), `${entry.id} braking marker canonical barrier`)
     invariant(
       marker.elevationLayer === barrier.path[0].elevationLayer,
@@ -544,12 +561,26 @@ function validateBrakingMarkers(track, entry) {
 
 function validateTrackInfrastructure(track, entry) {
   invariant(track.pitLane.path.length >= 25, `${entry.id} detailed pit path`)
+  const garageBarrier = track.pitLane.garageBarrier
+  invariant(
+    garageBarrier &&
+      (garageBarrier.side === 'left' || garageBarrier.side === 'right') &&
+      garageBarrier.material === 'concrete-wall' &&
+      Number.isFinite(garageBarrier.thicknessMeters) &&
+      garageBarrier.thicknessMeters >= 0.1 &&
+      garageBarrier.thicknessMeters <= 2 &&
+      Array.isArray(garageBarrier.path) &&
+      garageBarrier.path.length >= 2 &&
+      garageBarrier.path.every(
+        (point) => Number.isFinite(point.x) && Number.isFinite(point.y),
+      ),
+    `${entry.id} pit garage collision boundary`,
+  )
   const pitStyle = track.pitLane.visualStyle
   invariant(Boolean(pitStyle), `${entry.id} pit visual style`)
   invariant(
     Number.isInteger(pitStyle.garageCount) &&
-      pitStyle.garageCount >= 8 &&
-      pitStyle.garageCount <= 16,
+      pitStyle.garageCount === 22,
     `${entry.id} pit garage count`,
   )
   invariant(
@@ -916,6 +947,20 @@ function validateInfrastructureClearance(track, entry) {
   )
   const garageSpanMeters =
     pitPathLengthMeters * (style.garageEndRatio - style.garageStartRatio)
+  const garagePathLengthMeters = pit.garageBarrier.path.slice(1).reduce(
+    (total, point, index) =>
+      total + Math.hypot(
+        point.x - pit.garageBarrier.path[index].x,
+        point.y - pit.garageBarrier.path[index].y,
+      ),
+    0,
+  )
+  invariant(
+    garagePathLengthMeters > 0 &&
+      garagePathLengthMeters >= garageSpanMeters * 0.8 &&
+      garagePathLengthMeters <= garageSpanMeters * 1.25,
+    `${entry.id} garage collision boundary follows garage span`,
+  )
   invariant(
     garageSpanMeters >= style.garageCount * style.pitBoxLengthMeters &&
       garageSpanMeters <=
@@ -1182,12 +1227,30 @@ function validateTrack(track, entry, vehicle) {
         opening.toDistanceMeters > opening.fromDistanceMeters,
       `${entry.id} barrier opening range`,
     )
-    invariant(opening.reason === 'escape-road-access', `${entry.id} barrier opening reason`)
+    invariant(
+      ['escape-road-access', 'pit-entry', 'pit-exit'].includes(opening.reason),
+      `${entry.id} barrier opening reason`,
+    )
   }
+  const openingReasons = track.barrierOpenings.map((opening) => opening.reason)
+  invariant(
+    openingReasons.includes('pit-entry'),
+    `${entry.id} pit entry barrier opening`,
+  )
+  invariant(
+    openingReasons.includes('pit-exit'),
+    `${entry.id} pit exit barrier opening`,
+  )
   if (entry.id === 'monza') {
-    invariant(track.barrierOpenings.length === 1, 'monza Rettifilo barrier opening')
+    invariant(
+      openingReasons.filter((reason) => reason === 'escape-road-access').length === 1,
+      'monza Rettifilo barrier opening',
+    )
   } else {
-    invariant(track.barrierOpenings.length === 0, `${entry.id} has no barrier opening`)
+    invariant(
+      !openingReasons.includes('escape-road-access'),
+      `${entry.id} has no authored escape opening`,
+    )
   }
 
   const curbIndexes = new Set()

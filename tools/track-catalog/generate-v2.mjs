@@ -21,7 +21,7 @@ const v2Directory = resolve(repositoryRoot, 'contracts', 'module-2', 'v2')
 const checkOnly = process.argv.includes('--check')
 
 const SCHEMA_VERSION = '2.0.0'
-const CATALOG_VERSION = '2026.10'
+const CATALOG_VERSION = '2026.11'
 const PHYSICS_CONTRACT_VERSION = '2.0.0'
 const ROUND_DECIMALS = 3
 const CHUNK_LENGTH_METERS = 250
@@ -1395,17 +1395,165 @@ function createPitLane(track, profile) {
     0.95,
     garageCenterRatio + garageSpanMeters / pathLengthMeters / 2,
   )
+  // The rear face of the garage shell is a real, visible building boundary.
+  // Publishing it as a collision path keeps the pit corridor drivable while
+  // preventing a car from passing through the opaque garage interiors.
+  const garageBarrierPath = Array.from({ length: 23 }, (_, index) => {
+    const progress = garageStartRatio +
+      (garageEndRatio - garageStartRatio) * (index / 22)
+    const scaled = progress * (path.length - 1)
+    const fromIndex = Math.min(path.length - 2, Math.floor(scaled))
+    const toIndex = fromIndex + 1
+    const ratio = scaled - fromIndex
+    const from = path[fromIndex]
+    const to = path[toIndex]
+    const tangent = normalize({ x: to.x - from.x, y: to.y - from.y })
+    const normal = { x: -tangent.y, y: tangent.x }
+    const center = {
+      x: from.x + (to.x - from.x) * ratio,
+      y: from.y + (to.y - from.y) * ratio,
+    }
+    const offset = profile.pitVisual.garageCenterOffsetMeters +
+      profile.pitVisual.garageDepthMeters / 2
+    const sideOffset = offset * sideDirection
+    return {
+      x: round(center.x + normal.x * sideOffset),
+      y: round(center.y + normal.y * sideOffset),
+    }
+  })
   return {
     entryDistanceMeters,
     exitDistanceMeters,
     speedLimitMetersPerSecond: 22.222,
     path,
+    garageBarrier: {
+      side: profile.pitSide,
+      material: 'concrete-wall',
+      thicknessMeters: 0.35,
+      path: garageBarrierPath,
+    },
     visualStyle: {
       ...profile.pitVisual,
       garageStartRatio: round(garageStartRatio, 6),
       garageEndRatio: round(garageEndRatio, 6),
     },
   }
+}
+
+/**
+ * Derive the physical openings in the track-side barrier from the generated
+ * pit path.  The pit lane is a real drivable corridor: its inner edge starts
+ * inside the circuit, crosses the authored track limit, and finishes outside
+ * the barrier before the lane settles alongside the garages.  Keeping these
+ * ranges derived avoids 24 hand-maintained opening tables drifting away from
+ * the geometry when a pit profile is calibrated.
+ */
+function createPitBarrierOpenings(track, pitLane, profile) {
+  const sampleCount = Math.max(121, pitLane.path.length * 4)
+  const span = track.lengthMeters - pitLane.entryDistanceMeters +
+    pitLane.exitDistanceMeters
+  const sideSign = profile.pitSide === 'left' ? 1 : -1
+  const laneHalfWidth = pitLane.visualStyle.laneWidthMeters / 2
+  const pathPointAt = (progress) => {
+    const scaled = Math.max(0, Math.min(1, progress)) *
+      (pitLane.path.length - 1)
+    const fromIndex = Math.floor(scaled)
+    const toIndex = Math.min(pitLane.path.length - 1, fromIndex + 1)
+    const ratio = scaled - fromIndex
+    const from = pitLane.path[fromIndex]
+    const to = pitLane.path[toIndex]
+    return {
+      x: from.x + (to.x - from.x) * ratio,
+      y: from.y + (to.y - from.y) * ratio,
+    }
+  }
+  const intersectsTrackLimit = (progress) => {
+    const distanceMeters = moduloDistance(
+      pitLane.entryDistanceMeters + span * progress,
+      track.lengthMeters,
+    )
+    const center = sampleAtDistance(
+      track.centerline,
+      distanceMeters,
+      track.lengthMeters,
+    )
+    const tangent = tangentAtDistance(
+      track.centerline,
+      distanceMeters,
+      track.lengthMeters,
+    )
+    const outward = {
+      x: -tangent.y * sideSign,
+      y: tangent.x * sideSign,
+    }
+    const pitPoint = pathPointAt(progress)
+    const signedOffset =
+      (pitPoint.x - center.x) * outward.x +
+      (pitPoint.y - center.y) * outward.y
+    const barrierFace = smoothedBarrierFaceOffset(
+      track,
+      profile.pitSide,
+      distanceMeters,
+    )
+    // Keep the opening until the full pit-lane corridor has cleared the
+    // barrier face.  A small tolerance prevents a one-pixel collision seam.
+    return signedOffset - laneHalfWidth < barrierFace + 0.35
+  }
+
+  const samples = Array.from({ length: sampleCount }, (_, index) => {
+    const progress = index / (sampleCount - 1)
+    return { progress, intersects: intersectsTrackLimit(progress) }
+  })
+  const firstClearIndex = samples.findIndex((sample) => !sample.intersects)
+  const lastClearIndex = [...samples]
+    .reverse()
+    .findIndex((sample) => !sample.intersects)
+  if (firstClearIndex <= 0 || lastClearIndex <= 0) {
+    throw new Error(`${track.id} pit path never clears its track-side barrier`)
+  }
+  const entryEndProgress = samples[firstClearIndex].progress
+  const exitStartProgress =
+    samples[samples.length - 1 - lastClearIndex].progress
+
+  const splitCircularRange = (fromUnwrapped, toUnwrapped) => {
+    const ranges = []
+    let cursor = fromUnwrapped
+    while (cursor < toUnwrapped - 1e-6) {
+      const lap = Math.floor(cursor / track.lengthMeters)
+      const lapEnd = (lap + 1) * track.lengthMeters
+      const next = Math.min(toUnwrapped, lapEnd)
+      const from = round(cursor - lap * track.lengthMeters)
+      const to = round(next - lap * track.lengthMeters)
+      if (to - from > 0.01) ranges.push({ from, to })
+      cursor = next
+    }
+    return ranges
+  }
+
+  const entryRanges = splitCircularRange(
+    pitLane.entryDistanceMeters,
+    pitLane.entryDistanceMeters + span * entryEndProgress,
+  )
+  const exitRanges = splitCircularRange(
+    pitLane.entryDistanceMeters + span * exitStartProgress,
+    pitLane.entryDistanceMeters + span,
+  )
+  return [
+    ...entryRanges.map((range, index) => ({
+      id: `${track.id}-pit-entry-${index + 1}`,
+      side: profile.pitSide,
+      fromDistanceMeters: range.from,
+      toDistanceMeters: range.to,
+      reason: 'pit-entry',
+    })),
+    ...exitRanges.map((range, index) => ({
+      id: `${track.id}-pit-exit-${index + 1}`,
+      side: profile.pitSide,
+      fromDistanceMeters: range.from,
+      toDistanceMeters: range.to,
+      reason: 'pit-exit',
+    })),
+  ]
 }
 
 function infrastructureObject(
@@ -1693,7 +1841,11 @@ function createTrackV2(track) {
     { ...track, trackLimits: baseTrackLimits, curbs: [] },
     infrastructure.startOffsetMeters ?? 0,
   )
-  rebasedBaseTrack.barrierOpenings = barrierOpeningsFor(track.id)
+  const pitLane = createPitLane(rebasedBaseTrack, infrastructure)
+  rebasedBaseTrack.barrierOpenings = [
+    ...barrierOpeningsFor(track.id),
+    ...createPitBarrierOpenings(rebasedBaseTrack, pitLane, infrastructure),
+  ]
   const authoredCurbs = createAuthoredCurbs(
     rebasedBaseTrack,
     curbFidelityProfileFor(track.id),
@@ -1748,7 +1900,7 @@ function createTrackV2(track) {
         rebasedTrack.lengthMeters,
       ),
     ),
-    pitLane: createPitLane(rebasedTrack, infrastructure),
+    pitLane,
     sceneryLayout,
     barrierGeometry,
   }
@@ -1798,13 +1950,15 @@ function createTrackV2(track) {
         'that do not participate in physics. It also uses Grand Prix Guides as a ' +
         'secondary satellite cross-check while FIA and circuit material remain primary, ' +
         'and records the last technically verifiable 2025 configuration for Mexico ' +
-        'City and the latest official project for Madrid. Catalog 2026.10 publishes ' +
+        'City and the latest official project for Madrid. Catalog 2026.11 publishes ' +
         'authored braking-reference boards only on material braking approaches and ' +
         'keeps their placement immediately track-side of the canonical outer protection; ' +
         (track.id === 'monza'
           ? 'it also publishes the Rettifilo straight-ahead asphalt corridor as physical ' +
             'geometry, with white polystyrene rows, red chevrons and only its external wall. '
           : 'it also refines the Rettifilo escape corridor for uninterrupted clearance. ') +
+        'Pit lanes publish physical entry/exit openings and an opaque rear garage barrier ' +
+        'aligned to the 22 visual bays, leaving the driving corridor open. ' +
         `${clearanceTransformation}`,
     },
   }
@@ -1857,10 +2011,25 @@ function createTrackSchema(v1Schema) {
       physicsContractVersion: { const: PHYSICS_CONTRACT_VERSION },
       pitLane: {
         ...pitLane,
-        required: [...pitLane.required, 'visualStyle'],
+        required: [...pitLane.required, 'visualStyle', 'garageBarrier'],
         properties: {
           ...pitLane.properties,
           visualStyle: { $ref: '#/$defs/pitVisualStyle' },
+          garageBarrier: {
+            type: 'object',
+            additionalProperties: false,
+            required: ['side', 'material', 'thicknessMeters', 'path'],
+            properties: {
+              side: { enum: ['left', 'right'] },
+              material: { const: 'concrete-wall' },
+              thicknessMeters: { type: 'number', minimum: 0.1, maximum: 2 },
+              path: {
+                type: 'array',
+                minItems: 2,
+                items: { $ref: '#/$defs/vector' },
+              },
+            },
+          },
         },
       },
       sceneryLayout: {
@@ -1926,7 +2095,7 @@ function createTrackSchema(v1Schema) {
                   'marina-canopy',
                 ],
               },
-              garageCount: { type: 'integer', minimum: 8, maximum: 16 },
+              garageCount: { const: 22 },
               buildingHeightMeters: {
                 type: 'number',
                 minimum: 3,
@@ -2071,7 +2240,7 @@ function createTrackSchema(v1Schema) {
           side: { enum: ['left', 'right'] },
           fromDistanceMeters: { type: 'number', minimum: 0 },
           toDistanceMeters: { type: 'number', exclusiveMinimum: 0 },
-          reason: { const: 'escape-road-access' },
+          reason: { enum: ['escape-road-access', 'pit-entry', 'pit-exit'] },
         },
       },
       curbSegment: {
