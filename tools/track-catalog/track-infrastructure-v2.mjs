@@ -231,10 +231,12 @@ export const trackInfrastructureProfilesV2 = Object.freeze({
     ],
   }),
   silverstone: profile({
-    // FIA event maps place the race start 143 m before the timing line on the
-    // Hamilton Straight.  In the source coordinate convention this is the
-    // equivalent of choosing the point length-143 as the new lap origin.
-    startOffsetMeters: 5748,
+    // The executable source starts at the old loop's Turn 8/9 transition.
+    // F1 uses the Hamilton Straight between Club (Turn 18) and Abbey (Turn 1)
+    // for the grid and pit lane.  The 3200 m source offset places lap zero on
+    // that straight, with the Wing garages and pit transitions on the same
+    // physical approach.
+    startOffsetMeters: 3200,
     pit: pitVisual('wing', '#d7dadc', '#373e45', '#8b2730', '#edf0f1', 12, 6.3),
     structures: [
       structure('silverstone-wing', 'silverstone-wing-building', 0.025, 'right', 35, 22, '#d7dadc', '#373e45', '#8b2730', '#edf0f1'),

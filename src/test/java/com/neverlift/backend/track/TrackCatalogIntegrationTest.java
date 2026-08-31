@@ -219,6 +219,19 @@ class TrackCatalogIntegrationTest {
                 .andExpect(jsonPath("$.trackLimits.segments.length()").value(org.hamcrest.Matchers.greaterThan(1)))
                 .andExpect(jsonPath("$.trackLimits.segments[0].right.zones").isArray());
 
+        mockMvc.perform(get("/api/tracks/silverstone"))
+                .andExpect(status().isOk())
+                // The grid belongs on Hamilton Straight, between Club (T18) and Abbey (T1),
+                // not at the source file's old T8/T9 transition.
+                .andExpect(jsonPath("$.startFinish.position.x")
+                        .value(org.hamcrest.Matchers.closeTo(-424.564, 0.01)))
+                .andExpect(jsonPath("$.startFinish.position.y")
+                        .value(org.hamcrest.Matchers.closeTo(-1003.070, 0.01)))
+                .andExpect(jsonPath("$.pitLane.entryDistanceMeters")
+                        .value(org.hamcrest.Matchers.closeTo(5572.886, 0.01)))
+                .andExpect(jsonPath("$.pitLane.exitDistanceMeters")
+                        .value(org.hamcrest.Matchers.closeTo(270.986, 0.01)));
+
         mockMvc.perform(get("/api/tracks/suzuka"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.sceneryLayout.landmarks").isEmpty())

@@ -1963,7 +1963,7 @@ function createTrackV2(track) {
   }
   if (track.id === 'silverstone') {
     localTransformations.push(
-      'Silverstone start/finish and grid are rebased 143 meters from the timing line to the official start line; pit entry and exit remain on their audited approaches.',
+      'Silverstone start/finish and grid are rebased to the Hamilton Straight between Club (Turn 18) and Abbey (Turn 1); pit entry, pit exit and Wing garages follow the same official approach.',
     )
   }
   if (track.id === 'singapore') {
