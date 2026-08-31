@@ -27,6 +27,7 @@ public class TrackService {
         return new TrackCatalogResponse(
                 TrackCatalogImporter.SCHEMA_VERSION,
                 TrackCatalogImporter.CATALOG_VERSION,
+                TrackCatalogImporter.PHYSICS_CONTRACT_VERSION,
                 TrackCatalogImporter.SEASON_REFERENCE,
                 TrackCatalogImporter.CALENDAR_POLICY,
                 trackRepository.findAllByOrderByRoundNumberAsc().stream()

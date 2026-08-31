@@ -1,6 +1,6 @@
 # Never Lift
 
-API REST e futuro motor de corrida autoritativo do Never Lift, construídos com Java 21 e Spring Boot.
+API REST e futuro motor de corrida autoritativo do Never Lift, construídos com Java 21 e Spring Boot. A direção aprovada usa um único monoposto e uma simulação acessível inspirada na F1 de 2026; boost/nitro não faz parte do produto.
 
 Este é um jogo novo. O protótipo anterior serve somente como referência de sensação e comportamento; ele não é uma base de código para conversão.
 
@@ -85,7 +85,7 @@ O gamertag é único e não aceita espaços. Senhas devem ter pelo menos quatro 
 
 ## Pistas e resultados locais
 
-O catálogo público `2026.1` contém as 24 definições métricas canônicas dos contratos v1. As geometrias são validadas e importadas no banco ao iniciar a aplicação; os endpoints não exigem autenticação:
+ O catálogo público `2026.12` contém as 24 definições métricas canônicas do schema de pista `2.0.0`. Cada definição usa centerline fechada suavizada e amostrada a cada aproximadamente 5 m e inclui zebras externas autorais por curva, zonas ordenadas de asfalto, grama ou brita, pit lane navegável, cercas, placas regressivas e faces explícitas das barreiras. A face voltada à pista é simultaneamente visual e física; a cerca externa e as placas permanecem apenas visuais. Muros e grades usam transições limitadas para não criar laços ou quinas. As entradas e saídas do pit são aberturas físicas publicadas no mesmo contrato, enquanto a face traseira opaca das 22 garagens (duas vagas por equipe) também possui collider, sem bloquear o corredor. Monza voltou à configuração canônica da pista principal, sem o corredor de escape provisório do Rettifilo nem abertura de barreira adicional. Os perfis guardam as fontes consultadas e são validados e importados no banco ao iniciar a aplicação; os endpoints não exigem autenticação:
 
 | Método | Endpoint | Descrição |
 |---|---|---|
@@ -97,7 +97,8 @@ Resultados de corridas simuladas localmente pelo frontend são enviados para `PO
 ```json
 {
   "trackId": "interlagos",
-  "trackCatalogVersion": "2026.1",
+  "trackCatalogVersion": "2026.12",
+  "physicsContractVersion": "2.0.0",
   "mode": "local",
   "results": [
     {
@@ -119,6 +120,8 @@ Resultados de corridas simuladas localmente pelo frontend são enviados para `PO
 ```
 
 O backend valida pista, versão, modo, posições e tempos antes de persistir tudo atomicamente. Para um JWT de usuário, exatamente um item deve usar o `subject` autenticado; nenhum outro UUID é aceito. Resultados de guest e bot usam `null`. A consulta pública do histórico permanece reservada ao Módulo 8.
+
+O backend exige `physicsContractVersion=2.0.0` junto do catálogo `2026.12` e persiste a versão em cada resultado; versões físicas incompatíveis não são comparadas diretamente. A Parte 2d e o Módulo 2 foram implementados e validados manualmente de forma integrada em 31/08/2026. A especificação e as fontes estão em [`docs/contracts/module-2-physics-v2-proposal.md`](docs/contracts/module-2-physics-v2-proposal.md), e a revisão atual das pistas está registrada em [`docs/module-2-track-safety-audit-2026.10.md`](docs/module-2-track-safety-audit-2026.10.md).
 
 ## Testes
 
@@ -144,11 +147,11 @@ Depois dessa configuração, cada atualização da `main` dispara um deploy. Qua
 
 ## Documentação
 
-Os Módulos 0–9 formam o MVP planejado. A expansão pós-MVP aprovada está registrada nos Módulos 10–16: progressão e carros por conquista, contrarrelógio com fantasmas, controles personalizáveis (frontend-only), espectadores, equipes, torneios automáticos e conduta esportiva.
+Os Módulos 0–9 formam o MVP planejado. A expansão pós-MVP aprovada está registrada nos Módulos 10–16: progressão e cosméticos por conquista, contrarrelógio com fantasmas, controles personalizáveis (frontend-only), espectadores, equipes, torneios automáticos e conduta esportiva.
 
 A direção de jogo e apresentação aprovada está em [`docs/game-design-guide.md`](docs/game-design-guide.md). Para o backend, ela é normativa somente onde define contratos compartilhados: unidade métrica, catálogo de pistas, vetor de velocidade, metadados e campos de entidades. Decisões exclusivamente visuais permanecem responsabilidade do frontend e entram apenas em seus módulos correspondentes.
 
-Os contratos implementados pelo Módulo 2 estão em [`docs/contracts/module-2-shared-contracts.md`](docs/contracts/module-2-shared-contracts.md) e [`contracts/module-2/v1/`](contracts/module-2/v1/). O catálogo `2026.1` contém 24 definições métricas reproduzíveis; rode `node tools/track-catalog/generate.mjs --check` para conferir que os arquivos gerados continuam sincronizados com a fonte versionada.
+Os contratos implementados pelo Módulo 2 estão em [`docs/contracts/module-2-shared-contracts.md`](docs/contracts/module-2-shared-contracts.md), [`contracts/module-2/v2/`](contracts/module-2/v2/) e na [proposta aprovada da física v2](docs/contracts/module-2-physics-v2-proposal.md). O `v1` permanece histórico e imutável. O catálogo `2026.12` contém 24 definições métricas reproduzíveis, proteções contínuas, placas de frenagem, pits navegáveis e faces canônicas de barreira; rode `node tools/track-catalog/generate-v2.mjs --check` e `node tools/track-catalog/audit-v2.mjs --mirror <pasta-v2-do-frontend>` para conferir geração, invariantes e espelho byte a byte.
 
 - [`docs/backend-implementation-plan.md`](docs/backend-implementation-plan.md) — arquitetura, protocolo e módulos do backend.
 - [`docs/frontend-implementation-plan.md`](docs/frontend-implementation-plan.md) — referência do consumidor da API e do WebSocket.

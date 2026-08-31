@@ -3,8 +3,12 @@ package com.neverlift.backend.track;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -18,13 +22,21 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class TrackCatalogImporter implements ApplicationRunner {
 
-    public static final String SCHEMA_VERSION = "1.0.0";
-    public static final String CATALOG_VERSION = "2026.1";
+    public static final String SCHEMA_VERSION = "2.0.0";
+    public static final String CATALOG_VERSION = "2026.12";
+    public static final String PHYSICS_CONTRACT_VERSION = "2.0.0";
     public static final int SEASON_REFERENCE = 2026;
     public static final String CALENDAR_POLICY = "original-24-round-freeze";
 
     private static final int TRACK_COUNT = 24;
-    private static final String CONTRACT_ROOT = "contracts/module-2/v1/";
+    private static final String CONTRACT_ROOT = "contracts/module-2/v2/";
+    private static final Set<String> BARRIER_TYPES = Set.of(
+            "concrete-wall", "guardrail", "tecpro", "tyre-barrier");
+    private static final String FENCE_TYPE = "debris-fence";
+    private static final Set<String> CURB_SIDES = Set.of("left", "right");
+    private static final Set<String> CURB_PALETTES = Set.of(
+            "red-white", "orange-white", "red-white-blue", "green-white-red",
+            "red-yellow", "green-yellow", "maroon-white", "blue-white");
 
     private final ObjectMapper objectMapper;
     private final TrackRepository trackRepository;
@@ -83,6 +95,10 @@ public class TrackCatalogImporter implements ApplicationRunner {
     private void validateCatalog(CatalogDocument catalog) {
         requireEqual(SCHEMA_VERSION, catalog.schemaVersion(), "catalog schemaVersion");
         requireEqual(CATALOG_VERSION, catalog.catalogVersion(), "catalog catalogVersion");
+        requireEqual(
+                PHYSICS_CONTRACT_VERSION,
+                catalog.physicsContractVersion(),
+                "catalog physicsContractVersion");
         if (catalog.seasonReference() != SEASON_REFERENCE) {
             throw invalid("catalog seasonReference");
         }
@@ -107,6 +123,10 @@ public class TrackCatalogImporter implements ApplicationRunner {
     private void validateDefinition(CatalogDocument catalog, CatalogEntry entry, JsonNode definition) {
         requireEqual(catalog.schemaVersion(), text(definition, "schemaVersion"), "definition schemaVersion");
         requireEqual(catalog.catalogVersion(), text(definition, "catalogVersion"), "definition catalogVersion");
+        requireEqual(
+                catalog.physicsContractVersion(),
+                text(definition, "physicsContractVersion"),
+                "definition physicsContractVersion");
         requireEqual(entry.id(), text(definition, "id"), "definition id");
         requireEqual(entry.name(), text(definition, "name"), "definition name");
         requireEqual(entry.countryCode(), text(definition, "countryCode"), "definition countryCode");
@@ -121,12 +141,54 @@ public class TrackCatalogImporter implements ApplicationRunner {
         }
         JsonNode first = centerline.get(0);
         JsonNode last = centerline.get(centerline.size() - 1);
+        Set<Integer> elevationLayers = new HashSet<>();
+        JsonNode previousPoint = null;
+        JsonNode pointBeforePrevious = null;
+        for (JsonNode point : centerline) {
+            double halfWidthMeters = point.path("halfWidthMeters").asDouble(-1);
+            JsonNode elevationLayer = point.get("elevationLayer");
+            if (halfWidthMeters < 3.5 || halfWidthMeters > 13
+                    || elevationLayer == null
+                    || !elevationLayer.isIntegralNumber()
+                    || elevationLayer.asInt() < 0
+                    || elevationLayer.asInt() > 3) {
+                throw invalid("centerline width or elevation layer for " + entry.id());
+            }
+            elevationLayers.add(elevationLayer.asInt());
+            if (previousPoint != null) {
+                double segmentLength = Math.hypot(
+                        point.path("x").asDouble() - previousPoint.path("x").asDouble(),
+                        point.path("y").asDouble() - previousPoint.path("y").asDouble());
+                if (segmentLength > 5.02) {
+                    throw invalid("centerline sampling gap for " + entry.id());
+                }
+            }
+            if (pointBeforePrevious != null) {
+                double previousHeading = Math.atan2(
+                        previousPoint.path("y").asDouble() - pointBeforePrevious.path("y").asDouble(),
+                        previousPoint.path("x").asDouble() - pointBeforePrevious.path("x").asDouble());
+                double currentHeading = Math.atan2(
+                        point.path("y").asDouble() - previousPoint.path("y").asDouble(),
+                        point.path("x").asDouble() - previousPoint.path("x").asDouble());
+                double headingDelta = Math.atan2(
+                        Math.sin(currentHeading - previousHeading),
+                        Math.cos(currentHeading - previousHeading));
+                if (Math.abs(headingDelta) > Math.PI / 3.6) {
+                    throw invalid("visibly angular centerline for " + entry.id());
+                }
+            }
+            pointBeforePrevious = previousPoint;
+            previousPoint = point;
+        }
         if (Double.compare(first.path("x").asDouble(), last.path("x").asDouble()) != 0
                 || Double.compare(first.path("y").asDouble(), last.path("y").asDouble()) != 0) {
             throw invalid("closed centerline for " + entry.id());
         }
         if (Math.abs(last.path("distanceMeters").asDouble() - entry.lengthMeters()) > 0.001) {
             throw invalid("centerline length for " + entry.id());
+        }
+        if ("suzuka".equals(entry.id()) && (!elevationLayers.contains(0) || !elevationLayers.contains(1))) {
+            throw invalid("Suzuka must distinguish its overpass elevation layer");
         }
 
         JsonNode checkpoints = definition.path("checkpoints");
@@ -145,10 +207,453 @@ public class TrackCatalogImporter implements ApplicationRunner {
 
         if (definition.path("gridSlots").size() != 4
                 || definition.path("racingLine").size() != centerline.size()
-                || definition.path("pitLane").path("path").size() < 2
-                || !definition.path("sceneryLayout").isObject()) {
+                || definition.path("pitLane").path("path").size() < 25
+                || !definition.path("sceneryLayout").isObject()
+                || definition.path("source").path("environmentReferences").size() < 2) {
             throw invalid("required geometry for " + entry.id());
         }
+
+        validateCurbs(entry, definition.path("curbs"));
+        validatePitLane(entry, definition.path("pitLane"));
+        validateInfrastructure(entry, definition.path("sceneryLayout"));
+        validateTrackLimits(entry, definition.path("trackLimits"));
+        validateBarrierGeometry(entry, definition.path("trackLimits"), definition.path("chunks"),
+                definition.path("barrierGeometry"), definition.path("barrierOpenings"));
+    }
+
+    private void validatePitLane(CatalogEntry entry, JsonNode pitLane) {
+        JsonNode visualStyle = pitLane.path("visualStyle");
+        JsonNode garageBarrier = pitLane.path("garageBarrier");
+        int garageCount = visualStyle.path("garageCount").asInt(-1);
+        double buildingHeightMeters = visualStyle.path("buildingHeightMeters").asDouble(-1);
+        Set<String> architectures = Set.of(
+                "temporary-modular",
+                "permanent-modern",
+                "stepped-modern",
+                "heritage",
+                "urban-compact",
+                "desert-canopy",
+                "marina-canopy",
+                "wing",
+                "stadium",
+                "exhibition");
+        if (!visualStyle.isObject()
+                || !architectures.contains(visualStyle.path("architecture").asText())
+                || garageCount != 22
+                || buildingHeightMeters < 3
+                || buildingHeightMeters > 24
+                || !numberInRange(visualStyle, "laneWidthMeters", 6, 16)
+                || !numberInRange(visualStyle, "garageStartRatio", 0.05, 0.8)
+                || !numberInRange(visualStyle, "garageEndRatio", 0.2, 0.95)
+                || visualStyle.path("garageStartRatio").asDouble()
+                        >= visualStyle.path("garageEndRatio").asDouble()
+                || !numberInRange(visualStyle, "pitBoxLengthMeters", 3, 12)
+                || !numberInRange(visualStyle, "pitBoxDepthMeters", 1.5, 4)
+                || !numberInRange(visualStyle, "pitBoxCenterOffsetMeters", 1, 5)
+                || !numberInRange(visualStyle, "garageDepthMeters", 3, 16)
+                || !numberInRange(visualStyle, "garageCenterOffsetMeters", 6, 24)
+                || !numberInRange(visualStyle, "pitWallHeightMeters", 0.6, 1.5)
+                || !numberInRange(visualStyle, "canopyDepthMeters", 0, 5)
+                || !isHexColor(visualStyle.path("primaryColor").asText())
+                || !isHexColor(visualStyle.path("secondaryColor").asText())
+                || !isHexColor(visualStyle.path("accentColor").asText())
+                || !isHexColor(visualStyle.path("roofColor").asText())) {
+            throw invalid("pit visual style for " + entry.id());
+        }
+        if (!garageBarrier.isObject()
+                || !Set.of("left", "right").contains(garageBarrier.path("side").asText())
+                || !"concrete-wall".equals(garageBarrier.path("material").asText())
+                || !numberInRange(garageBarrier, "thicknessMeters", 0.1, 2)
+                || !garageBarrier.path("path").isArray()
+                || garageBarrier.path("path").size() < 2
+                || !allFiniteVectors(garageBarrier.path("path"))) {
+            throw invalid("pit garage collision boundary for " + entry.id());
+        }
+    }
+
+    private boolean allFiniteVectors(JsonNode points) {
+        for (JsonNode point : points) {
+            if (!point.isObject()
+                    || !point.path("x").isNumber()
+                    || !Double.isFinite(point.path("x").asDouble())
+                    || !point.path("y").isNumber()
+                    || !Double.isFinite(point.path("y").asDouble())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void validateInfrastructure(CatalogEntry entry, JsonNode sceneryLayout) {
+        if (!sceneryLayout.path("landmarks").isArray()
+                || !sceneryLayout.path("landmarks").isEmpty()
+                || !sceneryLayout.path("staticObjects").isArray()
+                || sceneryLayout.path("staticObjects").isEmpty()
+                || !sceneryLayout.path("escapeRoads").isArray()) {
+            throw invalid("infrastructure-only scenery for " + entry.id());
+        }
+        Set<String> utilityKinds = Set.of("start-gantry");
+        Set<String> sceneryIds = new HashSet<>();
+        boolean hasStartGantry = false;
+        int authoredStructures = 0;
+        int grandstands = 0;
+        boolean hasStartAreaBuilding = false;
+        for (JsonNode object : sceneryLayout.path("staticObjects")) {
+            String objectId = object.path("id").asText();
+            String kind = object.path("kind").asText();
+            if (objectId.isBlank() || !sceneryIds.add(objectId) || "escape-bollard".equals(kind)) {
+                throw invalid("unique visual infrastructure for " + entry.id());
+            }
+            hasStartGantry |= "start-gantry".equals(kind);
+            if (utilityKinds.contains(kind)) {
+                continue;
+            }
+
+            authoredStructures++;
+            grandstands += kind.contains("grandstand") ? 1 : 0;
+            hasStartAreaBuilding |= kind.contains("building") || kind.contains("tower");
+            JsonNode visualStyle = object.path("visualStyle");
+            JsonNode dimensions = object.path("dimensions");
+            if (!visualStyle.isObject()
+                    || !isHexColor(visualStyle.path("primaryColor").asText())
+                    || !isHexColor(visualStyle.path("secondaryColor").asText())
+                    || !isHexColor(visualStyle.path("accentColor").asText())
+                    || !isHexColor(visualStyle.path("roofColor").asText())
+                    || !dimensions.isObject()
+                    || !numberInRange(dimensions, "lengthMeters", 0.01, 400)
+                    || !numberInRange(dimensions, "depthMeters", 0.01, 120)
+                    || !numberInRange(dimensions, "heightMeters", 0.01, 80)) {
+                throw invalid("authored infrastructure palette for " + entry.id());
+            }
+        }
+        if (!hasStartGantry
+                || authoredStructures < 5
+                || grandstands < 3
+                || !hasStartAreaBuilding) {
+            throw invalid("required track infrastructure for " + entry.id());
+        }
+        validateEscapeRoads(entry, sceneryLayout.path("escapeRoads"), sceneryIds);
+    }
+
+    private void validateEscapeRoads(CatalogEntry entry, JsonNode escapeRoads, Set<String> sceneryIds) {
+        if (!escapeRoads.isEmpty()) {
+            throw invalid("escape road assignment for " + entry.id());
+        }
+        /*
+         * Catalog 2026.12 intentionally publishes no executable escape roads.
+         * The remainder of this method documents the validation used when a
+         * future circuit receives an authored route; it is unreachable for the
+         * current catalog and keeps the generic contract checks in one place.
+         */
+        if (escapeRoads.isEmpty()) {
+            return;
+        }
+        for (JsonNode road : escapeRoads) {
+            String roadId = road.path("id").asText();
+            JsonNode path = road.path("path");
+            JsonNode rows = road.path("obstacleRows");
+            JsonNode edgeSides = road.path("edgeSides");
+            boolean physicalRoad = road.path("affectsPhysics").asBoolean(false);
+            if (roadId.isBlank()
+                    || !sceneryIds.add(roadId)
+                    || !"slalom-block-rows".equals(road.path("kind").asText())
+                    || !road.path("affectsPhysics").isBoolean()
+                    || physicalRoad
+                    || (physicalRoad && !"concrete-wall".equals(road.path("edgeMaterial").asText()))
+                    || (physicalRoad && (!edgeSides.isArray()
+                            || edgeSides.size() != 1
+                            || !"left".equals(edgeSides.get(0).asText())))
+                    || !road.path("elevationLayer").canConvertToInt()
+                    || road.path("elevationLayer").asInt() < 0
+                    || road.path("elevationLayer").asInt() > 3
+                    || !numberInRange(road, "widthMeters", 4, 16)
+                    || !path.isArray()
+                    || path.size() < 2
+                    || !rows.isArray()
+                    || rows.size() < 3
+                    || rows.size() < 3) {
+                    throw invalid("escape road for " + entry.id());
+            }
+            for (JsonNode point : path) {
+                validateVector(entry, point, "escape road path");
+            }
+            for (JsonNode row : rows) {
+                boolean whiteRedChevron = "white-red-chevron".equals(row.path("palette").asText());
+                if (!whiteRedChevron
+                        || (physicalRoad
+                                && !"concrete-wall".equals(row.path("collisionMaterial").asText()))
+                        || !numberInRange(row, "blockLengthMeters", 0.4, 4)) {
+                    throw invalid("escape road obstacle row for " + entry.id());
+                }
+                validateVector(entry, row.path("from"), "escape road row start");
+                validateVector(entry, row.path("to"), "escape road row end");
+            }
+        }
+    }
+
+    private void validateVector(CatalogEntry entry, JsonNode vector, String label) {
+        if (!vector.isObject()
+                || !vector.path("x").isNumber()
+                || !vector.path("y").isNumber()) {
+            throw invalid(label + " for " + entry.id());
+        }
+    }
+
+    private boolean isHexColor(String value) {
+        return value.matches("#[0-9a-fA-F]{6}");
+    }
+
+    private boolean numberInRange(JsonNode node, String field, double minimum, double maximum) {
+        JsonNode value = node.path(field);
+        return value.isNumber() && value.asDouble() >= minimum && value.asDouble() <= maximum;
+    }
+
+    private void validateBarrierGeometry(
+            CatalogEntry entry,
+            JsonNode trackLimits,
+            JsonNode chunks,
+            JsonNode barrierGeometry,
+            JsonNode barrierOpenings) {
+        JsonNode limitSegments = trackLimits.path("segments");
+        JsonNode barriers = barrierGeometry.path("segments");
+        if (!barrierGeometry.isObject()
+                || !barriers.isArray()
+                || barriers.size() < limitSegments.size() * 2) {
+            throw invalid("barrier geometry for " + entry.id());
+        }
+
+        Map<String, List<BarrierCoverage>> coverageBySide = new HashMap<>();
+        Set<String> openingIds = new HashSet<>();
+        if (!barrierOpenings.isArray()) {
+            throw invalid("barrier openings for " + entry.id());
+        }
+        boolean hasPitEntry = false;
+        boolean hasPitExit = false;
+        int escapeOpeningCount = 0;
+        for (JsonNode opening : barrierOpenings) {
+            String openingId = opening.path("id").asText();
+            String sideName = opening.path("side").asText();
+            double from = opening.path("fromDistanceMeters").asDouble(-1);
+            double to = opening.path("toDistanceMeters").asDouble(-1);
+            if (openingId.isBlank()
+                    || !openingIds.add(openingId)
+                    || !Set.of("left", "right").contains(sideName)
+                    || from < 0
+                    || to <= from
+                    || !Set.of("escape-road-access", "pit-entry", "pit-exit")
+                            .contains(opening.path("reason").asText())) {
+                throw invalid("barrier opening definition for " + entry.id());
+            }
+            String reason = opening.path("reason").asText();
+            hasPitEntry |= "pit-entry".equals(reason);
+            hasPitExit |= "pit-exit".equals(reason);
+            escapeOpeningCount += "escape-road-access".equals(reason) ? 1 : 0;
+            double coveredLength = 0;
+            for (int index = 0; index < limitSegments.size(); index++) {
+                JsonNode limitSegment = limitSegments.get(index);
+                double segmentFrom = limitSegment.path("fromDistanceMeters").asDouble();
+                double segmentTo = limitSegment.path("toDistanceMeters").asDouble();
+                double overlapFrom = Math.max(from, segmentFrom);
+                double overlapTo = Math.min(to, segmentTo);
+                if (overlapTo > overlapFrom) {
+                    coveredLength += overlapTo - overlapFrom;
+                    coverageBySide
+                            .computeIfAbsent(index + ":" + sideName, ignored -> new ArrayList<>())
+                            .add(new BarrierCoverage(overlapFrom, overlapTo));
+                }
+            }
+            if (Math.abs(coveredLength - (to - from)) > 0.001) {
+                throw invalid("barrier opening range for " + entry.id());
+            }
+        }
+        if (!hasPitEntry || !hasPitExit || escapeOpeningCount != 0) {
+            throw invalid("barrier opening reasons for " + entry.id());
+        }
+        for (int index = 0; index < barriers.size(); index++) {
+            JsonNode barrier = barriers.get(index);
+            int trackLimitIndex = barrier.path("trackLimitSegmentIndex").asInt(-1);
+            String sideName = barrier.path("side").asText();
+            double from = barrier.path("fromDistanceMeters").asDouble(-1);
+            double to = barrier.path("toDistanceMeters").asDouble(-1);
+            JsonNode path = barrier.path("path");
+            JsonNode chunkIndexes = barrier.path("chunkIndexes");
+            if (barrier.path("index").asInt(-1) != index
+                    || trackLimitIndex < 0
+                    || trackLimitIndex >= limitSegments.size()
+                    || !Set.of("left", "right").contains(sideName)
+                    || from < 0
+                    || to <= from
+                    || !BARRIER_TYPES.contains(barrier.path("material").asText())
+                    || barrier.path("thicknessMeters").asDouble(-1) <= 0
+                    || !"track-barrier".equals(barrier.path("collisionLayer").asText())
+                    || !chunkIndexes.isArray()
+                    || chunkIndexes.isEmpty()
+                    || !path.isArray()
+                    || path.size() < 2) {
+                throw invalid("barrier segment for " + entry.id());
+            }
+
+            JsonNode limitSegment = limitSegments.get(trackLimitIndex);
+            if (!barrier.path("material").asText()
+                    .equals(limitSegment.path(sideName).path("barrier").asText())
+                    || from < limitSegment.path("fromDistanceMeters").asDouble() - 0.001
+                    || to > limitSegment.path("toDistanceMeters").asDouble() + 0.001) {
+                throw invalid("barrier source segment for " + entry.id());
+            }
+            for (JsonNode chunkIndex : chunkIndexes) {
+                if (!chunkIndex.isIntegralNumber()
+                        || chunkIndex.asInt() < 0
+                        || chunkIndex.asInt() >= chunks.size()) {
+                    throw invalid("barrier chunk for " + entry.id());
+                }
+            }
+
+            int elevationLayer = path.get(0).path("elevationLayer").asInt(-1);
+            double previousDistance = -1;
+            for (JsonNode point : path) {
+                double distanceMeters = point.path("distanceMeters").asDouble(-1);
+                if (!point.path("x").isNumber()
+                        || !point.path("y").isNumber()
+                        || distanceMeters <= previousDistance
+                        || point.path("elevationLayer").asInt(-1) != elevationLayer) {
+                    throw invalid("barrier path for " + entry.id());
+                }
+                previousDistance = distanceMeters;
+            }
+            if (Math.abs(path.get(0).path("distanceMeters").asDouble() - from) > 0.001
+                    || Math.abs(path.get(path.size() - 1).path("distanceMeters").asDouble() - to) > 0.001) {
+                throw invalid("barrier path range for " + entry.id());
+            }
+            coverageBySide
+                    .computeIfAbsent(trackLimitIndex + ":" + sideName, ignored -> new ArrayList<>())
+                    .add(new BarrierCoverage(from, to));
+        }
+
+        for (int index = 0; index < limitSegments.size(); index++) {
+            JsonNode limitSegment = limitSegments.get(index);
+            for (String sideName : Set.of("left", "right")) {
+                List<BarrierCoverage> coverage = coverageBySide.get(index + ":" + sideName);
+                if (coverage == null || coverage.isEmpty()) {
+                    throw invalid("barrier side coverage for " + entry.id());
+                }
+                coverage.sort(Comparator.comparingDouble(BarrierCoverage::from));
+                double expectedFrom = limitSegment.path("fromDistanceMeters").asDouble();
+                for (BarrierCoverage part : coverage) {
+                    if (Math.abs(part.from() - expectedFrom) > 0.001) {
+                        throw invalid("barrier side gap or overlap for " + entry.id());
+                    }
+                    expectedFrom = part.to();
+                }
+                if (Math.abs(expectedFrom - limitSegment.path("toDistanceMeters").asDouble()) > 0.001) {
+                    throw invalid("barrier side coverage end for " + entry.id());
+                }
+            }
+        }
+    }
+
+    private void validateCurbs(CatalogEntry entry, JsonNode curbs) {
+        if (!curbs.isArray() || curbs.isEmpty()) {
+            throw invalid("curbs for " + entry.id());
+        }
+        for (int index = 0; index < curbs.size(); index++) {
+            JsonNode curb = curbs.get(index);
+            double from = curb.path("fromDistanceMeters").asDouble(-1);
+            double to = curb.path("toDistanceMeters").asDouble(-1);
+            double width = curb.path("widthMeters").asDouble(-1);
+            double stripeLength = curb.path("stripeLengthMeters").asDouble(-1);
+            if (curb.path("index").asInt(-1) != index
+                    || from < 0
+                    || to <= from
+                    || to > entry.lengthMeters()
+                    || !CURB_SIDES.contains(curb.path("side").asText())
+                    || width < 0.3
+                    || width > 2.5
+                    || stripeLength < 0.5
+                    || stripeLength > 8
+                    || !CURB_PALETTES.contains(curb.path("palette").asText())) {
+                throw invalid("curb segment for " + entry.id());
+            }
+            if (curb.has("outerColor") != curb.has("outerWidthMeters")
+                    || (curb.has("outerColor")
+                            && (!isHexColor(curb.path("outerColor").asText())
+                                    || !numberInRange(curb, "outerWidthMeters", 0.1, 1.5)))) {
+                throw invalid("curb outer paint for " + entry.id());
+            }
+        }
+    }
+
+    private void validateTrackLimits(CatalogEntry entry, JsonNode trackLimits) {
+        if (!trackLimits.isObject()) {
+            throw invalid("track limits for " + entry.id());
+        }
+        JsonNode segments = trackLimits.path("segments");
+        if (!segments.isArray() || segments.isEmpty()) {
+            throw invalid("track limit segments for " + entry.id());
+        }
+
+        double expectedFrom = 0;
+        Set<String> surfaces = new HashSet<>();
+        for (int index = 0; index < segments.size(); index++) {
+            JsonNode segment = segments.get(index);
+            double from = segment.path("fromDistanceMeters").asDouble(-1);
+            double to = segment.path("toDistanceMeters").asDouble(-1);
+            if (segment.path("index").asInt(-1) != index
+                    || Math.abs(from - expectedFrom) > 0.001
+                    || to <= from) {
+                throw invalid("track limit coverage for " + entry.id());
+            }
+            validateSideEnvironment(entry, segment.path("left"), surfaces);
+            validateSideEnvironment(entry, segment.path("right"), surfaces);
+            expectedFrom = to;
+        }
+        if (Math.abs(expectedFrom - entry.lengthMeters()) > 0.001) {
+            throw invalid("track limit length for " + entry.id());
+        }
+        if ("monaco".equals(entry.id()) && surfaces.stream().anyMatch(surface -> !"asphalt".equals(surface))) {
+            throw invalid("Monaco must use only paved margins before its walls");
+        }
+        if ("interlagos".equals(entry.id()) && (!surfaces.contains("asphalt") || !surfaces.contains("grass"))) {
+            throw invalid("Interlagos must mix audited asphalt and grass areas");
+        }
+    }
+
+    private void validateSideEnvironment(CatalogEntry entry, JsonNode side, Set<String> surfaces) {
+        JsonNode zones = side.path("zones");
+        if (!side.isObject()
+                || !zones.isArray()
+                || zones.size() > 4
+                || !isBarrierType(side.path("barrier").asText())
+                || (side.has("fence")
+                        && (!side.path("fence").isTextual()
+                                || !FENCE_TYPE.equals(side.path("fence").asText())))) {
+            throw invalid("side environment for " + entry.id());
+        }
+        if (side.has("fence")) {
+            JsonNode style = side.path("fenceVisualStyle");
+            if (!style.isObject()
+                    || !numberInRange(style, "heightMeters", 2, 6)
+                    || !numberInRange(style, "postSpacingMeters", 1.5, 5)
+                    || !isHexColor(style.path("postColor").asText())
+                    || !isHexColor(style.path("meshColor").asText())
+                    || !numberInRange(style, "meshOpacity", 0.05, 0.5)
+                    || !numberInRange(style, "cantileverMeters", 0, 1.2)) {
+                throw invalid("fence visual style for " + entry.id());
+            }
+        } else if (side.has("fenceVisualStyle")) {
+            throw invalid("orphan fence visual style for " + entry.id());
+        }
+        for (JsonNode zone : zones) {
+            String surface = zone.path("surface").asText();
+            double width = zone.path("widthMeters").asDouble(-1);
+            if (!Set.of("asphalt", "grass", "gravel").contains(surface) || width <= 0 || width > 60) {
+                throw invalid("environment zone for " + entry.id());
+            }
+            surfaces.add(surface);
+        }
+    }
+
+    private boolean isBarrierType(String value) {
+        return BARRIER_TYPES.contains(value);
     }
 
     private ClassPathResource resource(String relativePath) {
@@ -176,6 +681,7 @@ public class TrackCatalogImporter implements ApplicationRunner {
     private record CatalogDocument(
             String schemaVersion,
             String catalogVersion,
+            String physicsContractVersion,
             int seasonReference,
             String calendarPolicy,
             List<CatalogEntry> tracks) {
@@ -190,5 +696,8 @@ public class TrackCatalogImporter implements ApplicationRunner {
             String locality,
             int lengthMeters,
             String definitionPath) {
+    }
+
+    private record BarrierCoverage(double from, double to) {
     }
 }

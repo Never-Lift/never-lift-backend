@@ -7,6 +7,7 @@ import com.neverlift.backend.track.Track;
 public record TrackCatalogResponse(
         String schemaVersion,
         String catalogVersion,
+        String physicsContractVersion,
         int seasonReference,
         String calendarPolicy,
         List<TrackSummary> tracks) {

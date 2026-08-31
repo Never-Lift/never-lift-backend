@@ -1,6 +1,6 @@
 {
   "$schema": "./physics-constants.schema.json",
-  "version": "1.0.0",
+  "version": "1.3.0",
   "calibrationStatus": "initial",
   "units": {
     "distance": "meter",
@@ -15,63 +15,28 @@
     "maxFrameCatchUpSeconds": 0.25,
     "maxSubstepsPerFrame": 8
   },
-  "vehicleProfiles": {
-    "formula": {
-      "massKg": 800,
-      "lengthMeters": 5.6,
-      "widthMeters": 2,
-      "maxForwardSpeed": 94,
-      "maxReverseSpeed": 14,
-      "engineAcceleration": 18,
-      "brakeDeceleration": 32,
-      "linearDrag": 0.35,
-      "quadraticDrag": 0.002,
-      "maxSteerRate": 1.75,
-      "highSpeedSteerReduction": 0.62,
-      "baseLateralGrip": 12
-    },
-    "supercar": {
-      "massKg": 1450,
-      "lengthMeters": 4.8,
-      "widthMeters": 2,
-      "maxForwardSpeed": 86,
-      "maxReverseSpeed": 13,
-      "engineAcceleration": 15,
-      "brakeDeceleration": 26,
-      "linearDrag": 0.42,
-      "quadraticDrag": 0.0022,
-      "maxSteerRate": 1.9,
-      "highSpeedSteerReduction": 0.58,
-      "baseLateralGrip": 10.5
-    },
-    "drift": {
-      "massKg": 1250,
-      "lengthMeters": 4.6,
-      "widthMeters": 1.9,
-      "maxForwardSpeed": 78,
-      "maxReverseSpeed": 13,
-      "engineAcceleration": 16,
-      "brakeDeceleration": 24,
-      "linearDrag": 0.46,
-      "quadraticDrag": 0.0024,
-      "maxSteerRate": 2.15,
-      "highSpeedSteerReduction": 0.5,
-      "baseLateralGrip": 8
-    }
+  "vehiclePerformance": {
+    "massKg": 800,
+    "collisionRadiusMeters": 1.24,
+    "maxForwardSpeed": 94,
+    "maxReverseSpeed": 14,
+    "engineAcceleration": 18,
+    "brakeDeceleration": 32,
+    "linearDrag": 0.35,
+    "quadraticDrag": 0.002,
+    "maxSteerRate": 1.75,
+    "highSpeedSteerReduction": 0.62,
+    "baseLateralGrip": 12
   },
-  "handlingModes": {
-    "normal": {
-      "lateralGripMultiplier": 1,
-      "longitudinalGripMultiplier": 1,
-      "steeringMultiplier": 1,
-      "yawDampingPerSecond": 5.5
-    },
-    "drift": {
-      "lateralGripMultiplier": 0.38,
-      "longitudinalGripMultiplier": 0.88,
-      "steeringMultiplier": 1.12,
-      "yawDampingPerSecond": 2.3
-    }
+  "vehicleVisual": {
+    "lengthMeters": 5.6,
+    "widthMeters": 2
+  },
+  "handling": {
+    "lateralGripMultiplier": 1,
+    "longitudinalGripMultiplier": 1,
+    "steeringMultiplier": 1,
+    "yawDampingPerSecond": 5.5
   },
   "surfaces": {
     "asphalt": {
@@ -99,6 +64,22 @@
     "tangentialFriction": 0.72,
     "positionCorrectionPercent": 0.8,
     "penetrationSlopMeters": 0.01
+  },
+  "damage": {
+    "thresholds": {
+      "minimumImpactSpeed": 4,
+      "mediumImpactSpeed": 9,
+      "combinedImpactSpeed": 14,
+      "totalLossImpactSpeed": 18,
+      "maximumHealth": 100,
+      "healthDamagePerImpactSpeed": 2.25
+    },
+    "effects": {
+      "engineAccelerationMultiplier": 0.82,
+      "engineMaxSpeedMultiplier": 0.9,
+      "steeringPullStrength": 0.1,
+      "totalLossDragMultiplier": 3
+    }
   },
   "race": {
     "jumpStartThrottleThreshold": 0.05,
