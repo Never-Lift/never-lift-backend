@@ -232,7 +232,9 @@ class TrackCatalogIntegrationTest {
                         .isEmpty())
                 .andExpect(jsonPath("$.sceneryLayout.escapeRoads").isEmpty())
                 .andExpect(jsonPath("$.barrierOpenings.length()")
-                        .value(org.hamcrest.Matchers.greaterThanOrEqualTo(3)))
+                        .value(org.hamcrest.Matchers.equalTo(2)))
+                .andExpect(jsonPath("$.barrierOpenings[?(@.reason == 'escape-road-access')]")
+                        .isEmpty())
                 .andExpect(jsonPath("$.sceneryLayout.brakingMarkers[?(@.distanceToCornerMeters == 300)]")
                         .isNotEmpty());
 
