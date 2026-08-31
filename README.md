@@ -85,7 +85,7 @@ O gamertag é único e não aceita espaços. Senhas devem ter pelo menos quatro 
 
 ## Pistas e resultados locais
 
- O catálogo público `2026.11` contém as 24 definições métricas canônicas do schema de pista `2.0.0`. Cada definição usa centerline fechada suavizada e amostrada a cada aproximadamente 5 m e inclui zebras externas autorais por curva, zonas ordenadas de asfalto, grama ou brita, pit lane navegável, cercas, placas regressivas e faces explícitas das barreiras. A face voltada à pista é simultaneamente visual e física; a cerca externa e as placas permanecem apenas visuais. Muros e grades usam transições limitadas para não criar laços ou quinas. As entradas e saídas do pit são aberturas físicas publicadas no mesmo contrato, enquanto a face traseira opaca das 22 garagens (duas vagas por equipe) também possui collider, sem bloquear o corredor. Em Monza, a abertura declarada do Rettifilo é removida tanto da colisão quanto do desenho do traçado principal, enquanto o corredor reto usa o mesmo asfalto da pista, fileiras alternadas de blocos brancos com chevrons vermelhos e um muro físico apenas na borda externa. Os perfis guardam as fontes consultadas e são validados e importados no banco ao iniciar a aplicação; os endpoints não exigem autenticação:
+ O catálogo público `2026.12` contém as 24 definições métricas canônicas do schema de pista `2.0.0`. Cada definição usa centerline fechada suavizada e amostrada a cada aproximadamente 5 m e inclui zebras externas autorais por curva, zonas ordenadas de asfalto, grama ou brita, pit lane navegável, cercas, placas regressivas e faces explícitas das barreiras. A face voltada à pista é simultaneamente visual e física; a cerca externa e as placas permanecem apenas visuais. Muros e grades usam transições limitadas para não criar laços ou quinas. As entradas e saídas do pit são aberturas físicas publicadas no mesmo contrato, enquanto a face traseira opaca das 22 garagens (duas vagas por equipe) também possui collider, sem bloquear o corredor. Monza voltou à configuração canônica da pista principal, sem o corredor de escape provisório do Rettifilo nem abertura de barreira adicional. Os perfis guardam as fontes consultadas e são validados e importados no banco ao iniciar a aplicação; os endpoints não exigem autenticação:
 
 | Método | Endpoint | Descrição |
 |---|---|---|
@@ -97,7 +97,7 @@ Resultados de corridas simuladas localmente pelo frontend são enviados para `PO
 ```json
 {
   "trackId": "interlagos",
-  "trackCatalogVersion": "2026.11",
+  "trackCatalogVersion": "2026.12",
   "physicsContractVersion": "2.0.0",
   "mode": "local",
   "results": [
@@ -151,7 +151,7 @@ Os Módulos 0–9 formam o MVP planejado. A expansão pós-MVP aprovada está re
 
 A direção de jogo e apresentação aprovada está em [`docs/game-design-guide.md`](docs/game-design-guide.md). Para o backend, ela é normativa somente onde define contratos compartilhados: unidade métrica, catálogo de pistas, vetor de velocidade, metadados e campos de entidades. Decisões exclusivamente visuais permanecem responsabilidade do frontend e entram apenas em seus módulos correspondentes.
 
-Os contratos implementados pelo Módulo 2 estão em [`docs/contracts/module-2-shared-contracts.md`](docs/contracts/module-2-shared-contracts.md), [`contracts/module-2/v2/`](contracts/module-2/v2/) e na [proposta aprovada da física v2](docs/contracts/module-2-physics-v2-proposal.md). O `v1` permanece histórico e imutável. O catálogo `2026.10` contém 24 definições métricas reproduzíveis, proteções contínuas, placas de frenagem, vias especiais declaradas e faces canônicas de barreira; rode `node tools/track-catalog/generate-v2.mjs --check` e `node tools/track-catalog/audit-v2.mjs --mirror <pasta-v2-do-frontend>` para conferir geração, invariantes e espelho byte a byte.
+Os contratos implementados pelo Módulo 2 estão em [`docs/contracts/module-2-shared-contracts.md`](docs/contracts/module-2-shared-contracts.md), [`contracts/module-2/v2/`](contracts/module-2/v2/) e na [proposta aprovada da física v2](docs/contracts/module-2-physics-v2-proposal.md). O `v1` permanece histórico e imutável. O catálogo `2026.12` contém 24 definições métricas reproduzíveis, proteções contínuas, placas de frenagem, pits navegáveis e faces canônicas de barreira; rode `node tools/track-catalog/generate-v2.mjs --check` e `node tools/track-catalog/audit-v2.mjs --mirror <pasta-v2-do-frontend>` para conferir geração, invariantes e espelho byte a byte.
 
 - [`docs/backend-implementation-plan.md`](docs/backend-implementation-plan.md) — arquitetura, protocolo e módulos do backend.
 - [`docs/frontend-implementation-plan.md`](docs/frontend-implementation-plan.md) — referência do consumidor da API e do WebSocket.

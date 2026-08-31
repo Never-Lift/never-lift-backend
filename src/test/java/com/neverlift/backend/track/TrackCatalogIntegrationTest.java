@@ -40,7 +40,7 @@ class TrackCatalogIntegrationTest {
         mockMvc.perform(get("/api/tracks"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.schemaVersion").value("2.0.0"))
-                .andExpect(jsonPath("$.catalogVersion").value("2026.11"))
+                .andExpect(jsonPath("$.catalogVersion").value("2026.12"))
                 .andExpect(jsonPath("$.physicsContractVersion").value("2.0.0"))
                 .andExpect(jsonPath("$.seasonReference").value(2026))
                 .andExpect(jsonPath("$.calendarPolicy").value("original-24-round-freeze"))
@@ -63,7 +63,7 @@ class TrackCatalogIntegrationTest {
         for (Track track : trackRepository.findAll()) {
             JsonNode definition = objectMapper.readTree(track.getDefinitionJson());
             assertThat(definition.path("schemaVersion").asText()).isEqualTo("2.0.0");
-            assertThat(definition.path("catalogVersion").asText()).isEqualTo("2026.11");
+            assertThat(definition.path("catalogVersion").asText()).isEqualTo("2026.12");
             assertThat(definition.path("physicsContractVersion").asText()).isEqualTo("2.0.0");
             assertThat(definition.path("id").asText()).isEqualTo(track.getId());
             assertThat(definition.path("lengthMeters").asInt()).isEqualTo(track.getLengthMeters());
@@ -145,26 +145,7 @@ class TrackCatalogIntegrationTest {
             }
             JsonNode escapeRoads = sceneryLayout.path("escapeRoads");
             assertThat(escapeRoads.isArray()).isTrue();
-            if ("monza".equals(track.getId())) {
-                assertThat(escapeRoads).hasSize(1);
-                JsonNode escapeRoad = escapeRoads.get(0);
-                assertThat(sceneryIds.add(escapeRoad.path("id").asText())).isTrue();
-                assertThat(escapeRoad.path("id").asText()).isEqualTo("rettifilo-slalom");
-                assertThat(escapeRoad.path("kind").asText()).isEqualTo("slalom-block-rows");
-                assertThat(escapeRoad.path("affectsPhysics").asBoolean()).isTrue();
-                assertThat(escapeRoad.path("edgeMaterial").asText()).isEqualTo("concrete-wall");
-                assertThat(escapeRoad.path("edgeSides")).hasSize(1);
-                assertThat(escapeRoad.path("edgeSides").get(0).asText()).isEqualTo("left");
-                assertThat(escapeRoad.path("widthMeters").asDouble()).isEqualTo(10.5);
-                assertThat(escapeRoad.path("path").size()).isGreaterThanOrEqualTo(2);
-                assertThat(escapeRoad.path("obstacleRows").size()).isGreaterThanOrEqualTo(5);
-                for (JsonNode row : escapeRoad.path("obstacleRows")) {
-                    assertThat(row.path("palette").asText()).isEqualTo("white-red-chevron");
-                    assertThat(row.path("collisionMaterial").asText()).isEqualTo("concrete-wall");
-                }
-            } else {
-                assertThat(escapeRoads).isEmpty();
-            }
+            assertThat(escapeRoads).isEmpty();
             JsonNode brakingMarkers = sceneryLayout.path("brakingMarkers");
             assertThat(brakingMarkers.isArray()).isTrue();
             assertThat(brakingMarkers.size()).isGreaterThanOrEqualTo(4);
@@ -183,18 +164,9 @@ class TrackCatalogIntegrationTest {
             assertThat(StreamSupport.stream(barrierOpenings.spliterator(), false)
                     .map(node -> node.path("reason").asText()).toList())
                     .contains("pit-entry", "pit-exit");
-            if ("monza".equals(track.getId())) {
-                assertThat(StreamSupport.stream(barrierOpenings.spliterator(), false)
-                        .filter(node -> "escape-road-access".equals(node.path("reason").asText()))
-                        .count()).isEqualTo(1);
-                assertThat(StreamSupport.stream(barrierOpenings.spliterator(), false)
-                        .filter(node -> "rettifilo-escape-access".equals(node.path("id").asText()))
-                        .count()).isEqualTo(1);
-            } else {
-                assertThat(StreamSupport.stream(barrierOpenings.spliterator(), false)
-                        .noneMatch(node -> "escape-road-access".equals(node.path("reason").asText())))
-                        .isTrue();
-            }
+            assertThat(StreamSupport.stream(barrierOpenings.spliterator(), false)
+                    .noneMatch(node -> "escape-road-access".equals(node.path("reason").asText())))
+                    .isTrue();
             assertThat(authoredStructures).isGreaterThanOrEqualTo(5);
             assertThat(grandstands).isGreaterThanOrEqualTo(3);
             assertThat(hasStartAreaBuilding).isTrue();
@@ -258,17 +230,11 @@ class TrackCatalogIntegrationTest {
                         .value(org.hamcrest.Matchers.greaterThanOrEqualTo(6)))
                 .andExpect(jsonPath("$.sceneryLayout.staticObjects[?(@.kind == 'escape-bollard')]")
                         .isEmpty())
-                .andExpect(jsonPath("$.sceneryLayout.escapeRoads.length()").value(1))
-                .andExpect(jsonPath("$.sceneryLayout.escapeRoads[0].id").value("rettifilo-slalom"))
-                .andExpect(jsonPath("$.sceneryLayout.escapeRoads[0].affectsPhysics").value(true))
-                .andExpect(jsonPath("$.sceneryLayout.escapeRoads[0].edgeMaterial").value("concrete-wall"))
-                .andExpect(jsonPath("$.sceneryLayout.escapeRoads[0].edgeSides[0]").value("left"))
-                .andExpect(jsonPath("$.sceneryLayout.escapeRoads[0].obstacleRows.length()")
-                        .value(org.hamcrest.Matchers.greaterThanOrEqualTo(5)))
+                .andExpect(jsonPath("$.sceneryLayout.escapeRoads").isEmpty())
                 .andExpect(jsonPath("$.barrierOpenings.length()")
-                        .value(org.hamcrest.Matchers.greaterThanOrEqualTo(3)))
-                .andExpect(jsonPath("$.barrierOpenings[?(@.id == 'rettifilo-escape-access')]")
-                        .isNotEmpty())
+                        .value(org.hamcrest.Matchers.equalTo(2)))
+                .andExpect(jsonPath("$.barrierOpenings[?(@.reason == 'escape-road-access')]")
+                        .isEmpty())
                 .andExpect(jsonPath("$.sceneryLayout.brakingMarkers[?(@.distanceToCornerMeters == 300)]")
                         .isNotEmpty());
 
