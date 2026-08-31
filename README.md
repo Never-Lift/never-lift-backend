@@ -121,7 +121,7 @@ Resultados de corridas simuladas localmente pelo frontend são enviados para `PO
 
 O backend valida pista, versão, modo, posições e tempos antes de persistir tudo atomicamente. Para um JWT de usuário, exatamente um item deve usar o `subject` autenticado; nenhum outro UUID é aceito. Resultados de guest e bot usam `null`. A consulta pública do histórico permanece reservada ao Módulo 8.
 
-O backend exige `physicsContractVersion=2.0.0` junto do catálogo `2026.10` e persiste a versão em cada resultado; versões físicas incompatíveis não são comparadas diretamente. Na Parte 2d, a implementação automatizada está concluída e a validação manual permanece pendente. A especificação e as fontes estão em [`docs/contracts/module-2-physics-v2-proposal.md`](docs/contracts/module-2-physics-v2-proposal.md), e a revisão atual das pistas está registrada em [`docs/module-2-track-safety-audit-2026.10.md`](docs/module-2-track-safety-audit-2026.10.md).
+O backend exige `physicsContractVersion=2.0.0` junto do catálogo `2026.12` e persiste a versão em cada resultado; versões físicas incompatíveis não são comparadas diretamente. A Parte 2d e o Módulo 2 foram implementados e validados manualmente de forma integrada em 31/08/2026. A especificação e as fontes estão em [`docs/contracts/module-2-physics-v2-proposal.md`](docs/contracts/module-2-physics-v2-proposal.md), e a revisão atual das pistas está registrada em [`docs/module-2-track-safety-audit-2026.10.md`](docs/module-2-track-safety-audit-2026.10.md).
 
 ## Testes
 
