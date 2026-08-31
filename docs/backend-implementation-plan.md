@@ -130,14 +130,22 @@ Cada módulo é uma unidade que pode virar um prompt isolado pro Codex. A ordem 
 **Depende de:** Módulos 1 e 2, com a Parte 2d do frontend validada e os cenários físicos v2 congelados.
 **Cobre features:** 4 (modos online — lobby, configuração de sala), 8, parte de 6 (física básica compartilhada), parte de 5 (colisão).
 **Este é o módulo de maior risco do projeto — é onde a lição sobre servidor autoritativo se aplica.**
+**Decisões aprovadas:** o registro completo das 80 decisões desta rodada está
+em `docs/module-3-online-decisions.md` no repositório frontend e deve ser
+mantido sincronizado com este plano. O registro é normativo para a implementação,
+mas o Módulo 3 ainda não foi iniciado.
 **Escopo:**
-- Sessão WebSocket por conexão (`/ws`), autenticada via JWT na query string ou header de handshake.
-- `RoomManager`: cria/lista salas, no máximo 4 jogadores+bots por sala, atribui `hostId`.
+- Sessão WebSocket por conexão (`/ws`), autenticada por ticket de uso único vinculado à sala e ao usuário (validade de 60 s); o JWT principal não é exposto na URL.
+- `RoomManager`: cria/lista salas públicas e privadas, usa código numérico de 4 dígitos e senha opcional com hash, atribui `hostId` e suporta até 22 carros (humanos e bots) por sala. O grid é configurável de 2 a 22, bots ficam desativados por padrão e o host pode removê-los somente no lobby.
+- O host escolhe a pista, o sentido oficial e a dificuldade única dos bots. Configurações travam quando o primeiro humano fica pronto; todos os humanos precisam estar prontos para iniciar. Salas vazias expiram em 10 minutos e o host pode encerrar a sala apenas no lobby.
+- A classificação ocorre simultaneamente em instâncias isoladas, com uma tentativa por participante, contagem de 3 s e limite de 3 minutos. Humanos e bots usam a mesma física e condições secas; volta inválida vai para o fim por seed determinística. O grid usa duas colunas em 11 fileiras e tempos autoritativos.
 - `RaceEngine` por sala escrito do zero em Java, reproduzindo o contrato físico 2.0 e os vetores congelados do TypeScript: corpo rígido 2D, modelo de bicicleta dinâmico, pneus não lineares/combined slip, transferência de carga, drag/downforce, tração traseira, câmbio automático, patinagem e travamento. Todo participante usa o mesmo F1 e nenhuma dificuldade recebe física privilegiada.
-- O loop externo roda a `30 ticks/segundo` e executa a quantidade de subpassos fixada pelo contrato v2 (`1/60s` ou `1/120s` após benchmark), lendo o último input normalizado de cada jogador. Estado inclui vetor de velocidade, yaw, esterço e câmbio para snapshots e reconciliação.
+- O loop externo roda a `30 ticks/segundo` e executa quatro subpassos de `1/120s` por tick, lendo o último input normalizado de cada jogador. Inputs chegam a 30 Hz; snapshots são enviados a 20 Hz; heartbeat ocorre a cada 10 s. O servidor mantém o último input por aproximadamente 150–250 ms e neutraliza gradualmente depois. Estado inclui vetor de velocidade, yaw, esterço e câmbio para snapshots e reconciliação.
 - A sala fixa `trackId`, `trackCatalogVersion` e `physicsContractVersion` antes da largada e rejeita incompatibilidade em vez de simular motores ou geometrias diferentes.
 - Colisão é resolvida somente no servidor com colliders convexos compostos, faces canônicas de barreira, broadphase, CCD, manifold, impulso no ponto de contato, torque e solver iterativo determinístico. Dano cumulativo usa impulso/energia ou `delta-v` do contato.
-- Broadcast de `state_snapshot` a cada ~50ms (20/s) pra todos da sala.
+- Broadcast de `state_snapshot` a cada ~50ms (20/s) pra todos da sala. O ticket WebSocket é de uso único, dura 60 s e fica vinculado ao usuário e à sala; queda de conexão permite cerca de 30 s de reconexão no mesmo slot, com bot temporário. Duas ou três falhas de heartbeat iniciam o fluxo de desconexão, mas ping alto isolado só gera aviso.
+- Cada corrida avulsa tem três voltas, largada com cinco luzes, penalidade de 5 s por queima de largada, sem entrada tardia, pausa ou reinício manual. O pit lane é navegável sem limite de velocidade ou serviço no M3. Checkpoints e limites validam cortes; não há penalidade de tempo nessa etapa. Falha do servidor cancela a prova sem resultado oficial.
+- Resultados completos são persistidos, com concluídos à frente dos `DNF`; entre `DNF`, maior progresso válido e depois timestamp do servidor. A tela permanece até confirmação de todos ou 60 s antes do retorno ao lobby.
 **Critério de pronto:** o Java reproduz todos os cenários físicos TypeScript dentro das tolerâncias; dois clientes compatíveis convergem em trajetória, perda de aderência e colisões; um cliente com versão incompatível é recusado; contatos no bico, roda ou muro não atravessam, enroscam nem acontecem antes da geometria visível.
 
 ### Módulo 4 — Ambiente e modo caos
