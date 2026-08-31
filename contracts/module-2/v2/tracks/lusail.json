@@ -1,6 +1,6 @@
 {
   "schemaVersion": "2.0.0",
-  "catalogVersion": "2026.11",
+  "catalogVersion": "2026.12",
   "id": "lusail",
   "name": "Lusail International Circuit",
   "countryCode": "QA",
@@ -16342,6 +16342,58 @@
         "elevationLayer": 0
       },
       {
+        "id": "turn-4-200m",
+        "cornerIndex": 4,
+        "distanceToCornerMeters": 200,
+        "trackDistanceMeters": 1159,
+        "side": "left",
+        "position": {
+          "x": 225.272,
+          "y": 778.697
+        },
+        "rotation": 0.836669,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-4-150m",
+        "cornerIndex": 4,
+        "distanceToCornerMeters": 150,
+        "trackDistanceMeters": 1209,
+        "side": "left",
+        "position": {
+          "x": 258.834,
+          "y": 815.835
+        },
+        "rotation": 0.834313,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-4-100m",
+        "cornerIndex": 4,
+        "distanceToCornerMeters": 100,
+        "trackDistanceMeters": 1259,
+        "side": "left",
+        "position": {
+          "x": 292.482,
+          "y": 852.916
+        },
+        "rotation": 0.83136,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-4-50m",
+        "cornerIndex": 4,
+        "distanceToCornerMeters": 50,
+        "trackDistanceMeters": 1309,
+        "side": "left",
+        "position": {
+          "x": 326.543,
+          "y": 889.961
+        },
+        "rotation": 0.817992,
+        "elevationLayer": 0
+      },
+      {
         "id": "turn-6-100m",
         "cornerIndex": 6,
         "distanceToCornerMeters": 100,
@@ -16365,6 +16417,136 @@
           "y": 608.396
         },
         "rotation": -2.281859,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-7-200m",
+        "cornerIndex": 7,
+        "distanceToCornerMeters": 200,
+        "trackDistanceMeters": 2046,
+        "side": "left",
+        "position": {
+          "x": 537.495,
+          "y": 624.024
+        },
+        "rotation": 0.38027,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-7-150m",
+        "cornerIndex": 7,
+        "distanceToCornerMeters": 150,
+        "trackDistanceMeters": 2096,
+        "side": "left",
+        "position": {
+          "x": 584.115,
+          "y": 642.455
+        },
+        "rotation": 0.374883,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-7-100m",
+        "cornerIndex": 7,
+        "distanceToCornerMeters": 100,
+        "trackDistanceMeters": 2146,
+        "side": "left",
+        "position": {
+          "x": 631.421,
+          "y": 660.588
+        },
+        "rotation": 0.347529,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-7-50m",
+        "cornerIndex": 7,
+        "distanceToCornerMeters": 50,
+        "trackDistanceMeters": 2196,
+        "side": "left",
+        "position": {
+          "x": 695.672,
+          "y": 664.026
+        },
+        "rotation": -0.30847,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-10-150m",
+        "cornerIndex": 10,
+        "distanceToCornerMeters": 150,
+        "trackDistanceMeters": 2640,
+        "side": "right",
+        "position": {
+          "x": 521.521,
+          "y": 322.896
+        },
+        "rotation": -2.89495,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-10-100m",
+        "cornerIndex": 10,
+        "distanceToCornerMeters": 100,
+        "trackDistanceMeters": 2690,
+        "side": "right",
+        "position": {
+          "x": 473.144,
+          "y": 310.971
+        },
+        "rotation": -2.901873,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-10-50m",
+        "cornerIndex": 10,
+        "distanceToCornerMeters": 50,
+        "trackDistanceMeters": 2740,
+        "side": "right",
+        "position": {
+          "x": 424.06,
+          "y": 298.393
+        },
+        "rotation": -2.875298,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-12-150m",
+        "cornerIndex": 12,
+        "distanceToCornerMeters": 150,
+        "trackDistanceMeters": 3268,
+        "side": "left",
+        "position": {
+          "x": 784.381,
+          "y": 115.583
+        },
+        "rotation": 0.110624,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-12-100m",
+        "cornerIndex": 12,
+        "distanceToCornerMeters": 100,
+        "trackDistanceMeters": 3318,
+        "side": "left",
+        "position": {
+          "x": 834.308,
+          "y": 121.008
+        },
+        "rotation": 0.101521,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-12-50m",
+        "cornerIndex": 12,
+        "distanceToCornerMeters": 50,
+        "trackDistanceMeters": 3368,
+        "side": "left",
+        "position": {
+          "x": 884.535,
+          "y": 125.739
+        },
+        "rotation": 0.082939,
         "elevationLayer": 0
       },
       {
@@ -16405,6 +16587,162 @@
         },
         "rotation": -1.099673,
         "elevationLayer": 0
+      },
+      {
+        "id": "turn-14-200m",
+        "cornerIndex": 14,
+        "distanceToCornerMeters": 200,
+        "trackDistanceMeters": 3624,
+        "side": "left",
+        "position": {
+          "x": 1055.808,
+          "y": -82.251
+        },
+        "rotation": -1.77858,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-14-150m",
+        "cornerIndex": 14,
+        "distanceToCornerMeters": 150,
+        "trackDistanceMeters": 3674,
+        "side": "left",
+        "position": {
+          "x": 1028.802,
+          "y": -133.467
+        },
+        "rotation": -2.11896,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-14-100m",
+        "cornerIndex": 14,
+        "distanceToCornerMeters": 100,
+        "trackDistanceMeters": 3724,
+        "side": "left",
+        "position": {
+          "x": 1002.422,
+          "y": -176.121
+        },
+        "rotation": -2.125496,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-14-50m",
+        "cornerIndex": 14,
+        "distanceToCornerMeters": 50,
+        "trackDistanceMeters": 3774,
+        "side": "left",
+        "position": {
+          "x": 975.615,
+          "y": -218.815
+        },
+        "rotation": -2.143283,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-15-200m",
+        "cornerIndex": 15,
+        "distanceToCornerMeters": 200,
+        "trackDistanceMeters": 3949,
+        "side": "right",
+        "position": {
+          "x": 803.951,
+          "y": -202.755
+        },
+        "rotation": 2.945434,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-15-150m",
+        "cornerIndex": 15,
+        "distanceToCornerMeters": 150,
+        "trackDistanceMeters": 3999,
+        "side": "right",
+        "position": {
+          "x": 755.005,
+          "y": -192.908
+        },
+        "rotation": 2.942543,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-15-100m",
+        "cornerIndex": 15,
+        "distanceToCornerMeters": 100,
+        "trackDistanceMeters": 4049,
+        "side": "right",
+        "position": {
+          "x": 705.695,
+          "y": -183.93
+        },
+        "rotation": 2.947098,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-15-50m",
+        "cornerIndex": 15,
+        "distanceToCornerMeters": 50,
+        "trackDistanceMeters": 4099,
+        "side": "right",
+        "position": {
+          "x": 656.038,
+          "y": -174.701
+        },
+        "rotation": 2.967988,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-16-200m",
+        "cornerIndex": 16,
+        "distanceToCornerMeters": 200,
+        "trackDistanceMeters": 4419,
+        "side": "left",
+        "position": {
+          "x": 493.171,
+          "y": -448.041
+        },
+        "rotation": -2.049075,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-16-150m",
+        "cornerIndex": 16,
+        "distanceToCornerMeters": 150,
+        "trackDistanceMeters": 4469,
+        "side": "left",
+        "position": {
+          "x": 470.106,
+          "y": -492.432
+        },
+        "rotation": -2.050133,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-16-100m",
+        "cornerIndex": 16,
+        "distanceToCornerMeters": 100,
+        "trackDistanceMeters": 4519,
+        "side": "left",
+        "position": {
+          "x": 446.698,
+          "y": -536.84
+        },
+        "rotation": -2.058358,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-16-50m",
+        "cornerIndex": 16,
+        "distanceToCornerMeters": 50,
+        "trackDistanceMeters": 4569,
+        "side": "left",
+        "position": {
+          "x": 416.124,
+          "y": -585.488
+        },
+        "rotation": -2.377655,
+        "elevationLayer": 0
       }
     ]
   },
@@ -16412,7 +16750,7 @@
     "dataset": "bacinger/f1-circuits",
     "license": "MIT",
     "url": "https://github.com/bacinger/f1-circuits",
-    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery. Catalog 2026.8 adds per-circuit pit architecture, major buildings, spectator grandstands and safety fencing, closes curb gaps only through continuous curvature and preserves the canonical racing geometry; barrier thickness extends away from the racing surface. Catalog 2026.9 authors curb presence, dimensions and outer paint per numbered corner, publishes measured pit and structure footprints, and represents the Rettifilo straight-ahead escape route with staggered visual block rows that do not participate in physics. It also uses Grand Prix Guides as a secondary satellite cross-check while FIA and circuit material remain primary, and records the last technically verifiable 2025 configuration for Mexico City and the latest official project for Madrid. Catalog 2026.11 publishes authored braking-reference boards only on material braking approaches and keeps their placement immediately track-side of the canonical outer protection; it also refines the Rettifilo escape corridor for uninterrupted clearance. Pit lanes publish physical entry/exit openings and an opaque rear garage barrier aligned to the 22 visual bays, leaving the driving corridor open. ",
+    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery. Catalog 2026.8 adds per-circuit pit architecture, major buildings, spectator grandstands and safety fencing, closes curb gaps only through continuous curvature and preserves the canonical racing geometry; barrier thickness extends away from the racing surface. Catalog 2026.9 authors curb presence, dimensions and outer paint per numbered corner, publishes measured pit and structure footprints, and represents the Rettifilo straight-ahead escape route with staggered visual block rows that do not participate in physics. It also uses Grand Prix Guides as a secondary satellite cross-check while FIA and circuit material remain primary, and records the last technically verifiable 2025 configuration for Mexico City and the latest official project for Madrid. Catalog 2026.11 publishes authored braking-reference boards only on material braking approaches and keeps their placement immediately track-side of the canonical outer protection; Catalog 2026.12 removes the provisional Monza Rettifilo escape corridor and restores the canonical main-track protection. Pit lanes publish physical entry/exit openings and an opaque rear garage barrier aligned to the 22 visual bays, leaving the driving corridor open. ",
     "environmentReferences": [
       {
         "label": "FIA 2025 Lusail circuit map",

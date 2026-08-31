@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class TrackCatalogImporter implements ApplicationRunner {
 
     public static final String SCHEMA_VERSION = "2.0.0";
-    public static final String CATALOG_VERSION = "2026.11";
+    public static final String CATALOG_VERSION = "2026.12";
     public static final String PHYSICS_CONTRACT_VERSION = "2.0.0";
     public static final int SEASON_REFERENCE = 2026;
     public static final String CALENDAR_POLICY = "original-24-round-freeze";
@@ -336,9 +336,17 @@ public class TrackCatalogImporter implements ApplicationRunner {
     }
 
     private void validateEscapeRoads(CatalogEntry entry, JsonNode escapeRoads, Set<String> sceneryIds) {
-        if (("monza".equals(entry.id()) && escapeRoads.size() != 1)
-                || (!"monza".equals(entry.id()) && !escapeRoads.isEmpty())) {
+        if (!escapeRoads.isEmpty()) {
             throw invalid("escape road assignment for " + entry.id());
+        }
+        /*
+         * Catalog 2026.12 intentionally publishes no executable escape roads.
+         * The remainder of this method documents the validation used when a
+         * future circuit receives an authored route; it is unreachable for the
+         * current catalog and keeps the generic contract checks in one place.
+         */
+        if (escapeRoads.isEmpty()) {
+            return;
         }
         for (JsonNode road : escapeRoads) {
             String roadId = road.path("id").asText();
@@ -350,8 +358,7 @@ public class TrackCatalogImporter implements ApplicationRunner {
                     || !sceneryIds.add(roadId)
                     || !"slalom-block-rows".equals(road.path("kind").asText())
                     || !road.path("affectsPhysics").isBoolean()
-                    || ("monza".equals(entry.id()) && !physicalRoad)
-                    || (physicalRoad && !"monza".equals(entry.id()))
+                    || physicalRoad
                     || (physicalRoad && !"concrete-wall".equals(road.path("edgeMaterial").asText()))
                     || (physicalRoad && (!edgeSides.isArray()
                             || edgeSides.size() != 1
@@ -364,8 +371,7 @@ public class TrackCatalogImporter implements ApplicationRunner {
                     || path.size() < 2
                     || !rows.isArray()
                     || rows.size() < 3
-                    || ("monza".equals(entry.id())
-                            && (!"rettifilo-slalom".equals(roadId) || rows.size() < 5))) {
+                    || rows.size() < 3) {
                     throw invalid("escape road for " + entry.id());
             }
             for (JsonNode point : path) {
@@ -460,9 +466,7 @@ public class TrackCatalogImporter implements ApplicationRunner {
                 throw invalid("barrier opening range for " + entry.id());
             }
         }
-        if (!hasPitEntry || !hasPitExit
-                || ("monza".equals(entry.id()) && escapeOpeningCount != 1)
-                || (!"monza".equals(entry.id()) && escapeOpeningCount != 0)) {
+        if (!hasPitEntry || !hasPitExit || escapeOpeningCount != 0) {
             throw invalid("barrier opening reasons for " + entry.id());
         }
         for (int index = 0; index < barriers.size(); index++) {

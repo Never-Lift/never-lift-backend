@@ -21,7 +21,7 @@ const v2Directory = resolve(repositoryRoot, 'contracts', 'module-2', 'v2')
 const checkOnly = process.argv.includes('--check')
 
 const SCHEMA_VERSION = '2.0.0'
-const CATALOG_VERSION = '2026.11'
+const CATALOG_VERSION = '2026.12'
 const PHYSICS_CONTRACT_VERSION = '2.0.0'
 const ROUND_DECIMALS = 3
 const CHUNK_LENGTH_METERS = 250
@@ -123,6 +123,41 @@ function tangentAtDistance(centerline, distanceMeters, lengthMeters) {
 function moduloDistance(distanceMeters, lengthMeters) {
   const wrapped = distanceMeters % lengthMeters
   return wrapped < 0 ? wrapped + lengthMeters : wrapped
+}
+
+/**
+ * Reverse a closed metric path while keeping distance zero at the same
+ * physical start/finish point.  Marina Bay's imported source was authored in
+ * the opposite direction to the real anticlockwise race flow; reversing the
+ * sampled paths (and swapping left/right environments) fixes that once at
+ * generation time so every consumer shares one authoritative orientation.
+ */
+function reverseClosedPath(path, lengthMeters) {
+  return path
+    .map((point) => ({
+      ...point,
+      distanceMeters: round(lengthMeters - point.distanceMeters),
+    }))
+    .sort((first, second) => first.distanceMeters - second.distanceMeters)
+}
+
+function reverseTrackDirection(track) {
+  const segments = track.trackLimits.segments
+    .map((segment) => ({
+      ...segment,
+      fromDistanceMeters: round(track.lengthMeters - segment.toDistanceMeters),
+      toDistanceMeters: round(track.lengthMeters - segment.fromDistanceMeters),
+      left: segment.right,
+      right: segment.left,
+    }))
+    .sort((first, second) => first.fromDistanceMeters - second.fromDistanceMeters)
+    .map((segment, index) => ({ ...segment, index }))
+  return {
+    ...track,
+    centerline: reverseClosedPath(track.centerline, track.lengthMeters),
+    racingLine: reverseClosedPath(track.racingLine, track.lengthMeters),
+    trackLimits: { ...track.trackLimits, segments },
+  }
 }
 
 function circularDistance(first, second, lengthMeters) {
@@ -1706,12 +1741,17 @@ function createBrakingMarkers(track) {
   const markers = []
 
   for (const profile of markerProfiles) {
-    const turn = anchors[profile.cornerIndex - 1]
+    const anchorIndex = (profile.anchorCornerIndex ?? profile.cornerIndex) - 1
+    const turn = anchors[anchorIndex]
     if (!turn) {
       throw new Error(
         `${track.id}: braking marker corner ${profile.cornerIndex} is not defined`,
       )
     }
+    const cornerDistanceMeters = moduloDistance(
+      turn.distanceMeters + (profile.anchorOffsetMeters ?? 0),
+      track.lengthMeters,
+    )
     const side = turn.signedCurvature >= 0 ? 'right' : 'left'
     for (
       let distanceToCornerMeters = profile.maximumDistanceMeters;
@@ -1719,7 +1759,7 @@ function createBrakingMarkers(track) {
       distanceToCornerMeters -= 50
     ) {
       const trackDistanceMeters = moduloDistance(
-        turn.distanceMeters - distanceToCornerMeters,
+        cornerDistanceMeters - distanceToCornerMeters,
         track.lengthMeters,
       )
       const tangent = tangentAtDistance(
@@ -1835,20 +1875,23 @@ function decorateTrackLimitsV2(track, trackLimits, staticObjects) {
 }
 
 function createTrackV2(track) {
+  const orientedTrack = track.id === 'singapore'
+    ? reverseTrackDirection(track)
+    : track
   const infrastructure = infrastructureProfileFor(track.id)
-  const baseTrackLimits = createBaseTrackLimitsV2(track)
+  const baseTrackLimits = createBaseTrackLimitsV2(orientedTrack)
   const rebasedBaseTrack = rebaseTrack(
-    { ...track, trackLimits: baseTrackLimits, curbs: [] },
+    { ...orientedTrack, trackLimits: baseTrackLimits, curbs: [] },
     infrastructure.startOffsetMeters ?? 0,
   )
   const pitLane = createPitLane(rebasedBaseTrack, infrastructure)
   rebasedBaseTrack.barrierOpenings = [
-    ...barrierOpeningsFor(track.id),
+    ...barrierOpeningsFor(orientedTrack.id),
     ...createPitBarrierOpenings(rebasedBaseTrack, pitLane, infrastructure),
   ]
   const authoredCurbs = createAuthoredCurbs(
     rebasedBaseTrack,
-    curbFidelityProfileFor(track.id),
+    curbFidelityProfileFor(orientedTrack.id),
   )
   const rebasedTrack = {
     ...rebasedBaseTrack,
@@ -1918,6 +1961,16 @@ function createTrackV2(track) {
         'strip so its barrier remains outside the authored pit corridor.',
     )
   }
+  if (track.id === 'silverstone') {
+    localTransformations.push(
+      'Silverstone start/finish and grid are rebased 143 meters from the timing line to the official start line; pit entry and exit remain on their audited approaches.',
+    )
+  }
+  if (track.id === 'singapore') {
+    localTransformations.push(
+      'Marina Bay source geometry is reversed to the verified anticlockwise race direction; numbered anchors and left/right environments are transformed with the same operation.',
+    )
+  }
   const clearanceTransformation = localTransformations.length > 0
     ? ` ${localTransformations.join(' ')}`
     : ''
@@ -1953,10 +2006,7 @@ function createTrackV2(track) {
         'City and the latest official project for Madrid. Catalog 2026.11 publishes ' +
         'authored braking-reference boards only on material braking approaches and ' +
         'keeps their placement immediately track-side of the canonical outer protection; ' +
-        (track.id === 'monza'
-          ? 'it also publishes the Rettifilo straight-ahead asphalt corridor as physical ' +
-            'geometry, with white polystyrene rows, red chevrons and only its external wall. '
-          : 'it also refines the Rettifilo escape corridor for uninterrupted clearance. ') +
+        'Catalog 2026.12 removes the provisional Monza Rettifilo escape corridor and restores the canonical main-track protection. ' +
         'Pit lanes publish physical entry/exit openings and an opaque rear garage barrier ' +
         'aligned to the 22 visual bays, leaving the driving corridor open. ' +
         `${clearanceTransformation}`,

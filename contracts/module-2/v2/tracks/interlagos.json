@@ -1,6 +1,6 @@
 {
   "schemaVersion": "2.0.0",
-  "catalogVersion": "2026.11",
+  "catalogVersion": "2026.12",
   "id": "interlagos",
   "name": "Autódromo José Carlos Pace - Interlagos",
   "countryCode": "BR",
@@ -12841,6 +12841,58 @@
         "elevationLayer": 0
       },
       {
+        "id": "turn-6-200m",
+        "cornerIndex": 6,
+        "distanceToCornerMeters": 200,
+        "trackDistanceMeters": 1737,
+        "side": "left",
+        "position": {
+          "x": 279.597,
+          "y": 292.455
+        },
+        "rotation": -2.184767,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-6-150m",
+        "cornerIndex": 6,
+        "distanceToCornerMeters": 150,
+        "trackDistanceMeters": 1787,
+        "side": "left",
+        "position": {
+          "x": 250.589,
+          "y": 251.446
+        },
+        "rotation": -2.196975,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-6-100m",
+        "cornerIndex": 6,
+        "distanceToCornerMeters": 100,
+        "trackDistanceMeters": 1837,
+        "side": "left",
+        "position": {
+          "x": 220.424,
+          "y": 211.112
+        },
+        "rotation": -2.216258,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-6-50m",
+        "cornerIndex": 6,
+        "distanceToCornerMeters": 50,
+        "trackDistanceMeters": 1887,
+        "side": "left",
+        "position": {
+          "x": 190.885,
+          "y": 170.874
+        },
+        "rotation": -2.211977,
+        "elevationLayer": 0
+      },
+      {
         "id": "turn-10-100m",
         "cornerIndex": 10,
         "distanceToCornerMeters": 100,
@@ -12865,6 +12917,58 @@
         },
         "rotation": 1.76616,
         "elevationLayer": 0
+      },
+      {
+        "id": "turn-12-200m",
+        "cornerIndex": 12,
+        "distanceToCornerMeters": 200,
+        "trackDistanceMeters": 2955,
+        "side": "right",
+        "position": {
+          "x": 304.079,
+          "y": 519.882
+        },
+        "rotation": 0.934321,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-12-150m",
+        "cornerIndex": 12,
+        "distanceToCornerMeters": 150,
+        "trackDistanceMeters": 3005,
+        "side": "right",
+        "position": {
+          "x": 331.56,
+          "y": 562.99
+        },
+        "rotation": 1.011687,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-12-100m",
+        "cornerIndex": 12,
+        "distanceToCornerMeters": 100,
+        "trackDistanceMeters": 3055,
+        "side": "right",
+        "position": {
+          "x": 357.675,
+          "y": 605.925
+        },
+        "rotation": 1.029839,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-12-50m",
+        "cornerIndex": 12,
+        "distanceToCornerMeters": 50,
+        "trackDistanceMeters": 3105,
+        "side": "right",
+        "position": {
+          "x": 383.613,
+          "y": 648.474
+        },
+        "rotation": 1.017834,
+        "elevationLayer": 0
       }
     ]
   },
@@ -12872,7 +12976,7 @@
     "dataset": "bacinger/f1-circuits",
     "license": "MIT",
     "url": "https://github.com/bacinger/f1-circuits",
-    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery. Catalog 2026.8 adds per-circuit pit architecture, major buildings, spectator grandstands and safety fencing, closes curb gaps only through continuous curvature and preserves the canonical racing geometry; barrier thickness extends away from the racing surface. Catalog 2026.9 authors curb presence, dimensions and outer paint per numbered corner, publishes measured pit and structure footprints, and represents the Rettifilo straight-ahead escape route with staggered visual block rows that do not participate in physics. It also uses Grand Prix Guides as a secondary satellite cross-check while FIA and circuit material remain primary, and records the last technically verifiable 2025 configuration for Mexico City and the latest official project for Madrid. Catalog 2026.11 publishes authored braking-reference boards only on material braking approaches and keeps their placement immediately track-side of the canonical outer protection; it also refines the Rettifilo escape corridor for uninterrupted clearance. Pit lanes publish physical entry/exit openings and an opaque rear garage barrier aligned to the 22 visual bays, leaving the driving corridor open. ",
+    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery. Catalog 2026.8 adds per-circuit pit architecture, major buildings, spectator grandstands and safety fencing, closes curb gaps only through continuous curvature and preserves the canonical racing geometry; barrier thickness extends away from the racing surface. Catalog 2026.9 authors curb presence, dimensions and outer paint per numbered corner, publishes measured pit and structure footprints, and represents the Rettifilo straight-ahead escape route with staggered visual block rows that do not participate in physics. It also uses Grand Prix Guides as a secondary satellite cross-check while FIA and circuit material remain primary, and records the last technically verifiable 2025 configuration for Mexico City and the latest official project for Madrid. Catalog 2026.11 publishes authored braking-reference boards only on material braking approaches and keeps their placement immediately track-side of the canonical outer protection; Catalog 2026.12 removes the provisional Monza Rettifilo escape corridor and restores the canonical main-track protection. Pit lanes publish physical entry/exit openings and an opaque rear garage barrier aligned to the 22 visual bays, leaving the driving corridor open. ",
     "environmentReferences": [
       {
         "label": "FIA 2025 São Paulo circuit map",

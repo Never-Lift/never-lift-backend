@@ -1,6 +1,6 @@
 {
   "schemaVersion": "2.0.0",
-  "catalogVersion": "2026.11",
+  "catalogVersion": "2026.12",
   "id": "zandvoort",
   "name": "Circuit Zandvoort",
   "countryCode": "NL",
@@ -12806,6 +12806,58 @@
         "elevationLayer": 0
       },
       {
+        "id": "turn-2-200m",
+        "cornerIndex": 2,
+        "distanceToCornerMeters": 200,
+        "trackDistanceMeters": 472,
+        "side": "left",
+        "position": {
+          "x": 231.854,
+          "y": 258.366
+        },
+        "rotation": -1.961295,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-2-150m",
+        "cornerIndex": 2,
+        "distanceToCornerMeters": 150,
+        "trackDistanceMeters": 522,
+        "side": "left",
+        "position": {
+          "x": 209.809,
+          "y": 214.531
+        },
+        "rotation": -1.925703,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-2-100m",
+        "cornerIndex": 2,
+        "distanceToCornerMeters": 100,
+        "trackDistanceMeters": 572,
+        "side": "left",
+        "position": {
+          "x": 177.537,
+          "y": 175.187
+        },
+        "rotation": -1.754264,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-2-50m",
+        "cornerIndex": 2,
+        "distanceToCornerMeters": 50,
+        "trackDistanceMeters": 622,
+        "side": "left",
+        "position": {
+          "x": 172.055,
+          "y": 127.446
+        },
+        "rotation": -1.546187,
+        "elevationLayer": 0
+      },
+      {
         "id": "turn-8-100m",
         "cornerIndex": 8,
         "distanceToCornerMeters": 100,
@@ -12829,6 +12881,45 @@
           "y": -255.366
         },
         "rotation": -2.005975,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-9-150m",
+        "cornerIndex": 9,
+        "distanceToCornerMeters": 150,
+        "trackDistanceMeters": 2085,
+        "side": "left",
+        "position": {
+          "x": 637.108,
+          "y": -331.124
+        },
+        "rotation": 2.937873,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-9-100m",
+        "cornerIndex": 9,
+        "distanceToCornerMeters": 100,
+        "trackDistanceMeters": 2135,
+        "side": "left",
+        "position": {
+          "x": 582.453,
+          "y": -312.398
+        },
+        "rotation": 2.707111,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-9-50m",
+        "cornerIndex": 9,
+        "distanceToCornerMeters": 50,
+        "trackDistanceMeters": 2185,
+        "side": "left",
+        "position": {
+          "x": 532.979,
+          "y": -281.841
+        },
+        "rotation": 2.464974,
         "elevationLayer": 0
       },
       {
@@ -12869,6 +12960,45 @@
         },
         "rotation": -2.633331,
         "elevationLayer": 0
+      },
+      {
+        "id": "turn-13-150m",
+        "cornerIndex": 13,
+        "distanceToCornerMeters": 150,
+        "trackDistanceMeters": 3328,
+        "side": "left",
+        "position": {
+          "x": 157.645,
+          "y": -264.889
+        },
+        "rotation": -1.401142,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-13-100m",
+        "cornerIndex": 13,
+        "distanceToCornerMeters": 100,
+        "trackDistanceMeters": 3378,
+        "side": "left",
+        "position": {
+          "x": 156.442,
+          "y": -315.888
+        },
+        "rotation": -1.403576,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-13-50m",
+        "cornerIndex": 13,
+        "distanceToCornerMeters": 50,
+        "trackDistanceMeters": 3428,
+        "side": "left",
+        "position": {
+          "x": 162.452,
+          "y": -365.733
+        },
+        "rotation": -1.409764,
+        "elevationLayer": 0
       }
     ]
   },
@@ -12876,7 +13006,7 @@
     "dataset": "bacinger/f1-circuits",
     "license": "MIT",
     "url": "https://github.com/bacinger/f1-circuits",
-    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery. Catalog 2026.8 adds per-circuit pit architecture, major buildings, spectator grandstands and safety fencing, closes curb gaps only through continuous curvature and preserves the canonical racing geometry; barrier thickness extends away from the racing surface. Catalog 2026.9 authors curb presence, dimensions and outer paint per numbered corner, publishes measured pit and structure footprints, and represents the Rettifilo straight-ahead escape route with staggered visual block rows that do not participate in physics. It also uses Grand Prix Guides as a secondary satellite cross-check while FIA and circuit material remain primary, and records the last technically verifiable 2025 configuration for Mexico City and the latest official project for Madrid. Catalog 2026.11 publishes authored braking-reference boards only on material braking approaches and keeps their placement immediately track-side of the canonical outer protection; it also refines the Rettifilo escape corridor for uninterrupted clearance. Pit lanes publish physical entry/exit openings and an opaque rear garage barrier aligned to the 22 visual bays, leaving the driving corridor open. ",
+    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery. Catalog 2026.8 adds per-circuit pit architecture, major buildings, spectator grandstands and safety fencing, closes curb gaps only through continuous curvature and preserves the canonical racing geometry; barrier thickness extends away from the racing surface. Catalog 2026.9 authors curb presence, dimensions and outer paint per numbered corner, publishes measured pit and structure footprints, and represents the Rettifilo straight-ahead escape route with staggered visual block rows that do not participate in physics. It also uses Grand Prix Guides as a secondary satellite cross-check while FIA and circuit material remain primary, and records the last technically verifiable 2025 configuration for Mexico City and the latest official project for Madrid. Catalog 2026.11 publishes authored braking-reference boards only on material braking approaches and keeps their placement immediately track-side of the canonical outer protection; Catalog 2026.12 removes the provisional Monza Rettifilo escape corridor and restores the canonical main-track protection. Pit lanes publish physical entry/exit openings and an opaque rear garage barrier aligned to the 22 visual bays, leaving the driving corridor open. ",
     "environmentReferences": [
       {
         "label": "Circuit Zandvoort official corner guide",

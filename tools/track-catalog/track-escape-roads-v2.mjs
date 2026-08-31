@@ -155,12 +155,18 @@ const barrierOpeningsByTrack = Object.freeze({
   ]),
 })
 
-export function escapeRoadsFor(track) {
-  return track.id === 'monza'
-    ? structuredClone([createMonzaRettifiloSlalom(track)])
-    : []
+/**
+ * The Rettifilo escape corridor was a temporary experiment in catalog 2026.11.
+ * It is intentionally removed from the executable catalog: the canonical
+ * Monza definition must again expose only the main-track surfaces and its
+ * audited external protection.  Keeping these helpers as no-ops preserves the
+ * generic schema/API shape for future authored escape routes without leaking
+ * the provisional geometry into runtime physics or rendering.
+ */
+export function escapeRoadsFor(_track) {
+  return []
 }
 
-export function barrierOpeningsFor(trackId) {
-  return structuredClone(barrierOpeningsByTrack[trackId] ?? [])
+export function barrierOpeningsFor(_trackId) {
+  return []
 }

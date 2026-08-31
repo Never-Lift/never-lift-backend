@@ -1,6 +1,6 @@
 {
   "schemaVersion": "2.0.0",
-  "catalogVersion": "2026.11",
+  "catalogVersion": "2026.12",
   "id": "monza",
   "name": "Autodromo Nazionale Monza",
   "countryCode": "IT",
@@ -16592,120 +16592,7 @@
         }
       }
     ],
-    "escapeRoads": [
-      {
-        "id": "rettifilo-slalom",
-        "kind": "slalom-block-rows",
-        "affectsPhysics": true,
-        "elevationLayer": 0,
-        "widthMeters": 10.5,
-        "edgeMaterial": "concrete-wall",
-        "edgeSides": [
-          "left"
-        ],
-        "path": [
-          {
-            "x": 45.494,
-            "y": 588.027
-          },
-          {
-            "x": 47.962,
-            "y": 612.905
-          },
-          {
-            "x": 50.43,
-            "y": 637.783
-          },
-          {
-            "x": 52.898,
-            "y": 662.661
-          },
-          {
-            "x": 54.872,
-            "y": 682.563
-          },
-          {
-            "x": 62.342,
-            "y": 688.618
-          },
-          {
-            "x": 69.812,
-            "y": 694.672
-          },
-          {
-            "x": 76.215,
-            "y": 699.862
-          }
-        ],
-        "obstacleRows": [
-          {
-            "from": {
-              "x": 51.972,
-              "y": 636.614
-            },
-            "to": {
-              "x": 45.802,
-              "y": 637.226
-            },
-            "blockLengthMeters": 1.05,
-            "palette": "white-red-chevron",
-            "collisionMaterial": "concrete-wall"
-          },
-          {
-            "from": {
-              "x": 56.067,
-              "y": 648.515
-            },
-            "to": {
-              "x": 49.897,
-              "y": 649.127
-            },
-            "blockLengthMeters": 1.05,
-            "palette": "white-red-chevron",
-            "collisionMaterial": "concrete-wall"
-          },
-          {
-            "from": {
-              "x": 54.39,
-              "y": 660.989
-            },
-            "to": {
-              "x": 48.221,
-              "y": 661.601
-            },
-            "blockLengthMeters": 1.05,
-            "palette": "white-red-chevron",
-            "collisionMaterial": "concrete-wall"
-          },
-          {
-            "from": {
-              "x": 58.485,
-              "y": 672.89
-            },
-            "to": {
-              "x": 52.315,
-              "y": 673.502
-            },
-            "blockLengthMeters": 1.05,
-            "palette": "white-red-chevron",
-            "collisionMaterial": "concrete-wall"
-          },
-          {
-            "from": {
-              "x": 60.128,
-              "y": 684.699
-            },
-            "to": {
-              "x": 56.224,
-              "y": 689.516
-            },
-            "blockLengthMeters": 1.05,
-            "palette": "white-red-chevron",
-            "collisionMaterial": "concrete-wall"
-          }
-        ]
-      }
-    ],
+    "escapeRoads": [],
     "brakingMarkers": [
       {
         "id": "turn-1-300m",
@@ -16851,6 +16738,149 @@
         "elevationLayer": 0
       },
       {
+        "id": "turn-6-300m",
+        "cornerIndex": 6,
+        "distanceToCornerMeters": 300,
+        "trackDistanceMeters": 1791,
+        "side": "left",
+        "position": {
+          "x": 861.923,
+          "y": 1337.322
+        },
+        "rotation": 0.259189,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-6-250m",
+        "cornerIndex": 6,
+        "distanceToCornerMeters": 250,
+        "trackDistanceMeters": 1841,
+        "side": "left",
+        "position": {
+          "x": 907.44,
+          "y": 1351.619
+        },
+        "rotation": 0.321279,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-6-200m",
+        "cornerIndex": 6,
+        "distanceToCornerMeters": 200,
+        "trackDistanceMeters": 1891,
+        "side": "left",
+        "position": {
+          "x": 954.775,
+          "y": 1367.449
+        },
+        "rotation": 0.323695,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-6-150m",
+        "cornerIndex": 6,
+        "distanceToCornerMeters": 150,
+        "trackDistanceMeters": 1941,
+        "side": "left",
+        "position": {
+          "x": 1002.149,
+          "y": 1383.363
+        },
+        "rotation": 0.32435,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-6-100m",
+        "cornerIndex": 6,
+        "distanceToCornerMeters": 100,
+        "trackDistanceMeters": 1991,
+        "side": "left",
+        "position": {
+          "x": 1049.729,
+          "y": 1399.261
+        },
+        "rotation": 0.31984,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-6-50m",
+        "cornerIndex": 6,
+        "distanceToCornerMeters": 50,
+        "trackDistanceMeters": 2041,
+        "side": "left",
+        "position": {
+          "x": 1104.795,
+          "y": 1405.238
+        },
+        "rotation": 0.160587,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-7-250m",
+        "cornerIndex": 7,
+        "distanceToCornerMeters": 250,
+        "trackDistanceMeters": 2173,
+        "side": "left",
+        "position": {
+          "x": 1220.844,
+          "y": 1304.903
+        },
+        "rotation": -1.470209,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-7-200m",
+        "cornerIndex": 7,
+        "distanceToCornerMeters": 200,
+        "trackDistanceMeters": 2223,
+        "side": "left",
+        "position": {
+          "x": 1225.514,
+          "y": 1254.945
+        },
+        "rotation": -1.477346,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-7-150m",
+        "cornerIndex": 7,
+        "distanceToCornerMeters": 150,
+        "trackDistanceMeters": 2273,
+        "side": "left",
+        "position": {
+          "x": 1230.282,
+          "y": 1205.283
+        },
+        "rotation": -1.472937,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-7-100m",
+        "cornerIndex": 7,
+        "distanceToCornerMeters": 100,
+        "trackDistanceMeters": 2323,
+        "side": "left",
+        "position": {
+          "x": 1235.229,
+          "y": 1155.588
+        },
+        "rotation": -1.470554,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-7-50m",
+        "cornerIndex": 7,
+        "distanceToCornerMeters": 50,
+        "trackDistanceMeters": 2373,
+        "side": "left",
+        "position": {
+          "x": 1240.108,
+          "y": 1105.607
+        },
+        "rotation": -1.47933,
+        "elevationLayer": 0
+      },
+      {
         "id": "turn-8-200m",
         "cornerIndex": 8,
         "distanceToCornerMeters": 200,
@@ -16947,7 +16977,7 @@
     "dataset": "bacinger/f1-circuits",
     "license": "MIT",
     "url": "https://github.com/bacinger/f1-circuits",
-    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery. Catalog 2026.8 adds per-circuit pit architecture, major buildings, spectator grandstands and safety fencing, closes curb gaps only through continuous curvature and preserves the canonical racing geometry; barrier thickness extends away from the racing surface. Catalog 2026.9 authors curb presence, dimensions and outer paint per numbered corner, publishes measured pit and structure footprints, and represents the Rettifilo straight-ahead escape route with staggered visual block rows that do not participate in physics. It also uses Grand Prix Guides as a secondary satellite cross-check while FIA and circuit material remain primary, and records the last technically verifiable 2025 configuration for Mexico City and the latest official project for Madrid. Catalog 2026.11 publishes authored braking-reference boards only on material braking approaches and keeps their placement immediately track-side of the canonical outer protection; it also publishes the Rettifilo straight-ahead asphalt corridor as physical geometry, with white polystyrene rows, red chevrons and only its external wall. Pit lanes publish physical entry/exit openings and an opaque rear garage barrier aligned to the 22 visual bays, leaving the driving corridor open. ",
+    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery. Catalog 2026.8 adds per-circuit pit architecture, major buildings, spectator grandstands and safety fencing, closes curb gaps only through continuous curvature and preserves the canonical racing geometry; barrier thickness extends away from the racing surface. Catalog 2026.9 authors curb presence, dimensions and outer paint per numbered corner, publishes measured pit and structure footprints, and represents the Rettifilo straight-ahead escape route with staggered visual block rows that do not participate in physics. It also uses Grand Prix Guides as a secondary satellite cross-check while FIA and circuit material remain primary, and records the last technically verifiable 2025 configuration for Mexico City and the latest official project for Madrid. Catalog 2026.11 publishes authored braking-reference boards only on material braking approaches and keeps their placement immediately track-side of the canonical outer protection; Catalog 2026.12 removes the provisional Monza Rettifilo escape corridor and restores the canonical main-track protection. Pit lanes publish physical entry/exit openings and an opaque rear garage barrier aligned to the 22 visual bays, leaving the driving corridor open. ",
     "environmentReferences": [
       {
         "label": "FIA 2025 Monza circuit map",
@@ -16992,13 +17022,6 @@
     ]
   },
   "barrierOpenings": [
-    {
-      "id": "rettifilo-escape-access",
-      "side": "left",
-      "fromDistanceMeters": 440,
-      "toDistanceMeters": 590,
-      "reason": "escape-road-access"
-    },
     {
       "id": "monza-pit-entry-1",
       "side": "right",
@@ -17896,7 +17919,7 @@
         "trackLimitSegmentIndex": 2,
         "side": "left",
         "fromDistanceMeters": 343.659,
-        "toDistanceMeters": 440,
+        "toDistanceMeters": 463.44,
         "material": "guardrail",
         "thicknessMeters": 0.25,
         "collisionLayer": "track-barrier",
@@ -18031,9 +18054,57 @@
             "elevationLayer": 0
           },
           {
-            "x": 36.163,
-            "y": 588.934,
-            "distanceMeters": 440,
+            "x": 36.499,
+            "y": 592.368,
+            "distanceMeters": 443.447,
+            "elevationLayer": 0
+          },
+          {
+            "x": 36.534,
+            "y": 593.062,
+            "distanceMeters": 444.117,
+            "elevationLayer": 0
+          },
+          {
+            "x": 36.5,
+            "y": 593.748,
+            "distanceMeters": 444.787,
+            "elevationLayer": 0
+          },
+          {
+            "x": 36.397,
+            "y": 594.429,
+            "distanceMeters": 445.458,
+            "elevationLayer": 0
+          },
+          {
+            "x": 36.227,
+            "y": 595.102,
+            "distanceMeters": 446.128,
+            "elevationLayer": 0
+          },
+          {
+            "x": 35.042,
+            "y": 598.986,
+            "distanceMeters": 449.845,
+            "elevationLayer": 0
+          },
+          {
+            "x": 34.419,
+            "y": 604.158,
+            "distanceMeters": 454.843,
+            "elevationLayer": 0
+          },
+          {
+            "x": 32.875,
+            "y": 609.416,
+            "distanceMeters": 459.841,
+            "elevationLayer": 0
+          },
+          {
+            "x": 31.862,
+            "y": 613.914,
+            "distanceMeters": 463.44,
             "elevationLayer": 0
           }
         ]
@@ -18261,20 +18332,321 @@
         "index": 7,
         "trackLimitSegmentIndex": 3,
         "side": "left",
-        "fromDistanceMeters": 590,
+        "fromDistanceMeters": 463.44,
         "toDistanceMeters": 811.02,
         "material": "tyre-barrier",
         "thicknessMeters": 1.2,
         "collisionLayer": "track-barrier",
         "chunkIndexes": [
+          1,
           2,
           3
         ],
         "path": [
           {
-            "x": 43.538,
-            "y": 691.42,
-            "distanceMeters": 590,
+            "x": 31.862,
+            "y": 613.914,
+            "distanceMeters": 463.44,
+            "elevationLayer": 0
+          },
+          {
+            "x": 31.76,
+            "y": 617.16,
+            "distanceMeters": 464.84,
+            "elevationLayer": 0
+          },
+          {
+            "x": 33.833,
+            "y": 626.515,
+            "distanceMeters": 468.439,
+            "elevationLayer": 0
+          },
+          {
+            "x": 34.363,
+            "y": 628.257,
+            "distanceMeters": 469.084,
+            "elevationLayer": 0
+          },
+          {
+            "x": 35.149,
+            "y": 629.845,
+            "distanceMeters": 469.729,
+            "elevationLayer": 0
+          },
+          {
+            "x": 36.19,
+            "y": 631.278,
+            "distanceMeters": 470.375,
+            "elevationLayer": 0
+          },
+          {
+            "x": 37.485,
+            "y": 632.558,
+            "distanceMeters": 471.02,
+            "elevationLayer": 0
+          },
+          {
+            "x": 43.79,
+            "y": 637.886,
+            "distanceMeters": 473.64,
+            "elevationLayer": 0
+          },
+          {
+            "x": 45.281,
+            "y": 638.997,
+            "distanceMeters": 474.289,
+            "elevationLayer": 0
+          },
+          {
+            "x": 46.874,
+            "y": 639.897,
+            "distanceMeters": 474.938,
+            "elevationLayer": 0
+          },
+          {
+            "x": 48.569,
+            "y": 640.587,
+            "distanceMeters": 475.586,
+            "elevationLayer": 0
+          },
+          {
+            "x": 50.366,
+            "y": 641.065,
+            "distanceMeters": 476.235,
+            "elevationLayer": 0
+          },
+          {
+            "x": 57.187,
+            "y": 642.443,
+            "distanceMeters": 478.818,
+            "elevationLayer": 0
+          },
+          {
+            "x": 58.529,
+            "y": 642.651,
+            "distanceMeters": 479.422,
+            "elevationLayer": 0
+          },
+          {
+            "x": 59.873,
+            "y": 642.733,
+            "distanceMeters": 480.026,
+            "elevationLayer": 0
+          },
+          {
+            "x": 61.218,
+            "y": 642.689,
+            "distanceMeters": 480.63,
+            "elevationLayer": 0
+          },
+          {
+            "x": 62.566,
+            "y": 642.519,
+            "distanceMeters": 481.234,
+            "elevationLayer": 0
+          },
+          {
+            "x": 69.5,
+            "y": 641.321,
+            "distanceMeters": 484.833,
+            "elevationLayer": 0
+          },
+          {
+            "x": 75.333,
+            "y": 638.6,
+            "distanceMeters": 489.831,
+            "elevationLayer": 0
+          },
+          {
+            "x": 79.349,
+            "y": 636.126,
+            "distanceMeters": 494.829,
+            "elevationLayer": 0
+          },
+          {
+            "x": 82.574,
+            "y": 633.949,
+            "distanceMeters": 499.827,
+            "elevationLayer": 0
+          },
+          {
+            "x": 84.143,
+            "y": 632.171,
+            "distanceMeters": 504.192,
+            "elevationLayer": 0
+          },
+          {
+            "x": 84.264,
+            "y": 632.061,
+            "distanceMeters": 504.7,
+            "elevationLayer": 0
+          },
+          {
+            "x": 84.399,
+            "y": 631.99,
+            "distanceMeters": 505.209,
+            "elevationLayer": 0
+          },
+          {
+            "x": 84.548,
+            "y": 631.958,
+            "distanceMeters": 505.717,
+            "elevationLayer": 0
+          },
+          {
+            "x": 84.712,
+            "y": 631.964,
+            "distanceMeters": 506.225,
+            "elevationLayer": 0
+          },
+          {
+            "x": 85.247,
+            "y": 632.044,
+            "distanceMeters": 508.425,
+            "elevationLayer": 0
+          },
+          {
+            "x": 85.397,
+            "y": 632.088,
+            "distanceMeters": 508.968,
+            "elevationLayer": 0
+          },
+          {
+            "x": 85.506,
+            "y": 632.168,
+            "distanceMeters": 509.51,
+            "elevationLayer": 0
+          },
+          {
+            "x": 85.574,
+            "y": 632.285,
+            "distanceMeters": 510.053,
+            "elevationLayer": 0
+          },
+          {
+            "x": 85.601,
+            "y": 632.439,
+            "distanceMeters": 510.596,
+            "elevationLayer": 0
+          },
+          {
+            "x": 85.674,
+            "y": 634.323,
+            "distanceMeters": 514.822,
+            "elevationLayer": 0
+          },
+          {
+            "x": 86.04,
+            "y": 635.311,
+            "distanceMeters": 518.421,
+            "elevationLayer": 0
+          },
+          {
+            "x": 86.082,
+            "y": 635.494,
+            "distanceMeters": 518.979,
+            "elevationLayer": 0
+          },
+          {
+            "x": 86.064,
+            "y": 635.658,
+            "distanceMeters": 519.538,
+            "elevationLayer": 0
+          },
+          {
+            "x": 85.986,
+            "y": 635.805,
+            "distanceMeters": 520.096,
+            "elevationLayer": 0
+          },
+          {
+            "x": 85.849,
+            "y": 635.933,
+            "distanceMeters": 520.654,
+            "elevationLayer": 0
+          },
+          {
+            "x": 84.182,
+            "y": 637.123,
+            "distanceMeters": 524.819,
+            "elevationLayer": 0
+          },
+          {
+            "x": 81.375,
+            "y": 639.485,
+            "distanceMeters": 529.817,
+            "elevationLayer": 0
+          },
+          {
+            "x": 78.227,
+            "y": 643.624,
+            "distanceMeters": 534.815,
+            "elevationLayer": 0
+          },
+          {
+            "x": 75.005,
+            "y": 647.857,
+            "distanceMeters": 539.814,
+            "elevationLayer": 0
+          },
+          {
+            "x": 71.764,
+            "y": 652.134,
+            "distanceMeters": 544.812,
+            "elevationLayer": 0
+          },
+          {
+            "x": 68.509,
+            "y": 656.385,
+            "distanceMeters": 549.81,
+            "elevationLayer": 0
+          },
+          {
+            "x": 65.235,
+            "y": 660.664,
+            "distanceMeters": 554.808,
+            "elevationLayer": 0
+          },
+          {
+            "x": 61.954,
+            "y": 664.957,
+            "distanceMeters": 559.807,
+            "elevationLayer": 0
+          },
+          {
+            "x": 58.675,
+            "y": 669.227,
+            "distanceMeters": 564.805,
+            "elevationLayer": 0
+          },
+          {
+            "x": 55.389,
+            "y": 673.49,
+            "distanceMeters": 569.803,
+            "elevationLayer": 0
+          },
+          {
+            "x": 52.093,
+            "y": 677.767,
+            "distanceMeters": 574.802,
+            "elevationLayer": 0
+          },
+          {
+            "x": 48.79,
+            "y": 682.067,
+            "distanceMeters": 579.8,
+            "elevationLayer": 0
+          },
+          {
+            "x": 45.475,
+            "y": 686.421,
+            "distanceMeters": 584.798,
+            "elevationLayer": 0
+          },
+          {
+            "x": 43.59,
+            "y": 691.216,
+            "distanceMeters": 589.796,
             "elevationLayer": 0
           },
           {

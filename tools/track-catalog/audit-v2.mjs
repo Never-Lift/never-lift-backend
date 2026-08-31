@@ -11,7 +11,7 @@ const mirrorDirectory =
   mirrorFlag >= 0 ? resolve(repositoryRoot, process.argv[mirrorFlag + 1]) : null
 
 const VERSION = '2.0.0'
-const CATALOG_VERSION = '2026.11'
+const CATALOG_VERSION = '2026.12'
 const PHYSICS_VERSION = '2.0.0'
 const TRACK_COUNT = 24
 const sharedFiles = [
@@ -316,6 +316,12 @@ function projectPointToPolyline(point, path) {
 function validateEscapeRoads(track, entry) {
   const roads = track.sceneryLayout.escapeRoads
   invariant(Array.isArray(roads), `${entry.id} escape roads collection`)
+  // No executable escape road is published in catalog 2026.12.  The previous
+  // Monza Rettifilo corridor was provisional and is intentionally gone.
+  invariant(roads.length === 0, `${entry.id} has no authored slalom escape road`)
+  return
+
+  /* istanbul ignore next -- retained below as documentation for future routes */
   const allIds = new Set([
     ...track.sceneryLayout.landmarks.map((object) => object.id),
     ...track.sceneryLayout.staticObjects.map((object) => object.id),
@@ -434,36 +440,6 @@ function validateEscapeRoads(track, entry) {
     }
   }
 
-  if (entry.id === 'monza') {
-    invariant(roads.length === 1, 'monza Rettifilo escape road')
-    const [road] = roads
-    invariant(road.id === 'rettifilo-slalom', 'monza Rettifilo escape road id')
-    invariant(road.obstacleRows.length >= 5, 'monza Rettifilo escape rows')
-    const entryProjection = projectPointToPolyline(road.path[0], track.centerline)
-    const exitProjection = projectPointToPolyline(road.path.at(-1), track.centerline)
-    invariant(
-      entryProjection.distanceMeters >= 5.5 && entryProjection.distanceMeters <= 8,
-      'monza escape entry connects to the outer edge of the main straight',
-    )
-    invariant(
-      exitProjection.distanceMeters >= 5.5 && exitProjection.distanceMeters <= 8,
-      'monza escape exit reconnects to the outer track edge',
-    )
-    invariant(
-      Math.max(
-        ...road.path.map(
-          (point) => projectPointToPolyline(point, track.centerline).distanceMeters,
-        ),
-      ) >= 25,
-      'monza escape road must diverge from the chicane centerline',
-    )
-    invariant(
-      JSON.stringify(road.edgeSides) === JSON.stringify(['left']),
-      'monza escape road retains only the external left wall',
-    )
-  } else {
-    invariant(roads.length === 0, `${entry.id} has no authored slalom escape road`)
-  }
 }
 
 function properSegmentsIntersect(a, b, c, d) {
@@ -1213,6 +1189,12 @@ function validateTrack(track, entry, vehicle) {
   invariant(track.physicsContractVersion === PHYSICS_VERSION, `${entry.id} physics version`)
   invariant(track.id === entry.id, `${entry.id} id`)
   invariant(track.lengthMeters === entry.lengthMeters, `${entry.id} length`)
+  if (entry.id === 'singapore') {
+    invariant(
+      polygonArea(track.centerline) > 0,
+      'singapore centerline must follow the anticlockwise race direction',
+    )
+  }
   invariant(track.barrierGeometry?.segments?.length >= 2, `${entry.id} barriers`)
   invariant(Array.isArray(track.barrierOpenings), `${entry.id} barrier openings`)
   const openingIds = new Set()
@@ -1241,17 +1223,10 @@ function validateTrack(track, entry, vehicle) {
     openingReasons.includes('pit-exit'),
     `${entry.id} pit exit barrier opening`,
   )
-  if (entry.id === 'monza') {
-    invariant(
-      openingReasons.filter((reason) => reason === 'escape-road-access').length === 1,
-      'monza Rettifilo barrier opening',
-    )
-  } else {
-    invariant(
-      !openingReasons.includes('escape-road-access'),
-      `${entry.id} has no authored escape opening`,
-    )
-  }
+  invariant(
+    !openingReasons.includes('escape-road-access'),
+    `${entry.id} has no authored escape opening`,
+  )
 
   const curbIndexes = new Set()
   for (const curb of track.curbs) {

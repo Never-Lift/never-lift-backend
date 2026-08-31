@@ -1,6 +1,6 @@
 {
   "schemaVersion": "2.0.0",
-  "catalogVersion": "2026.11",
+  "catalogVersion": "2026.12",
   "id": "bahrain",
   "name": "Bahrain International Circuit",
   "countryCode": "BH",
@@ -15936,6 +15936,71 @@
         "elevationLayer": 0
       },
       {
+        "id": "turn-9-250m",
+        "cornerIndex": 9,
+        "distanceToCornerMeters": 250,
+        "trackDistanceMeters": 2111,
+        "side": "right",
+        "position": {
+          "x": 282.528,
+          "y": 72.246
+        },
+        "rotation": 1.407786,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-9-200m",
+        "cornerIndex": 9,
+        "distanceToCornerMeters": 200,
+        "trackDistanceMeters": 2161,
+        "side": "right",
+        "position": {
+          "x": 290.753,
+          "y": 121.542
+        },
+        "rotation": 1.406569,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-9-150m",
+        "cornerIndex": 9,
+        "distanceToCornerMeters": 150,
+        "trackDistanceMeters": 2211,
+        "side": "right",
+        "position": {
+          "x": 298.863,
+          "y": 170.936
+        },
+        "rotation": 1.409628,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-9-100m",
+        "cornerIndex": 9,
+        "distanceToCornerMeters": 100,
+        "trackDistanceMeters": 2261,
+        "side": "right",
+        "position": {
+          "x": 306.746,
+          "y": 220.45
+        },
+        "rotation": 1.417128,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-9-50m",
+        "cornerIndex": 9,
+        "distanceToCornerMeters": 50,
+        "trackDistanceMeters": 2311,
+        "side": "right",
+        "position": {
+          "x": 307.854,
+          "y": 270.956
+        },
+        "rotation": 1.423975,
+        "elevationLayer": 0
+      },
+      {
         "id": "turn-10-100m",
         "cornerIndex": 10,
         "distanceToCornerMeters": 100,
@@ -15959,6 +16024,110 @@
           "y": 372.543
         },
         "rotation": 2.414686,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-11-200m",
+        "cornerIndex": 11,
+        "distanceToCornerMeters": 200,
+        "trackDistanceMeters": 3023,
+        "side": "right",
+        "position": {
+          "x": 146.59,
+          "y": -159.304
+        },
+        "rotation": -1.61011,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-11-150m",
+        "cornerIndex": 11,
+        "distanceToCornerMeters": 150,
+        "trackDistanceMeters": 3073,
+        "side": "right",
+        "position": {
+          "x": 144.591,
+          "y": -209.207
+        },
+        "rotation": -1.611716,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-11-100m",
+        "cornerIndex": 11,
+        "distanceToCornerMeters": 100,
+        "trackDistanceMeters": 3123,
+        "side": "right",
+        "position": {
+          "x": 142.727,
+          "y": -259.57
+        },
+        "rotation": -1.600686,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-11-50m",
+        "cornerIndex": 11,
+        "distanceToCornerMeters": 50,
+        "trackDistanceMeters": 3173,
+        "side": "right",
+        "position": {
+          "x": 145.208,
+          "y": -319.671
+        },
+        "rotation": -1.314957,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-13-200m",
+        "cornerIndex": 13,
+        "distanceToCornerMeters": 200,
+        "trackDistanceMeters": 3645,
+        "side": "left",
+        "position": {
+          "x": 532.377,
+          "y": -106.125
+        },
+        "rotation": -0.283386,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-13-150m",
+        "cornerIndex": 13,
+        "distanceToCornerMeters": 150,
+        "trackDistanceMeters": 3695,
+        "side": "left",
+        "position": {
+          "x": 579.757,
+          "y": -126.817
+        },
+        "rotation": -0.456757,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-13-100m",
+        "cornerIndex": 13,
+        "distanceToCornerMeters": 100,
+        "trackDistanceMeters": 3745,
+        "side": "left",
+        "position": {
+          "x": 625.49,
+          "y": -147.459
+        },
+        "rotation": -0.469017,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-13-50m",
+        "cornerIndex": 13,
+        "distanceToCornerMeters": 50,
+        "trackDistanceMeters": 3795,
+        "side": "left",
+        "position": {
+          "x": 679.881,
+          "y": -162.988
+        },
+        "rotation": -0.689024,
         "elevationLayer": 0
       },
       {
@@ -16019,7 +16188,7 @@
     "dataset": "bacinger/f1-circuits",
     "license": "MIT",
     "url": "https://github.com/bacinger/f1-circuits",
-    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery. Catalog 2026.8 adds per-circuit pit architecture, major buildings, spectator grandstands and safety fencing, closes curb gaps only through continuous curvature and preserves the canonical racing geometry; barrier thickness extends away from the racing surface. Catalog 2026.9 authors curb presence, dimensions and outer paint per numbered corner, publishes measured pit and structure footprints, and represents the Rettifilo straight-ahead escape route with staggered visual block rows that do not participate in physics. It also uses Grand Prix Guides as a secondary satellite cross-check while FIA and circuit material remain primary, and records the last technically verifiable 2025 configuration for Mexico City and the latest official project for Madrid. Catalog 2026.11 publishes authored braking-reference boards only on material braking approaches and keeps their placement immediately track-side of the canonical outer protection; it also refines the Rettifilo escape corridor for uninterrupted clearance. Pit lanes publish physical entry/exit openings and an opaque rear garage barrier aligned to the 22 visual bays, leaving the driving corridor open. ",
+    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery. Catalog 2026.8 adds per-circuit pit architecture, major buildings, spectator grandstands and safety fencing, closes curb gaps only through continuous curvature and preserves the canonical racing geometry; barrier thickness extends away from the racing surface. Catalog 2026.9 authors curb presence, dimensions and outer paint per numbered corner, publishes measured pit and structure footprints, and represents the Rettifilo straight-ahead escape route with staggered visual block rows that do not participate in physics. It also uses Grand Prix Guides as a secondary satellite cross-check while FIA and circuit material remain primary, and records the last technically verifiable 2025 configuration for Mexico City and the latest official project for Madrid. Catalog 2026.11 publishes authored braking-reference boards only on material braking approaches and keeps their placement immediately track-side of the canonical outer protection; Catalog 2026.12 removes the provisional Monza Rettifilo escape corridor and restores the canonical main-track protection. Pit lanes publish physical entry/exit openings and an opaque rear garage barrier aligned to the 22 visual bays, leaving the driving corridor open. ",
     "environmentReferences": [
       {
         "label": "FIA 2025 Bahrain circuit map",

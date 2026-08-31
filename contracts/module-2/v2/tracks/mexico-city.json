@@ -1,6 +1,6 @@
 {
   "schemaVersion": "2.0.0",
-  "catalogVersion": "2026.11",
+  "catalogVersion": "2026.12",
   "id": "mexico-city",
   "name": "Autódromo Hermanos Rodríguez",
   "countryCode": "MX",
@@ -13328,6 +13328,136 @@
         "elevationLayer": 0
       },
       {
+        "id": "turn-7-300m",
+        "cornerIndex": 7,
+        "distanceToCornerMeters": 300,
+        "trackDistanceMeters": 2136,
+        "side": "right",
+        "position": {
+          "x": 799.139,
+          "y": -986.438
+        },
+        "rotation": 1.457389,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-7-250m",
+        "cornerIndex": 7,
+        "distanceToCornerMeters": 250,
+        "trackDistanceMeters": 2186,
+        "side": "right",
+        "position": {
+          "x": 805.162,
+          "y": -936.964
+        },
+        "rotation": 1.446145,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-7-200m",
+        "cornerIndex": 7,
+        "distanceToCornerMeters": 200,
+        "trackDistanceMeters": 2236,
+        "side": "right",
+        "position": {
+          "x": 811.426,
+          "y": -887.385
+        },
+        "rotation": 1.444281,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-7-150m",
+        "cornerIndex": 7,
+        "distanceToCornerMeters": 150,
+        "trackDistanceMeters": 2286,
+        "side": "right",
+        "position": {
+          "x": 818.374,
+          "y": -837.882
+        },
+        "rotation": 1.443239,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-7-100m",
+        "cornerIndex": 7,
+        "distanceToCornerMeters": 100,
+        "trackDistanceMeters": 2336,
+        "side": "right",
+        "position": {
+          "x": 830.043,
+          "y": -788.929
+        },
+        "rotation": 1.445203,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-7-50m",
+        "cornerIndex": 7,
+        "distanceToCornerMeters": 50,
+        "trackDistanceMeters": 2386,
+        "side": "right",
+        "position": {
+          "x": 836.249,
+          "y": -739.241
+        },
+        "rotation": 1.448848,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-12-300m",
+        "cornerIndex": 12,
+        "distanceToCornerMeters": 300,
+        "trackDistanceMeters": 3181,
+        "side": "left",
+        "position": {
+          "x": 222.202,
+          "y": -338.912
+        },
+        "rotation": 2.987532,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-12-250m",
+        "cornerIndex": 12,
+        "distanceToCornerMeters": 250,
+        "trackDistanceMeters": 3231,
+        "side": "left",
+        "position": {
+          "x": 172.884,
+          "y": -331.496
+        },
+        "rotation": 2.993838,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-12-200m",
+        "cornerIndex": 12,
+        "distanceToCornerMeters": 200,
+        "trackDistanceMeters": 3281,
+        "side": "left",
+        "position": {
+          "x": 123.494,
+          "y": -324.23
+        },
+        "rotation": 2.997647,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-12-150m",
+        "cornerIndex": 12,
+        "distanceToCornerMeters": 150,
+        "trackDistanceMeters": 3331,
+        "side": "left",
+        "position": {
+          "x": 74.007,
+          "y": -317.053
+        },
+        "rotation": 2.997461,
+        "elevationLayer": 0
+      },
+      {
         "id": "turn-12-100m",
         "cornerIndex": 12,
         "distanceToCornerMeters": 100,
@@ -13359,7 +13489,7 @@
     "dataset": "bacinger/f1-circuits",
     "license": "MIT",
     "url": "https://github.com/bacinger/f1-circuits",
-    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery. Catalog 2026.8 adds per-circuit pit architecture, major buildings, spectator grandstands and safety fencing, closes curb gaps only through continuous curvature and preserves the canonical racing geometry; barrier thickness extends away from the racing surface. Catalog 2026.9 authors curb presence, dimensions and outer paint per numbered corner, publishes measured pit and structure footprints, and represents the Rettifilo straight-ahead escape route with staggered visual block rows that do not participate in physics. It also uses Grand Prix Guides as a secondary satellite cross-check while FIA and circuit material remain primary, and records the last technically verifiable 2025 configuration for Mexico City and the latest official project for Madrid. Catalog 2026.11 publishes authored braking-reference boards only on material braking approaches and keeps their placement immediately track-side of the canonical outer protection; it also refines the Rettifilo escape corridor for uninterrupted clearance. Pit lanes publish physical entry/exit openings and an opaque rear garage barrier aligned to the 22 visual bays, leaving the driving corridor open. ",
+    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery. Catalog 2026.8 adds per-circuit pit architecture, major buildings, spectator grandstands and safety fencing, closes curb gaps only through continuous curvature and preserves the canonical racing geometry; barrier thickness extends away from the racing surface. Catalog 2026.9 authors curb presence, dimensions and outer paint per numbered corner, publishes measured pit and structure footprints, and represents the Rettifilo straight-ahead escape route with staggered visual block rows that do not participate in physics. It also uses Grand Prix Guides as a secondary satellite cross-check while FIA and circuit material remain primary, and records the last technically verifiable 2025 configuration for Mexico City and the latest official project for Madrid. Catalog 2026.11 publishes authored braking-reference boards only on material braking approaches and keeps their placement immediately track-side of the canonical outer protection; Catalog 2026.12 removes the provisional Monza Rettifilo escape corridor and restores the canonical main-track protection. Pit lanes publish physical entry/exit openings and an opaque rear garage barrier aligned to the 22 visual bays, leaving the driving corridor open. ",
     "environmentReferences": [
       {
         "label": "FIA 2025 Mexico City circuit map",

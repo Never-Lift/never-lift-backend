@@ -1,6 +1,6 @@
 {
   "schemaVersion": "2.0.0",
-  "catalogVersion": "2026.11",
+  "catalogVersion": "2026.12",
   "id": "jeddah",
   "name": "Jeddah Corniche Circuit",
   "countryCode": "SA",
@@ -17587,6 +17587,97 @@
         "elevationLayer": 0
       },
       {
+        "id": "turn-4-200m",
+        "cornerIndex": 4,
+        "distanceToCornerMeters": 200,
+        "trackDistanceMeters": 610,
+        "side": "right",
+        "position": {
+          "x": -179.026,
+          "y": 668.843
+        },
+        "rotation": 1.738477,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-4-150m",
+        "cornerIndex": 4,
+        "distanceToCornerMeters": 150,
+        "trackDistanceMeters": 660,
+        "side": "right",
+        "position": {
+          "x": -187.411,
+          "y": 718.162
+        },
+        "rotation": 1.740006,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-4-100m",
+        "cornerIndex": 4,
+        "distanceToCornerMeters": 100,
+        "trackDistanceMeters": 710,
+        "side": "right",
+        "position": {
+          "x": -195.694,
+          "y": 767.36
+        },
+        "rotation": 1.733824,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-4-50m",
+        "cornerIndex": 4,
+        "distanceToCornerMeters": 50,
+        "trackDistanceMeters": 760,
+        "side": "right",
+        "position": {
+          "x": -203.335,
+          "y": 816.304
+        },
+        "rotation": 1.707828,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-13-300m",
+        "cornerIndex": 13,
+        "distanceToCornerMeters": 300,
+        "trackDistanceMeters": 1954,
+        "side": "right",
+        "position": {
+          "x": -199.835,
+          "y": 1867.923
+        },
+        "rotation": 1.616512,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-13-250m",
+        "cornerIndex": 13,
+        "distanceToCornerMeters": 250,
+        "trackDistanceMeters": 2004,
+        "side": "right",
+        "position": {
+          "x": -202.287,
+          "y": 1917.907
+        },
+        "rotation": 1.623971,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-13-200m",
+        "cornerIndex": 13,
+        "distanceToCornerMeters": 200,
+        "trackDistanceMeters": 2054,
+        "side": "right",
+        "position": {
+          "x": -205.049,
+          "y": 1967.865
+        },
+        "rotation": 1.629476,
+        "elevationLayer": 0
+      },
+      {
         "id": "turn-13-150m",
         "cornerIndex": 13,
         "distanceToCornerMeters": 150,
@@ -17623,6 +17714,123 @@
           "y": 2123.066
         },
         "rotation": 2.607285,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-16-200m",
+        "cornerIndex": 16,
+        "distanceToCornerMeters": 200,
+        "trackDistanceMeters": 2702,
+        "side": "left",
+        "position": {
+          "x": -266.791,
+          "y": 1702.092
+        },
+        "rotation": -1.971434,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-16-150m",
+        "cornerIndex": 16,
+        "distanceToCornerMeters": 150,
+        "trackDistanceMeters": 2752,
+        "side": "left",
+        "position": {
+          "x": -288.782,
+          "y": 1656.547
+        },
+        "rotation": -2.031581,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-16-100m",
+        "cornerIndex": 16,
+        "distanceToCornerMeters": 100,
+        "trackDistanceMeters": 2802,
+        "side": "left",
+        "position": {
+          "x": -307.136,
+          "y": 1612.305
+        },
+        "rotation": -1.825137,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-16-50m",
+        "cornerIndex": 16,
+        "distanceToCornerMeters": 50,
+        "trackDistanceMeters": 2852,
+        "side": "left",
+        "position": {
+          "x": -312.418,
+          "y": 1565.377
+        },
+        "rotation": -1.558194,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-22-250m",
+        "cornerIndex": 22,
+        "distanceToCornerMeters": 250,
+        "trackDistanceMeters": 3855,
+        "side": "right",
+        "position": {
+          "x": -240.086,
+          "y": 655.74
+        },
+        "rotation": -1.393251,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-22-200m",
+        "cornerIndex": 22,
+        "distanceToCornerMeters": 200,
+        "trackDistanceMeters": 3905,
+        "side": "right",
+        "position": {
+          "x": -235.094,
+          "y": 606.765
+        },
+        "rotation": -1.515065,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-22-150m",
+        "cornerIndex": 22,
+        "distanceToCornerMeters": 150,
+        "trackDistanceMeters": 3955,
+        "side": "right",
+        "position": {
+          "x": -234.652,
+          "y": 557.4
+        },
+        "rotation": -1.615316,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-22-100m",
+        "cornerIndex": 22,
+        "distanceToCornerMeters": 100,
+        "trackDistanceMeters": 4005,
+        "side": "right",
+        "position": {
+          "x": -239.86,
+          "y": 508.368
+        },
+        "rotation": -1.724206,
+        "elevationLayer": 0
+      },
+      {
+        "id": "turn-22-50m",
+        "cornerIndex": 22,
+        "distanceToCornerMeters": 50,
+        "trackDistanceMeters": 4055,
+        "side": "right",
+        "position": {
+          "x": -249.696,
+          "y": 460.015
+        },
+        "rotation": -1.821282,
         "elevationLayer": 0
       },
       {
@@ -17683,7 +17891,7 @@
     "dataset": "bacinger/f1-circuits",
     "license": "MIT",
     "url": "https://github.com/bacinger/f1-circuits",
-    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery. Catalog 2026.8 adds per-circuit pit architecture, major buildings, spectator grandstands and safety fencing, closes curb gaps only through continuous curvature and preserves the canonical racing geometry; barrier thickness extends away from the racing surface. Catalog 2026.9 authors curb presence, dimensions and outer paint per numbered corner, publishes measured pit and structure footprints, and represents the Rettifilo straight-ahead escape route with staggered visual block rows that do not participate in physics. It also uses Grand Prix Guides as a secondary satellite cross-check while FIA and circuit material remain primary, and records the last technically verifiable 2025 configuration for Mexico City and the latest official project for Madrid. Catalog 2026.11 publishes authored braking-reference boards only on material braking approaches and keeps their placement immediately track-side of the canonical outer protection; it also refines the Rettifilo escape corridor for uninterrupted clearance. Pit lanes publish physical entry/exit openings and an opaque rear garage barrier aligned to the 22 visual bays, leaving the driving corridor open. ",
+    "transformation": "Equirectangular projection around the first source coordinate, two-pass closed corner smoothing plus metric quadratic rounding capped at 12 meters, uniform scale to the published circuit length, closed-loop resampling every approximately 5 meters, generated curb metadata, and per-circuit side environments audited against the listed references. Contract v2 derives each track-facing barrier polyline from the sampled centerline, local track half-width, and the audited runoff-zone widths in catalog 2026.5. Catalog 2026.7 smooths abrupt protection transitions, caps faces before adjacent same-level track arms, publishes continuous pit paths and removes provisional scenery. Catalog 2026.8 adds per-circuit pit architecture, major buildings, spectator grandstands and safety fencing, closes curb gaps only through continuous curvature and preserves the canonical racing geometry; barrier thickness extends away from the racing surface. Catalog 2026.9 authors curb presence, dimensions and outer paint per numbered corner, publishes measured pit and structure footprints, and represents the Rettifilo straight-ahead escape route with staggered visual block rows that do not participate in physics. It also uses Grand Prix Guides as a secondary satellite cross-check while FIA and circuit material remain primary, and records the last technically verifiable 2025 configuration for Mexico City and the latest official project for Madrid. Catalog 2026.11 publishes authored braking-reference boards only on material braking approaches and keeps their placement immediately track-side of the canonical outer protection; Catalog 2026.12 removes the provisional Monza Rettifilo escape corridor and restores the canonical main-track protection. Pit lanes publish physical entry/exit openings and an opaque rear garage barrier aligned to the 22 visual bays, leaving the driving corridor open. ",
     "environmentReferences": [
       {
         "label": "FIA 2025 Jeddah circuit map",
