@@ -113,7 +113,7 @@ Cada módulo é uma unidade que pode virar um prompt isolado pro Codex. A ordem 
 ### Módulo 2 — Suporte a corrida local (sem rede)
 **Depende de:** Módulo 0.
 **Contrato de entrada atual:** `contracts/module-2/v2/` contém o schema de pista `2.0.0`, catálogo `2026.12`, contrato físico `2.0.0`, faces canônicas de barreira, aberturas físicas de entrada/saída do pit, placas métricas de frenagem, perfis visuais métricos de infraestrutura e as 24 definições geradas de forma reproduzível. `contracts/module-2/v1/` permanece histórico e imutável.
-**Estado da Parte 2d:** implementação e validação manual integrada concluídas em 31/08/2026. O backend publica/importa o catálogo v2, empacota os artefatos comuns byte a byte, persiste `physicsContractVersion` e audita zebras, proteções contínuas, placas regressivas, largadas/orientações corrigidas, aberturas de `pit-entry`/`pit-exit` e 22 vagas visuais opacas. O catálogo `2026.12` remove o corredor provisório de escape do Rettifilo de Monza, reposiciona a largada oficial de Silverstone e orienta Marina Bay no sentido anti-horário. O Módulo 2 está pronto; o Módulo 3 ainda não foi iniciado.
+**Estado da Parte 2d:** implementação e validação manual integrada concluídas em 31/08/2026. O backend publica/importa o catálogo v2, empacota os artefatos comuns byte a byte, persiste `physicsContractVersion` e audita zebras, proteções contínuas, placas regressivas, largadas/orientações corrigidas, aberturas de `pit-entry`/`pit-exit` e 22 vagas visuais opacas. O catálogo `2026.12` remove o corredor provisório de escape do Rettifilo de Monza, reposiciona a largada oficial de Silverstone e orienta Marina Bay no sentido anti-horário. O Módulo 2 está pronto; no Módulo 3, a Parte 3a (sala, ticket, lobby) está pronta e as Partes 3b/3c permanecem pendentes.
 **Simplificação implementada em 24/08/2026 (backend #72 / frontend #90):** o produto tem somente o F1 e uma configuração fixa de condução baseada nos valores do antigo perfil Normal. `carModel`, `handlingMode`/`driftMode`, os perfis Supercarro/Drift e as dimensões de recorde associadas foram removidos do contrato físico `1.3.0`, publicado de forma sincronizada nos dois repositórios.
 **Cobre features:** parte de 3 (registrar resultado local, se o usuário estiver logado), 26.
 **Nota:** o motor de física solo/local roda **inteiramente no frontend**. Nesta revisão, o backend publica o catálogo v2, empacota o contrato físico idêntico e persiste a versão física; não simula a corrida local. O Java autoritativo só entra no Módulo 3 depois que os cenários TypeScript da Parte 2d estiverem congelados.
@@ -131,9 +131,9 @@ Cada módulo é uma unidade que pode virar um prompt isolado pro Codex. A ordem 
 **Cobre features:** 4 (modos online — lobby, configuração de sala), 8, parte de 6 (física básica compartilhada), parte de 5 (colisão).
 **Este é o módulo de maior risco do projeto — é onde a lição sobre servidor autoritativo se aplica.**
 **Decisões aprovadas:** o registro completo das 80 decisões desta rodada está
-em `docs/module-3-online-decisions.md` no repositório frontend e deve ser
-mantido sincronizado com este plano. O registro é normativo para a implementação,
-mas o Módulo 3 ainda não foi iniciado.
+em `docs/module-3-online-decisions.md` e é normativo para a implementação.
+A Parte 3a (sala, ticket e lobby) está pronta; a Parte 3b (motor físico) e a
+Parte 3c (classificação e fluxo de corrida) permanecem pendentes.
 **Escopo:**
 - Sessão WebSocket por conexão (`/ws`), autenticada por ticket de uso único vinculado à sala e ao usuário (validade de 60 s); o JWT principal não é exposto na URL.
 - `RoomManager`: cria/lista salas públicas e privadas, usa código numérico de 4 dígitos e senha opcional com hash, atribui `hostId` e suporta até 22 carros (humanos e bots) por sala. O grid é configurável de 2 a 22, bots ficam desativados por padrão e o host pode removê-los somente no lobby.

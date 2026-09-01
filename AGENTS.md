@@ -63,7 +63,7 @@ Antes de começar um módulo, confira se as dependências dele já estão marcad
 | 0 — Fundação e deploy | pronto |
 | 1 — Usuários e autenticação | pronto |
 | 2 — Suporte a corrida local | pronto — catálogo `2026.12`, contrato físico `2.0.0`, persistência versionada e artefatos compartilhados foram validados manualmente de forma integrada em 31/08/2026; simplificação para F1 único concluída; zebras autorais, proteções contínuas, placas métricas por curva, largada de Silverstone reposicionada na reta oficial, Marina Bay orientada no sentido anti-horário, aberturas físicas de entrada/saída do pit e 22 vagas visuais opacas por circuito, com face traseira das garagens publicada como collider; escape provisório do Rettifilo de Monza removido e proteção canônica restaurada. Parte 2d e Módulo 2 prontos; Módulo 3 ainda não iniciado |
-| 3 — Motor autoritativo online | não iniciado |
+| 3 — Motor autoritativo online | Parte 3a (sala, ticket, lobby) pronta; 3b (motor físico) e 3c (classificação e fluxo de corrida) pendentes |
 | 4 — Ambiente e modo caos | não iniciado |
 | 5 — Corrida completa (dano/vácuo/pits) | não iniciado |
 | 6 — Campeonatos | não iniciado |
