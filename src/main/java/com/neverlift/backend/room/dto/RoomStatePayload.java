@@ -6,24 +6,44 @@ import java.util.UUID;
 
 /** The deliberately small room_state payload shared by the WebSocket clients. */
 public record RoomStatePayload(
+        String code,
+        String name,
         List<RoomStatePlayer> players,
         UUID hostId,
         RoomResponse.RoomResponseSettings settings,
         Map<UUID, Boolean> readyStates,
-        boolean settingsLocked) {
+        boolean settingsLocked,
+        String state,
+        int participantCount,
+        int limit,
+        boolean hasPassword) {
 
     public static RoomStatePayload from(RoomResponse room) {
         return new RoomStatePayload(
+                room.code(),
+                room.name(),
                 room.players().stream()
                         .map(player -> new RoomStatePlayer(
-                                player.id(), player.displayName(), player.color(), player.bot()))
+                                player.id(), player.userId(), player.displayName(), player.color(),
+                                player.bot(), player.connected(), player.joinedAt()))
                         .toList(),
                 room.hostId(),
                 room.settings(),
                 room.readyStates(),
-                room.settingsLocked());
+                room.settingsLocked(),
+                room.state(),
+                room.participantCount(),
+                room.limit(),
+                room.hasPassword());
     }
 
-    public record RoomStatePlayer(UUID playerId, String displayName, String color, boolean isBot) {
+    public record RoomStatePlayer(
+            UUID playerId,
+            UUID userId,
+            String displayName,
+            String color,
+            boolean isBot,
+            boolean connected,
+            java.time.Instant joinedAt) {
     }
 }

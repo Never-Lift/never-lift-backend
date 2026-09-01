@@ -134,12 +134,17 @@ class RoomIntegrationTest {
     }
 
     @Test
-    void shouldRejectGuestFromRoomEndpoints() throws Exception {
+    void shouldAllowAuthenticatedGuestInRoomEndpoints() throws Exception {
         String guestToken = tokenFrom(mockMvc.perform(post("/api/auth/guest"))
                 .andExpect(status().isOk()).andReturn());
         mockMvc.perform(get("/api/rooms").header(HttpHeaders.AUTHORIZATION, bearer(guestToken)))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.code").value("access_denied"));
+                .andExpect(status().isOk());
+        mockMvc.perform(post("/api/rooms")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(guestToken))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("name", "Guest room"))))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name").value("Guest room"));
     }
 
     private String registerToken(String gamertag) throws Exception {

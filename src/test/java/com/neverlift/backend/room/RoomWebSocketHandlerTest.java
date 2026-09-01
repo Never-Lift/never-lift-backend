@@ -73,6 +73,31 @@ class RoomWebSocketHandlerTest {
         verify(session).close(CloseStatus.SESSION_NOT_RELIABLE);
     }
 
+    @Test
+    void broadcastsJoinAndSupportsReadyCancellationAndHostStart() throws Exception {
+        UUID userId = UUID.randomUUID();
+        String roomCode = "1234";
+        ConnectionTicket ticket = new ConnectionTicket("ticket", userId, roomCode, Instant.now());
+        WebSocketSession session = mockSession(ticket);
+        when(session.isOpen()).thenReturn(true);
+        when(roomManager.get(roomCode)).thenReturn(room(roomCode, userId));
+        handler.afterConnectionEstablished(session);
+
+        handler.handleMessage(session, new org.springframework.web.socket.TextMessage("""
+                {"type":"join_room","payload":{"roomCode":"1234","trackCatalogVersion":"2026.12","physicsContractVersion":"2.0.0"}}
+                """));
+        handler.handleMessage(session, new org.springframework.web.socket.TextMessage("""
+                {"type":"ready","payload":{"ready":false}}
+                """));
+        handler.handleMessage(session, new org.springframework.web.socket.TextMessage("""
+                {"type":"start_race","payload":{}}
+                """));
+
+        verify(roomManager).setReady(userId, roomCode, false);
+        verify(roomManager).start(userId, roomCode);
+        verify(session, atLeastOnce()).sendMessage(any(WebSocketMessage.class));
+    }
+
     private WebSocketSession mockSession(ConnectionTicket ticket) {
         WebSocketSession session = mock(WebSocketSession.class);
         Map<String, Object> attributes = new HashMap<>();

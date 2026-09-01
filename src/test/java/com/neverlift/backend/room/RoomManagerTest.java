@@ -168,6 +168,22 @@ class RoomManagerTest {
     }
 
     @Test
+    void removesDisconnectedParticipantOnlyAfterReconnectWindow() {
+        RoomResponse room = manager.create(host,
+                new CreateRoomRequest(null, null, 2, false, null, null, null));
+        manager.join(second, room.code(), null, "origin");
+        manager.markDisconnected(second, room.code());
+
+        clock.advanceSeconds(29);
+        assertThat(manager.removeDisconnectedIfExpired(second, room.code())).isFalse();
+        assertThat(manager.get(room.code()).participantCount()).isEqualTo(2);
+
+        clock.advanceSeconds(1);
+        assertThat(manager.removeDisconnectedIfExpired(second, room.code())).isTrue();
+        assertThat(manager.get(room.code()).participantCount()).isEqualTo(1);
+    }
+
+    @Test
     void fillsConfiguredGridWithReadyBotsOnlyWhenHostStarts() {
         RoomResponse room = manager.create(host,
                 new CreateRoomRequest(null, null, 4, true, "hard", null, null));
