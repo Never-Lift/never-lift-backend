@@ -26,17 +26,19 @@ import com.neverlift.backend.room.dto.JoinRoomRequest;
 import com.neverlift.backend.room.dto.LoadoutRequest;
 import com.neverlift.backend.room.dto.RoomResponse;
 import com.neverlift.backend.room.dto.RoomSettingsRequest;
-import com.neverlift.backend.security.OnlineOnly;
+import com.neverlift.backend.security.LobbyAccess;
 
 @RestController
 @RequestMapping("/api/rooms")
-@OnlineOnly
+@LobbyAccess
 public class RoomController {
 
     private final RoomManager roomManager;
+    private final RoomWebSocketHandler roomWebSocketHandler;
 
-    public RoomController(RoomManager roomManager) {
+    public RoomController(RoomManager roomManager, RoomWebSocketHandler roomWebSocketHandler) {
         this.roomManager = roomManager;
+        this.roomWebSocketHandler = roomWebSocketHandler;
     }
 
     @PostMapping
@@ -64,7 +66,10 @@ public class RoomController {
             @PathVariable String roomCode,
             @Valid @RequestBody(required = false) JoinRoomRequest request,
             @RequestHeader(value = HttpHeaders.ORIGIN, required = false) String origin) {
-        return roomManager.join(userId(jwt), roomCode, request == null ? null : request.password(), origin);
+        RoomResponse response = roomManager.join(
+                userId(jwt), roomCode, request == null ? null : request.password(), origin);
+        roomWebSocketHandler.broadcastRoomState(roomCode);
+        return response;
     }
 
     @PostMapping({"/{roomCode}/connection-ticket", "/{roomCode}/ticket"})
@@ -88,12 +93,20 @@ public class RoomController {
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable String roomCode,
             @Valid @RequestBody RoomSettingsRequest request) {
-        return roomManager.updateSettings(userId(jwt), roomCode, request);
+        RoomResponse response = roomManager.updateSettings(userId(jwt), roomCode, request);
+        roomWebSocketHandler.broadcastRoomState(roomCode);
+        return response;
     }
 
     @PostMapping("/{roomCode}/ready")
-    public RoomResponse ready(@AuthenticationPrincipal Jwt jwt, @PathVariable String roomCode) {
-        return roomManager.setReady(userId(jwt), roomCode, true);
+    public RoomResponse ready(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable String roomCode,
+            @RequestBody(required = false) ReadyRequest request) {
+        RoomResponse response = roomManager.setReady(
+                userId(jwt), roomCode, request == null || request.ready());
+        roomWebSocketHandler.broadcastRoomState(roomCode);
+        return response;
     }
 
     @PostMapping("/{roomCode}/loadout")
@@ -101,12 +114,16 @@ public class RoomController {
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable String roomCode,
             @Valid @RequestBody LoadoutRequest request) {
-        return roomManager.setLoadoutColor(userId(jwt), roomCode, request.color());
+        RoomResponse response = roomManager.setLoadoutColor(userId(jwt), roomCode, request.color());
+        roomWebSocketHandler.broadcastRoomState(roomCode);
+        return response;
     }
 
     @PostMapping("/{roomCode}/start")
     public RoomResponse start(@AuthenticationPrincipal Jwt jwt, @PathVariable String roomCode) {
-        return roomManager.start(userId(jwt), roomCode);
+        RoomResponse response = roomManager.start(userId(jwt), roomCode);
+        roomWebSocketHandler.broadcastRoomState(roomCode);
+        return response;
     }
 
     @DeleteMapping("/{roomCode}/participants/{participantId}")
@@ -114,17 +131,28 @@ public class RoomController {
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable String roomCode,
             @PathVariable UUID participantId) {
-        return roomManager.remove(userId(jwt), roomCode, participantId);
+        RoomResponse response = roomManager.remove(userId(jwt), roomCode, participantId);
+        roomWebSocketHandler.disconnectParticipant(
+                roomCode, participantId, "removed_from_room", "Você foi removido da sala pelo host.");
+        roomWebSocketHandler.broadcastRoomState(roomCode);
+        return response;
     }
 
     @PostMapping("/{roomCode}/leave")
     public RoomResponse leave(@AuthenticationPrincipal Jwt jwt, @PathVariable String roomCode) {
-        return roomManager.leave(userId(jwt), roomCode);
+        UUID leavingUserId = userId(jwt);
+        RoomResponse response = roomManager.leave(leavingUserId, roomCode);
+        roomWebSocketHandler.disconnectParticipant(
+                roomCode, leavingUserId, "left_room", "Você saiu da sala.");
+        roomWebSocketHandler.broadcastRoomState(roomCode);
+        return response;
     }
 
     @PostMapping("/{roomCode}/close")
     public RoomResponse close(@AuthenticationPrincipal Jwt jwt, @PathVariable String roomCode) {
-        return roomManager.close(userId(jwt), roomCode);
+        RoomResponse response = roomManager.close(userId(jwt), roomCode);
+        roomWebSocketHandler.closeRoom(roomCode, "room_closed", "A sala foi encerrada pelo host.");
+        return response;
     }
 
     private UUID userId(Jwt jwt) {
@@ -136,5 +164,8 @@ public class RoomController {
     }
 
     public record TicketRequest(String roomCode) {
+    }
+
+    public record ReadyRequest(boolean ready) {
     }
 }

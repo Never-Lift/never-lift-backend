@@ -39,7 +39,7 @@ Todas as grandezas espaciais compartilhadas usam **1 unidade de mundo = 1 metro*
 
 Envelope: `{ "type": "...", "payload": {...} }`.
 
-**Cliente → Servidor:** `join_room { roomCode, trackCatalogVersion, physicsContractVersion }`, `select_loadout { color }`, `ready`, `input { throttle, brake, steer, clientSeq, clientTimestamp }` — nunca posição, só intenção. O modelo do carro e o modo de condução não fazem parte do payload: toda corrida usa o mesmo F1 e a mesma configuração física. Boost/nitro não existe e propriedades desconhecidas são rejeitadas.
+**Cliente → Servidor:** `join_room { roomCode, trackCatalogVersion, physicsContractVersion }`, `select_loadout { color }`, `ready { ready }`, `input { throttle, brake, steer, clientSeq, clientTimestamp }` — nunca posição, só intenção. `ready` aceita `true` e `false`, pois a confirmação é reversível enquanto a sala está no lobby. O modelo do carro e o modo de condução não fazem parte do payload: toda corrida usa o mesmo F1 e a mesma configuração física. Boost/nitro não existe e propriedades desconhecidas são rejeitadas.
 
 **Servidor → Cliente:** `room_state`, `countdown { startAtServerTime }`, `state_snapshot { tick, serverTime, physicsContractVersion, cars: [{ playerId, x, y, velocityX, velocityY, angle, speed, physicsState: { yawRate, steeringAngle, appliedThrottle, appliedBrake, frontWheelAngularSpeed, rearWheelAngularSpeed, gear, engineRpm, gearShiftTimeRemaining }, damageState: { health, engineDamaged, steeringDamaged, steeringPull, totalLoss }, lap, isGhost, inPit }] }`, `race_event`, `race_result`, `error`.
 
@@ -84,7 +84,7 @@ Mesma numeração e dependências do plano de backend.
 ### Módulo 2 — Motor de corrida local (sem rede)
 **Depende de:** Módulo 0 (frontend) + Módulo 2 (backend, catálogo versionado de pistas e persistência de resultado).
 **Contrato de entrada atual:** `contracts/module-2/v2/` define `TrackDefinition` `2.0.0`, catálogo `2026.12`, constantes físicas `2.0.0`, colliders compostos, faces canônicas de barreira, aberturas físicas de pit, face traseira `pitLane.garageBarrier` das garagens, placas métricas de frenagem e perfis visuais métricos de infraestrutura. O frontend consome as 24 geometrias pela API e mantém localmente somente os artefatos comuns do contrato; `contracts/module-2/v1/` preserva o runtime `1.3.0` como histórico imutável.
-**Estado da entrega:** pronto. As Partes 2a, 2b, 2c e 2d, a física `2.0.0` e o catálogo `2026.12` foram validados manualmente de forma integrada em 31/08/2026. A simplificação para F1 único/condução única, o refinamento de câmera 2.5D/F1 multidirecional e a revisão de segurança visual das 24 pistas estão concluídos. A Parte 2d e o Módulo 2 estão prontos; o Módulo 3 ainda não foi iniciado.
+**Estado da entrega:** pronto. As Partes 2a, 2b, 2c e 2d, a física `2.0.0` e o catálogo `2026.12` foram validados manualmente de forma integrada em 31/08/2026. A simplificação para F1 único/condução única, o refinamento de câmera 2.5D/F1 multidirecional e a revisão de segurança visual das 24 pistas estão concluídos. A Parte 2d e o Módulo 2 estão prontos; a Parte 3a está implementada e aguarda nova validação manual integrada, enquanto 3b/3c permanecem pendentes.
 
 **Simplificação implementada em 24/08/2026 (frontend #90 / backend #72):** o produto tem somente o F1 e uma configuração fixa de condução que preserva os valores do antigo perfil Normal. A seleção Normal/Drift, os perfis visuais Supercarro/Drift e qualquer dimensão competitiva baseada em modelo ou handling foram removidos. O contrato físico incompatível `1.3.0` foi publicado de forma sincronizada nos dois repositórios.
 
@@ -124,9 +124,12 @@ Mesma numeração e dependências do plano de backend.
 ### Módulo 3 — Motor autoritativo online (núcleo)
 **Depende de:** Módulo 1, Módulo 2, Módulo 3 do backend.
 **Cobre features:** 4 (lobby online), 8.
+**Estado da entrega:** Parte 3a (ticket, sala e lobby) implementada e aguardando nova validação manual em dois navegadores; Partes 3b e 3c pendentes.
 **Escopo:**
-- Cliente WebSocket com reconexão automática (backoff simples).
-- Lobby: lista de jogadores, host, checkbox de pronto por jogador, host só pode iniciar quando todos estão `ready`.
+- Antes do WebSocket, obter ticket opaco de uso único, vinculado ao usuário e à sala e válido por 60 s; o JWT principal nunca aparece na URL. A reconexão usa backoff simples e preserva o slot por aproximadamente 30 s.
+- A criação solicita somente nome, visibilidade e senha. Pista, grid de 2 a 22 carros e bots/dificuldade são configurados pelo host dentro da sala e ficam bloqueados após o primeiro pronto.
+- O socket pertence à sessão online do aplicativo, não à página: navegar pelo shell mantém a conexão. A saída ocorre somente por ação explícita, com confirmação que identifica a sala; após 30 s desconectado sem retorno, o servidor remove o participante e libera a vaga.
+- Lobby: lista em tempo real de jogadores, conexão e host identificados; pronto reversível por jogador; remoção pelo host; host só pode iniciar quando todos os humanos estão `ready`. Toda entrada, saída, reconexão, remoção ou mutação transmite imediatamente o novo `room_state`.
 - **Predição:** ao apertar uma tecla, o `RaceEngine` do Módulo 2 já simula o carro do próprio jogador imediatamente e envia `input` pro servidor.
 - **Compatibilidade:** `join_room` envia `physicsContractVersion`; servidor rejeita cliente com física incompatível antes da corrida.
 - **Reconciliação:** ao chegar `state_snapshot`, comparar posição, velocidade, ângulo e todo `physicsState` previsto com o estado autoritativo; reaplicar inputs ainda não confirmados e corrigir erro visual suavemente, sem esconder divergência persistente de motor.

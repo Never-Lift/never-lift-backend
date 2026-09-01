@@ -286,6 +286,23 @@ public class RoomManager {
         room.markConnected(userId);
     }
 
+    public synchronized boolean removeDisconnectedIfExpired(UUID userId, String roomCode) {
+        Room room = rooms.get(roomCode);
+        if (room == null) {
+            return false;
+        }
+        RoomParticipant participant = room.participantForUser(userId);
+        if (participant == null || participant.isConnected() || participant.getDisconnectedAt() == null) {
+            return false;
+        }
+        Instant reconnectDeadline = participant.getDisconnectedAt().plus(ConnectionTicket.RECONNECT_WINDOW);
+        if (now().isBefore(reconnectDeadline)) {
+            return false;
+        }
+        room.remove(participant.getId(), now());
+        return true;
+    }
+
     @Scheduled(fixedRate = 60_000)
     public synchronized int cleanupExpiredRooms() {
         Instant now = now();

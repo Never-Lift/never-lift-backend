@@ -125,21 +125,22 @@ O backend exige `physicsContractVersion=2.0.0` junto do catálogo `2026.12` e pe
 
 ## Salas online — Módulo 3, Parte 3a
 
-A infraestrutura de lobby está pronta; o motor físico e o fluxo de corrida das Partes 3b/3c ainda não estão implementados. Salas são efêmeras em memória, públicas por padrão, usam código numérico de quatro dígitos e comportam de 2 a 22 carros (grid padrão 22). Senhas opcionais têm no mínimo seis caracteres e nunca são devolvidas — somente `hasPassword` aparece na listagem. Entradas inválidas, senha errada e sala cheia compartilham uma mensagem genérica, com no máximo cinco tentativas por minuto por usuário e origem.
+A infraestrutura de lobby está implementada e aguarda nova validação manual integrada em dois navegadores; o motor físico e o fluxo de corrida das Partes 3b/3c ainda não estão implementados. Usuários e guests autenticados podem participar igualmente. Salas são efêmeras em memória, públicas por padrão, usam código numérico de quatro dígitos e comportam de 2 a 22 carros (grid padrão 22). Senhas opcionais têm no mínimo seis caracteres e nunca são devolvidas — somente `hasPassword` aparece na listagem. Entradas inválidas, senha errada e sala cheia compartilham uma mensagem genérica, com no máximo cinco tentativas por minuto por usuário e origem.
 
 | Método | Endpoint | Descrição |
 |---|---|---|
-| `POST` | `/api/rooms` | Cria uma sala; aceita `name`, `trackId`, `gridSize`, `botsEnabled`, `botDifficulty`, `visibility` e `password` |
+| `POST` | `/api/rooms` | Cria uma sala; a interface inicial solicita somente `name`, `visibility` e `password`, usando valores padrão para corrida |
 | `GET` | `/api/rooms` | Lista salas públicas ainda no lobby |
 | `POST` | `/api/rooms/{code}/join` | Entra pelo código e senha opcional |
 | `POST` | `/api/rooms/{code}/connection-ticket` | Emite ticket opaco válido por 60 s para o usuário autenticado |
 | `PATCH` | `/api/rooms/{code}/settings` | Host altera pista, grid, bots, dificuldade, visibilidade e senha enquanto desbloqueado |
-| `POST` | `/api/rooms/{code}/ready` | Marca o humano como pronto; o primeiro ready trava as configurações |
+| `POST` | `/api/rooms/{code}/ready` | Define `ready=true/false`; o primeiro pronto trava as configurações |
 | `POST` | `/api/rooms/{code}/start` | Host inicia a fase de qualificação quando todos os humanos estão prontos |
 | `POST` | `/api/rooms/{code}/leave` | Sai e transfere o host automaticamente quando necessário |
+| `DELETE` | `/api/rooms/{code}/players/{playerId}` | Host remove um participante enquanto a sala está no lobby |
 | `POST` | `/api/rooms/{code}/close` | Host fecha a sala no lobby |
 
-O WebSocket é `ws(s)://SEU_BACKEND/ws?ticket=...`; o ticket, e nunca o JWT, autentica o handshake. O primeiro envelope deve ser `join_room` com `roomCode`, `trackCatalogVersion=2026.12` e `physicsContractVersion=2.0.0`. Em seguida, `select_loadout`, `ready` e `ping` são aceitos; o servidor envia `room_state`, `pong` e erros. Heartbeat de transporte ocorre a cada 10 s, e três falhas consecutivas marcam o jogador desconectado sem removê-lo do lobby; o mesmo ticket pode reconectar esse slot por até 30 s após a queda.
+O WebSocket é `ws(s)://SEU_BACKEND/ws?ticket=...`; o ticket, e nunca o JWT, autentica o handshake. O primeiro envelope deve ser `join_room` com `roomCode`, `trackCatalogVersion=2026.12` e `physicsContractVersion=2.0.0`. Em seguida, `select_loadout`, `ready { ready }` e `ping` são aceitos; o servidor envia `room_state`, `pong` e erros. Entrada, saída, remoção, reconexão e mudanças no lobby disparam um novo `room_state` imediatamente. Heartbeat de transporte ocorre a cada 10 s, e três falhas consecutivas marcam o jogador desconectado; o mesmo ticket pode reconectar esse slot por até 30 s após a queda. Se não retornar, o participante é removido e a vaga é liberada.
 
 ## Testes
 

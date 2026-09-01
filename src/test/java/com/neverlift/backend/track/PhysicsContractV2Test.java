@@ -116,11 +116,17 @@ class PhysicsContractV2Test {
         assertThat(protocol.toString()).contains("physicsContractVersion");
         assertThat(protocol.at("/$defs/joinRoomEnvelope/properties/payload/properties/roomCode/pattern").asText())
                 .isEqualTo("^[0-9]{4}$");
+        assertThat(protocol.at("/$defs/readyEnvelope/properties/payload/required").toString())
+                .contains("ready");
+        assertThat(protocol.at("/$defs/roomStateEnvelope/properties/payload/required").toString())
+                .contains("code", "name", "participantCount", "limit", "hasPassword");
         assertThat(protocol.at("/$defs/roomStateEnvelope/properties/payload/properties/players/maxItems").asInt())
                 .isEqualTo(22);
         assertThat(protocol.at("/$defs/stateSnapshotEnvelope/properties/payload/properties/cars/maxItems").asInt())
                 .isEqualTo(22);
         assertThat(protocol.at("/$defs/raceResultEnvelope/properties/payload/properties/standings/maxItems").asInt())
+                .isEqualTo(22);
+        assertThat(protocol.at("/$defs/standing/properties/position/maximum").asInt())
                 .isEqualTo(22);
         assertThat(scenarios.path("scenarios").size()).isGreaterThanOrEqualTo(10);
     }

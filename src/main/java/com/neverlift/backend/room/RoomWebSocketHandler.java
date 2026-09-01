@@ -82,7 +82,13 @@ public class RoomWebSocketHandler extends AbstractWebSocketHandler implements Di
                 }
                 case "ready" -> {
                     requireJoined(connection);
-                    roomManager.setReady(connection.userId, connection.roomCode, true);
+                    boolean ready = !payload.has("ready") || payload.path("ready").asBoolean();
+                    roomManager.setReady(connection.userId, connection.roomCode, ready);
+                    broadcastRoomState(connection.roomCode);
+                }
+                case "start_race" -> {
+                    requireJoined(connection);
+                    roomManager.start(connection.userId, connection.roomCode);
                     broadcastRoomState(connection.roomCode);
                 }
                 case "ping" -> sendEnvelope(session, "pong", Map.of());
@@ -106,18 +112,42 @@ public class RoomWebSocketHandler extends AbstractWebSocketHandler implements Di
             return;
         }
         connection.joined = true;
-        sendRoomState(session, connection.roomCode);
+        broadcastRoomState(connection.roomCode);
     }
 
     private void sendRoomState(WebSocketSession session, String roomCode) throws IOException {
         sendEnvelope(session, "room_state", RoomStatePayload.from(roomManager.get(roomCode)));
     }
 
-    private void broadcastRoomState(String roomCode) {
+    public void broadcastRoomState(String roomCode) {
         RoomResponse state = roomManager.get(roomCode);
         connections.values().stream()
                 .filter(connection -> roomCode.equals(connection.roomCode))
                 .forEach(connection -> sendEnvelopeQuietly(connection.session, "room_state", RoomStatePayload.from(state)));
+    }
+
+    public void disconnectParticipant(String roomCode, UUID userId, String code, String message) {
+        connections.entrySet().removeIf(entry -> {
+            Connection connection = entry.getValue();
+            if (!roomCode.equals(connection.roomCode) || !userId.equals(connection.userId)) {
+                return false;
+            }
+            sendEnvelopeQuietly(connection.session, "error", Map.of("code", code, "message", message));
+            closeQuietly(connection.session, CloseStatus.POLICY_VIOLATION.withReason(code));
+            return true;
+        });
+    }
+
+    public void closeRoom(String roomCode, String code, String message) {
+        connections.entrySet().removeIf(entry -> {
+            Connection connection = entry.getValue();
+            if (!roomCode.equals(connection.roomCode)) {
+                return false;
+            }
+            sendEnvelopeQuietly(connection.session, "error", Map.of("code", code, "message", message));
+            closeQuietly(connection.session, CloseStatus.NORMAL.withReason(code));
+            return true;
+        });
     }
 
     private void sendEnvelope(WebSocketSession session, String type, Object payload) throws IOException {
@@ -137,6 +167,16 @@ public class RoomWebSocketHandler extends AbstractWebSocketHandler implements Di
 
     private void sendError(WebSocketSession session, String code, String message) throws IOException {
         sendEnvelope(session, "error", Map.of("code", code, "message", message));
+    }
+
+    private void closeQuietly(WebSocketSession session, CloseStatus status) {
+        try {
+            if (session.isOpen()) {
+                session.close(status);
+            }
+        } catch (IOException ignored) {
+            // The connection has already been removed from the authoritative map.
+        }
     }
 
     private void requireJoined(Connection connection) {
@@ -166,11 +206,9 @@ public class RoomWebSocketHandler extends AbstractWebSocketHandler implements Di
             if (connection.missedHeartbeats >= MAX_MISSED_HEARTBEATS) {
                 connections.remove(connection.session.getId(), connection);
                 roomManager.markDisconnected(connection.userId, connection.roomCode);
-                try {
-                    connection.session.close(CloseStatus.SESSION_NOT_RELIABLE);
-                } catch (IOException ignored) {
-                    // The close callback still removes the connection.
-                }
+                broadcastRoomState(connection.roomCode);
+                scheduleDisconnectedRemoval(connection);
+                closeQuietly(connection.session, CloseStatus.SESSION_NOT_RELIABLE);
             }
         });
     }
@@ -198,7 +236,17 @@ public class RoomWebSocketHandler extends AbstractWebSocketHandler implements Di
         Connection connection = connections.remove(session.getId());
         if (connection != null) {
             roomManager.markDisconnected(connection.userId, connection.roomCode);
+            broadcastRoomState(connection.roomCode);
+            scheduleDisconnectedRemoval(connection);
         }
+    }
+
+    private void scheduleDisconnectedRemoval(Connection connection) {
+        heartbeatExecutor.schedule(() -> {
+            if (roomManager.removeDisconnectedIfExpired(connection.userId, connection.roomCode)) {
+                broadcastRoomState(connection.roomCode);
+            }
+        }, ConnectionTicket.RECONNECT_WINDOW.toSeconds(), TimeUnit.SECONDS);
     }
 
     @Override
