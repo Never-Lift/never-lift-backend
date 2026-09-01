@@ -91,12 +91,14 @@ implementação; não significa que o Módulo 3 esteja implementado ou pronto.
 
 ## Limites e dependências
 
-- Estas decisões não alteram o status: o Módulo 2 continua pendente de validação final e o Módulo 3 continua **não iniciado**.
+- Estas decisões não alteram o status: o Módulo 2 está pronto e o Módulo 3 registra
+  exatamente: **Parte 3a (sala, ticket, lobby) pronta; 3b (motor físico) e 3c
+  (classificação e fluxo de corrida) pendentes**.
 - O M3 precisa reproduzir o contrato físico v2 e os cenários congelados antes de aceitar partidas online.
 - O limite de velocidade e os serviços de pit permanecem deliberadamente fora do M3; entram no Módulo 5 conforme o plano.
 - Penalidades esportivas de tempo e conduta permanecem no Módulo 16.
 - O modo espectador continua no Módulo 13; entrada tardia no M3 não cria espectador.
 - A lista pública e o ticket exigem endpoints WebSocket/REST compatíveis entre frontend e backend.
-- Os schemas de tempo real ainda refletem o limite provisório de quatro participantes e o
-  padrão amplo de código; eles serão versionados/atualizados como parte da implementação
-  do M3, sem reescrever o histórico v1/v2 do Módulo 2 antecipadamente.
+- O schema executável de tempo real v2 foi atualizado nesta Parte 3a para refletir o limite real
+  de até 22 carros e o código de sala numérico de quatro dígitos, sem reescrever o histórico
+  v1/v2 do Módulo 2 antecipadamente.

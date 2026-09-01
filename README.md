@@ -123,13 +123,33 @@ O backend valida pista, versão, modo, posições e tempos antes de persistir tu
 
 O backend exige `physicsContractVersion=2.0.0` junto do catálogo `2026.12` e persiste a versão em cada resultado; versões físicas incompatíveis não são comparadas diretamente. A Parte 2d e o Módulo 2 foram implementados e validados manualmente de forma integrada em 31/08/2026. A especificação e as fontes estão em [`docs/contracts/module-2-physics-v2-proposal.md`](docs/contracts/module-2-physics-v2-proposal.md), e a revisão atual das pistas está registrada em [`docs/module-2-track-safety-audit-2026.10.md`](docs/module-2-track-safety-audit-2026.10.md).
 
+## Salas online — Módulo 3, Parte 3a
+
+A infraestrutura de lobby está pronta; o motor físico e o fluxo de corrida das Partes 3b/3c ainda não estão implementados. Salas são efêmeras em memória, públicas por padrão, usam código numérico de quatro dígitos e comportam de 2 a 22 carros (grid padrão 22). Senhas opcionais têm no mínimo seis caracteres e nunca são devolvidas — somente `hasPassword` aparece na listagem. Entradas inválidas, senha errada e sala cheia compartilham uma mensagem genérica, com no máximo cinco tentativas por minuto por usuário e origem.
+
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `POST` | `/api/rooms` | Cria uma sala; aceita `name`, `trackId`, `gridSize`, `botsEnabled`, `botDifficulty`, `visibility` e `password` |
+| `GET` | `/api/rooms` | Lista salas públicas ainda no lobby |
+| `POST` | `/api/rooms/{code}/join` | Entra pelo código e senha opcional |
+| `POST` | `/api/rooms/{code}/connection-ticket` | Emite ticket opaco válido por 60 s para o usuário autenticado |
+| `PATCH` | `/api/rooms/{code}/settings` | Host altera pista, grid, bots, dificuldade, visibilidade e senha enquanto desbloqueado |
+| `POST` | `/api/rooms/{code}/ready` | Marca o humano como pronto; o primeiro ready trava as configurações |
+| `POST` | `/api/rooms/{code}/start` | Host inicia a fase de qualificação quando todos os humanos estão prontos |
+| `POST` | `/api/rooms/{code}/leave` | Sai e transfere o host automaticamente quando necessário |
+| `POST` | `/api/rooms/{code}/close` | Host fecha a sala no lobby |
+
+O WebSocket é `ws(s)://SEU_BACKEND/ws?ticket=...`; o ticket, e nunca o JWT, autentica o handshake. O primeiro envelope deve ser `join_room` com `roomCode`, `trackCatalogVersion=2026.12` e `physicsContractVersion=2.0.0`. Em seguida, `select_loadout`, `ready` e `ping` são aceitos; o servidor envia `room_state`, `pong` e erros. Heartbeat de transporte ocorre a cada 10 s, e três falhas consecutivas marcam o jogador desconectado sem removê-lo do lobby; o mesmo ticket pode reconectar esse slot por até 30 s após a queda.
+
 ## Testes
 
 ```bash
 ./mvnw test
 ```
 
-A suíte valida o healthcheck, CORS, migrações, autenticação e conta, claims e expiração dos JWTs, hash BCrypt, autorização online-only, os 24 contratos de pista e a persistência segura de resultados locais.
+A suíte valida o healthcheck, CORS, migrações, autenticação e conta, claims e expiração dos JWTs, hash BCrypt, autorização online-only, os 24 contratos de pista, a persistência segura de resultados locais e a Parte 3a (salas, tickets, lobby, rate limit, reconexão e heartbeat).
+
+Com o backend rodando em `http://127.0.0.1:8080`, a validação manual de dois clientes pode ser repetida com `node tools/module-3a-smoke.mjs`. O script registra dois usuários temporários, cria e lista a sala, emite os dois tickets, conecta ambos ao `/ws`, marca os dois como prontos e confirma que o host só consegue iniciar depois disso.
 
 ## Deploy automático no Render
 
