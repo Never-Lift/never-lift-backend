@@ -95,21 +95,29 @@ class RoomManagerTest {
     }
 
     @Test
-    void locksSettingsWhenReadyAndTransfersHostOnLeave() {
+    void keepsSettingsEditableAndReadyStatesWhenHostUpdatesTheLobby() {
         RoomResponse room = manager.create(host,
                 new CreateRoomRequest("Lobby", null, 3, false, null, null, null));
         manager.join(second, room.code(), null, "origin");
         manager.setReady(host, room.code(), true);
-        assertThatThrownBy(() -> manager.updateSettings(host, room.code(),
-                new RoomSettingsRequest("monaco", 3, false, null, null, null)))
-                .isInstanceOf(ApiException.class)
-                .satisfies(error -> assertThat(((ApiException) error).getCode()).isEqualTo("room_settings_locked"));
+        RoomResponse updated = manager.updateSettings(host, room.code(),
+                new RoomSettingsRequest("monaco", 3, false, null, null, null));
+
+        assertThat(updated.trackId()).isEqualTo("monaco");
+        assertThat(updated.settingsLocked()).isFalse();
+        assertThat(updated.players()).filteredOn(player -> host.equals(player.userId()))
+                .allMatch(player -> player.ready());
 
         manager.setReady(second, room.code(), true);
         RoomResponse started = manager.start(host, room.code());
         assertThat(started.state()).isEqualTo("qualifying");
-        assertThatThrownBy(() -> manager.leave(second, room.code()))
-                .isInstanceOf(ApiException.class);
+        assertThat(started.settingsLocked()).isTrue();
+
+        RoomResponse afterPlayerLeaves = manager.leave(second, room.code());
+        assertThat(afterPlayerLeaves.participantCount()).isEqualTo(1);
+        RoomResponse afterHostLeaves = manager.leave(host, room.code());
+        assertThat(afterHostLeaves.participantCount()).isZero();
+        assertThat(afterHostLeaves.hostId()).isNull();
     }
 
     @Test

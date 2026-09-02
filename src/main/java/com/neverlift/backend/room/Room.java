@@ -174,9 +174,6 @@ public final class Room {
         RoomParticipant participant = participantForUser(userId);
         if (participant != null) {
             participant.setReady(value);
-            if (value && !settings.settingsLocked()) {
-                settings = settings.lock();
-            }
         }
     }
 

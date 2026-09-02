@@ -84,7 +84,7 @@ class RoomIntegrationTest {
     }
 
     @Test
-    void shouldRateLimitWrongJoinAttemptsAndLockSettingsAfterFirstReady() throws Exception {
+    void shouldRateLimitWrongJoinAttemptsAndKeepSettingsEditableAfterReady() throws Exception {
         String hostToken = registerToken("ready-host-" + UUID.randomUUID());
         String secondToken = registerToken("ready-driver-" + UUID.randomUUID());
         String roomJson = mockMvc.perform(post("/api/rooms")
@@ -116,13 +116,15 @@ class RoomIntegrationTest {
         mockMvc.perform(post("/api/rooms/{code}/ready", roomCode)
                         .header(HttpHeaders.AUTHORIZATION, bearer(hostToken)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.settingsLocked").value(true));
+                .andExpect(jsonPath("$.settingsLocked").value(false));
         mockMvc.perform(patch("/api/rooms/{code}/settings", roomCode)
                         .header(HttpHeaders.AUTHORIZATION, bearer(hostToken))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json(Map.of("gridSize", 3))))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.code").value("room_settings_locked"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.limit").value(3))
+                .andExpect(jsonPath("$.settingsLocked").value(false))
+                .andExpect(jsonPath("$.players[0].ready").value(true));
 
         mockMvc.perform(post("/api/rooms/{code}/ready", roomCode)
                         .header(HttpHeaders.AUTHORIZATION, bearer(secondToken)))
@@ -131,6 +133,45 @@ class RoomIntegrationTest {
                         .header(HttpHeaders.AUTHORIZATION, bearer(hostToken)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.state").value("qualifying"));
+    }
+
+    @Test
+    void shouldAllowHostAndPlayerToLeaveAfterTheLobbyStarts() throws Exception {
+        String hostToken = registerToken("leave-host-" + UUID.randomUUID());
+        String secondToken = registerToken("leave-driver-" + UUID.randomUUID());
+        String roomJson = mockMvc.perform(post("/api/rooms")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(hostToken))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("gridSize", 2))))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        String roomCode = objectMapper.readTree(roomJson).get("code").asText();
+
+        mockMvc.perform(post("/api/rooms/{code}/join", roomCode)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(secondToken))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isOk());
+        mockMvc.perform(post("/api/rooms/{code}/ready", roomCode)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(hostToken)))
+                .andExpect(status().isOk());
+        mockMvc.perform(post("/api/rooms/{code}/ready", roomCode)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(secondToken)))
+                .andExpect(status().isOk());
+        mockMvc.perform(post("/api/rooms/{code}/start", roomCode)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(hostToken)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.state").value("qualifying"));
+
+        mockMvc.perform(post("/api/rooms/{code}/leave", roomCode)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(hostToken)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.participantCount").value(1))
+                .andExpect(jsonPath("$.players[0].ready").value(true));
+        mockMvc.perform(post("/api/rooms/{code}/leave", roomCode)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(secondToken)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.participantCount").value(0))
+                .andExpect(jsonPath("$.hostId").doesNotExist());
     }
 
     @Test

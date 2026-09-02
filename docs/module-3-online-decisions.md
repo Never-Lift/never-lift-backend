@@ -23,7 +23,7 @@ implementação; não significa que o Módulo 3 esteja implementado ou pronto.
 14. **Carro finalizado:** vira `ghost`, permanece visível e deixa de colidir.
 15. **Fim da corrida:** quando todos terminarem ou o limite de segurança do servidor for atingido; demais recebem `DNF`.
 16. **Pós-corrida:** tela de resultados seguida de retorno ao lobby.
-17. **Configurações:** somente o host altera pista, grid e bots; travam quando o primeiro humano fica pronto.
+17. **Configurações:** somente o host altera pista, grid e bots durante o lobby; confirmações de pronto não bloqueiam a edição nem são apagadas por uma alteração. As configurações travam somente quando a classificação começa.
 18. **Sala pública protegida:** senha opcional em salas públicas; salas privadas usam código.
 19. **Bots:** uma dificuldade única para todos os bots da sala; dificuldade altera decisões, nunca a física.
 20. **Pinturas:** cores podem se repetir; número, gamertag e HUD identificam cada carro.
@@ -91,10 +91,10 @@ implementação; não significa que o Módulo 3 esteja implementado ou pronto.
 
 ## Refinamentos validados na Parte 3a
 
-- A criação inicial solicita somente nome, visibilidade e senha; pista, limite do grid e bots são escolhidos pelo host dentro da sala antes do primeiro `ready`.
-- O estado pronto é reversível no lobby. O payload normativo é `ready { ready: boolean }`.
+- A criação inicial solicita somente nome, visibilidade e senha; pista, limite do grid e bots são escolhidos pelo host dentro da sala enquanto ela permanecer no lobby, inclusive depois de participantes confirmarem `ready`.
+- O estado pronto é reversível no lobby e permanece intacto quando o host altera configurações. O payload normativo é `ready { ready: boolean }`.
 - A sessão WebSocket pertence ao app, não à página do lobby: navegar por Início, Jogar, Online ou Minha conta não remove o jogador. O item Online identifica e reabre a sala ativa.
-- A saída voluntária ocorre pelo botão **Sair da sala**, sempre com confirmação. Entrada, saída, remoção e alterações do host são publicadas imediatamente a todos os participantes.
+- A saída voluntária ocorre pelo botão **Sair da sala**, sempre com confirmação, tanto para o host quanto para participantes comuns e mesmo depois de o lobby avançar. Quando o host sai, a função é transferida automaticamente. Entrada, saída, remoção e alterações do host são publicadas imediatamente aos participantes restantes.
 - Uma queda preserva jogador e vaga durante a janela de reconexão de 30 s. Sem retorno após essa janela, o participante desconectado é removido e a vaga volta a ficar disponível. “Jogador inativo” na decisão 75 significa um cliente ainda conectado sem interagir e continua sem remoção automática.
 
 ## Limites e dependências

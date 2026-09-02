@@ -127,8 +127,8 @@ Mesma numeração e dependências do plano de backend.
 **Estado da entrega:** Parte 3a (ticket, sala e lobby) implementada e aguardando nova validação manual em dois navegadores; Partes 3b e 3c pendentes.
 **Escopo:**
 - Antes do WebSocket, obter ticket opaco de uso único, vinculado ao usuário e à sala e válido por 60 s; o JWT principal nunca aparece na URL. A reconexão usa backoff simples e preserva o slot por aproximadamente 30 s.
-- A criação solicita somente nome, visibilidade e senha. Pista, grid de 2 a 22 carros e bots/dificuldade são configurados pelo host dentro da sala e ficam bloqueados após o primeiro pronto.
-- O socket pertence à sessão online do aplicativo, não à página: navegar pelo shell mantém a conexão. A saída ocorre somente por ação explícita, com confirmação que identifica a sala; após 30 s desconectado sem retorno, o servidor remove o participante e libera a vaga.
+- A criação solicita somente nome, visibilidade e senha. Pista, grid de 2 a 22 carros e bots/dificuldade são configurados pelo host durante todo o lobby sem apagar estados de pronto; os ajustes ficam bloqueados somente quando a classificação começa.
+- O socket pertence à sessão online do aplicativo, não à página: navegar pelo shell mantém a conexão. Host e participantes comuns podem sair por ação explícita, inclusive após o avanço do lobby, com confirmação que identifica a sala e transferência automática do host; após 30 s desconectado sem retorno, o servidor remove o participante e libera a vaga.
 - Lobby: lista em tempo real de jogadores, conexão e host identificados; pronto reversível por jogador; remoção pelo host; host só pode iniciar quando todos os humanos estão `ready`. Toda entrada, saída, reconexão, remoção ou mutação transmite imediatamente o novo `room_state`.
 - **Predição:** ao apertar uma tecla, o `RaceEngine` do Módulo 2 já simula o carro do próprio jogador imediatamente e envia `input` pro servidor.
 - **Compatibilidade:** `join_room` envia `physicsContractVersion`; servidor rejeita cliente com física incompatível antes da corrida.

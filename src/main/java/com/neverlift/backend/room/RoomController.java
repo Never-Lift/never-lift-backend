@@ -144,7 +144,9 @@ public class RoomController {
         RoomResponse response = roomManager.leave(leavingUserId, roomCode);
         roomWebSocketHandler.disconnectParticipant(
                 roomCode, leavingUserId, "left_room", "Você saiu da sala.");
-        roomWebSocketHandler.broadcastRoomState(roomCode);
+        if (response.participantCount() > 0) {
+            roomWebSocketHandler.broadcastRoomState(roomCode);
+        }
         return response;
     }
 
