@@ -12,7 +12,7 @@ const mirrorDirectory =
 
 const VERSION = '2.0.0'
 const CATALOG_VERSION = '2026.12'
-const PHYSICS_VERSION = '2.0.0'
+const PHYSICS_VERSION = '2.0.1'
 const TRACK_COUNT = 24
 const sharedFiles = [
   'README.md',
@@ -1052,7 +1052,7 @@ function validateCenteredVehicleClearance(track, vehicle) {
 }
 
 function validatePhysics(constants, decisions, scenarios, vehicle, protocol) {
-  invariant(constants.version === VERSION, 'physics constants version')
+  invariant(constants.version === PHYSICS_VERSION, 'physics constants version')
   invariant(decisions.contractVersion === VERSION, 'decision version')
   invariant(decisions.boostPolicy === 'removed', 'boost policy')
   invariant(decisions.shiftKeyPolicy === 'unassigned', 'Shift policy')
@@ -1143,6 +1143,12 @@ function validatePhysics(constants, decisions, scenarios, vehicle, protocol) {
     invariant(response.restitution >= 0 && response.restitution <= 1, 'barrier restitution range')
     invariant(response.tangentialFriction >= 0 && response.tangentialFriction <= 2, 'barrier friction range')
   }
+  invariant(constants.damage.minimumDeltaVMetersPerSecond === 5, 'damage minimum delta-v')
+  invariant(constants.damage.mediumDeltaVMetersPerSecond === 10, 'damage medium delta-v')
+  invariant(constants.damage.combinedDeltaVMetersPerSecond === 18, 'damage combined delta-v')
+  invariant(constants.damage.totalLossDeltaVMetersPerSecond === 30, 'damage total-loss delta-v')
+  invariant(constants.damage.healthDamagePerDeltaV === 1.5, 'damage health calibration')
+  invariant(constants.damage.steeringPullStrength === 0.005, 'damage steering-pull calibration')
   invariant(
     Math.abs(
       constants.vehicle.frontAxleDistanceFromComMeters +
@@ -1152,7 +1158,7 @@ function validatePhysics(constants, decisions, scenarios, vehicle, protocol) {
     'axle distances must sum to wheelbase',
   )
   invariant(scenarios.contractVersion === VERSION, 'scenario contract version')
-  invariant(scenarios.physicsConstantsVersion === VERSION, 'scenario constants version')
+  invariant(scenarios.physicsConstantsVersion === PHYSICS_VERSION, 'scenario constants version')
   invariant(scenarios.scenarios.length >= 10, 'reference scenario coverage')
   invariant(vehicle.version === VERSION, 'vehicle version')
   invariant(vehicle.collisionShapes.length === 22, 'canonical compound vehicle collider')
