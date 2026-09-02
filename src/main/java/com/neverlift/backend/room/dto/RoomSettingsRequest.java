@@ -8,6 +8,5 @@ public record RoomSettingsRequest(
         @Min(2) @Max(22) Integer gridSize,
         Boolean botsEnabled,
         String botDifficulty,
-        String visibility,
-        String password) {
+        String visibility) {
 }

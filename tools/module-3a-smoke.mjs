@@ -61,7 +61,6 @@ const secondTicket = await request(`/api/rooms/${room.code}/connection-ticket`, 
 const host = await connect(hostTicket.ticket, room.code, "host");
 const second = await connect(secondTicket.ticket, room.code, "second");
 
-host.socket.send(JSON.stringify({ type: "ready", payload: {} }));
 second.socket.send(JSON.stringify({ type: "ready", payload: {} }));
 await new Promise(resolve => setTimeout(resolve, 250));
 const started = await request(`/api/rooms/${room.code}/start`, hostToken, { method: "POST" });

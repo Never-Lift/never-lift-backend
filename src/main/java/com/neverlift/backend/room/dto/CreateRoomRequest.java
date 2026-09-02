@@ -10,6 +10,5 @@ public record CreateRoomRequest(
         @Min(2) @Max(22) Integer gridSize,
         Boolean botsEnabled,
         String botDifficulty,
-        String visibility,
-        @Size(max = 100) String password) {
+        String visibility) {
 }

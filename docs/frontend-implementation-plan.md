@@ -55,7 +55,7 @@ Nos snapshots, `x` e `y` são metros num plano cartesiano com `+X` para a direit
 
 `/` (menu, com guest ativo por padrão) · `/login` `/register` · `/account` · `/friends` · `/notifications` · `/records` · `/info` · `/race/setup?mode=solo|local|online` · `/race/lobby/:roomCode` · `/race/:roomCode` · `/championship/setup` · `/championship/:id`
 
-Guest autenticado por padrão ao abrir o app (feature 2): rotas de `online` redirecionam pra `/login` com mensagem "Faça login para liberar" se a claim JWT for `role: guest`.
+Guest autenticado por padrão ao abrir o app (feature 2): a tela online mostra uma prévia escurecida/desfocada e convida ao login, sem consultar ou alterar salas. Lobby, ticket e WebSocket exigem `role: user`.
 
 ---
 
@@ -124,12 +124,13 @@ Mesma numeração e dependências do plano de backend.
 ### Módulo 3 — Motor autoritativo online (núcleo)
 **Depende de:** Módulo 1, Módulo 2, Módulo 3 do backend.
 **Cobre features:** 4 (lobby online), 8.
-**Estado da entrega:** Parte 3a (ticket, sala e lobby) implementada e aguardando nova validação manual em dois navegadores; Partes 3b e 3c pendentes.
+**Estado da entrega:** Parte 3a (ticket, sala e lobby, incluindo o refinamento de acesso/configuração de 02/09/2026) implementada e aguardando nova validação manual em dois navegadores; Partes 3b e 3c pendentes.
 **Escopo:**
 - Antes do WebSocket, obter ticket opaco de uso único, vinculado ao usuário e à sala e válido por 60 s; o JWT principal nunca aparece na URL. A reconexão usa backoff simples e preserva o slot por aproximadamente 30 s.
-- A criação solicita somente nome, visibilidade e senha. Pista, grid de 2 a 22 carros e bots/dificuldade são configurados pelo host durante todo o lobby sem apagar estados de pronto; os ajustes ficam bloqueados somente quando a classificação começa.
+- O online exige usuário registrado. Guest vê a vitrine escurecida/desfocada e um convite para login, mas não consulta nem entra em salas. A criação solicita somente nome e visibilidade, sem senhas. Públicas aceitam entrada direta; privadas não aparecem na lista e usam o código de quatro dígitos como único segredo.
+- Pista, grid de 2 a 22 carros e bots/dificuldade são configurados ao vivo pelo host dentro do lobby sem botão de salvar nem apagar estados de pronto; os ajustes ficam bloqueados somente quando a classificação começa. O seletor de pista usa cards com traçado e o grid usa controle limitado de 2 a 22.
 - O socket pertence à sessão online do aplicativo, não à página: navegar pelo shell mantém a conexão. Host e participantes comuns podem sair por ação explícita, inclusive após o avanço do lobby, com confirmação que identifica a sala e transferência automática do host; após 30 s desconectado sem retorno, o servidor remove o participante e libera a vaga.
-- Lobby: lista em tempo real de jogadores, conexão e host identificados; pronto reversível por jogador; remoção pelo host; host só pode iniciar quando todos os humanos estão `ready`. Toda entrada, saída, reconexão, remoção ou mutação transmite imediatamente o novo `room_state`.
+- Lobby: lista em tempo real de jogadores, conexão e host identificados; pronto reversível somente por participante não-host; remoção pelo host; host só pode iniciar quando todos os demais humanos estão `ready` e pode cancelar a classificação antes de alguém dirigir. Toda entrada, saída, reconexão, remoção ou mutação transmite imediatamente o novo `room_state`.
 - **Predição:** ao apertar uma tecla, o `RaceEngine` do Módulo 2 já simula o carro do próprio jogador imediatamente e envia `input` pro servidor.
 - **Compatibilidade:** `join_room` envia `physicsContractVersion`; servidor rejeita cliente com física incompatível antes da corrida.
 - **Reconciliação:** ao chegar `state_snapshot`, comparar posição, velocidade, ângulo e todo `physicsState` previsto com o estado autoritativo; reaplicar inputs ainda não confirmados e corrigir erro visual suavemente, sem esconder divergência persistente de motor.

@@ -10,6 +10,7 @@ public record RoomResponse(
         String code,
         String name,
         UUID hostId,
+        String hostName,
         String trackId,
         String trackCatalogVersion,
         String physicsContractVersion,
@@ -17,7 +18,6 @@ public record RoomResponse(
         int limit,
         RoomResponseSettings settings,
         String state,
-        boolean hasPassword,
         boolean settingsLocked,
         List<RoomParticipantResponse> players,
         Map<UUID, Boolean> readyStates) {
@@ -28,6 +28,7 @@ public record RoomResponse(
                 room.getCode(),
                 room.getName(),
                 room.getHostId(),
+                room.getHostDisplayName(),
                 settings.trackId(),
                 settings.trackCatalogVersion(),
                 settings.physicsContractVersion(),
@@ -35,7 +36,6 @@ public record RoomResponse(
                 settings.gridSize(),
                 RoomResponseSettings.from(room),
                 room.getState().name().toLowerCase(),
-                room.hasPassword(),
                 settings.settingsLocked(),
                 room.getParticipants().stream().map(RoomParticipantResponse::from).toList(),
                 room.getParticipants().stream().collect(java.util.stream.Collectors.toMap(

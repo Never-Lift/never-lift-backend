@@ -38,6 +38,11 @@ public record RoomSettings(
                 gridSize, botsEnabled, botDifficulty, visibility, true);
     }
 
+    public RoomSettings unlock() {
+        return new RoomSettings(trackId, trackCatalogVersion, physicsContractVersion,
+                gridSize, botsEnabled, botDifficulty, visibility, false);
+    }
+
     public RoomSettings withVisibility(RoomVisibility nextVisibility) {
         return new RoomSettings(trackId, trackCatalogVersion, physicsContractVersion,
                 gridSize, botsEnabled, botDifficulty, nextVisibility, settingsLocked);

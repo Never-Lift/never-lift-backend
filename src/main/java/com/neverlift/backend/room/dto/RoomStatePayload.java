@@ -10,13 +10,13 @@ public record RoomStatePayload(
         String name,
         List<RoomStatePlayer> players,
         UUID hostId,
+        String hostName,
         RoomResponse.RoomResponseSettings settings,
         Map<UUID, Boolean> readyStates,
         boolean settingsLocked,
         String state,
         int participantCount,
-        int limit,
-        boolean hasPassword) {
+        int limit) {
 
     public static RoomStatePayload from(RoomResponse room) {
         return new RoomStatePayload(
@@ -28,13 +28,13 @@ public record RoomStatePayload(
                                 player.bot(), player.connected(), player.joinedAt()))
                         .toList(),
                 room.hostId(),
+                room.hostName(),
                 room.settings(),
                 room.readyStates(),
                 room.settingsLocked(),
                 room.state(),
                 room.participantCount(),
-                room.limit(),
-                room.hasPassword());
+                room.limit());
     }
 
     public record RoomStatePlayer(

@@ -125,17 +125,18 @@ O backend exige `physicsContractVersion=2.0.0` junto do catálogo `2026.12` e pe
 
 ## Salas online — Módulo 3, Parte 3a
 
-A infraestrutura de lobby está implementada e aguarda nova validação manual integrada em dois navegadores; o motor físico e o fluxo de corrida das Partes 3b/3c ainda não estão implementados. Usuários e guests autenticados podem participar igualmente. Salas são efêmeras em memória, públicas por padrão, usam código numérico de quatro dígitos e comportam de 2 a 22 carros (grid padrão 22). Senhas opcionais têm no mínimo seis caracteres e nunca são devolvidas — somente `hasPassword` aparece na listagem. Entradas inválidas, senha errada e sala cheia compartilham uma mensagem genérica, com no máximo cinco tentativas por minuto por usuário e origem.
+A infraestrutura de lobby está implementada e aguarda nova validação manual integrada em dois navegadores; o motor físico e o fluxo de corrida das Partes 3b/3c ainda não estão implementados. Somente usuários registrados podem acessar o online; o frontend mantém a vitrine visível para guests, mas bloqueada até o login. Salas são efêmeras em memória, públicas por padrão, usam código numérico de quatro dígitos e comportam de 2 a 22 carros (grid padrão 22). Não existem senhas de sala: públicas aceitam entrada direta pela listagem e privadas dependem exclusivamente do código. Entradas inválidas, código errado e sala cheia compartilham uma mensagem genérica, com no máximo cinco tentativas por minuto por usuário e origem.
 
 | Método | Endpoint | Descrição |
 |---|---|---|
-| `POST` | `/api/rooms` | Cria uma sala; a interface inicial solicita somente `name`, `visibility` e `password`, usando valores padrão para corrida |
+| `POST` | `/api/rooms` | Cria uma sala; a interface inicial solicita somente `name` e `visibility`, usando valores padrão para corrida |
 | `GET` | `/api/rooms` | Lista salas públicas ainda no lobby |
-| `POST` | `/api/rooms/{code}/join` | Entra pelo código e senha opcional |
+| `POST` | `/api/rooms/{code}/join` | Entra diretamente pelo código, sem corpo de senha |
 | `POST` | `/api/rooms/{code}/connection-ticket` | Emite ticket opaco válido por 60 s para o usuário autenticado |
-| `PATCH` | `/api/rooms/{code}/settings` | Host altera pista, grid, bots, dificuldade, visibilidade e senha durante todo o lobby sem limpar estados de pronto |
-| `POST` | `/api/rooms/{code}/ready` | Define `ready=true/false`; a confirmação é reversível e não trava as configurações |
-| `POST` | `/api/rooms/{code}/start` | Host inicia a fase de qualificação quando todos os humanos estão prontos |
+| `PATCH` | `/api/rooms/{code}/settings` | Host altera pista, grid, bots, dificuldade e visibilidade durante todo o lobby sem limpar estados de pronto |
+| `POST` | `/api/rooms/{code}/ready` | Participante não-host define `ready=true/false`; a confirmação é reversível e não trava as configurações |
+| `POST` | `/api/rooms/{code}/start` | Host inicia a fase de qualificação quando todos os humanos não-host estão prontos |
+| `POST` | `/api/rooms/{code}/cancel-qualification` | Host cancela a classificação e retorna ao lobby enquanto ninguém começou a dirigir |
 | `POST` | `/api/rooms/{code}/leave` | Host ou participante sai em qualquer fase e transfere o host automaticamente quando necessário |
 | `DELETE` | `/api/rooms/{code}/players/{playerId}` | Host remove um participante enquanto a sala está no lobby |
 | `POST` | `/api/rooms/{code}/close` | Host fecha a sala no lobby |
@@ -150,7 +151,7 @@ O WebSocket é `ws(s)://SEU_BACKEND/ws?ticket=...`; o ticket, e nunca o JWT, aut
 
 A suíte valida o healthcheck, CORS, migrações, autenticação e conta, claims e expiração dos JWTs, hash BCrypt, autorização online-only, os 24 contratos de pista, a persistência segura de resultados locais e a Parte 3a (salas, tickets, lobby, rate limit, reconexão e heartbeat).
 
-Com o backend rodando em `http://127.0.0.1:8080`, a validação manual de dois clientes pode ser repetida com `node tools/module-3a-smoke.mjs`. O script registra dois usuários temporários, cria e lista a sala, emite os dois tickets, conecta ambos ao `/ws`, marca os dois como prontos e confirma que o host só consegue iniciar depois disso.
+Com o backend rodando em `http://127.0.0.1:8080`, a validação manual de dois clientes pode ser repetida com `node tools/module-3a-smoke.mjs`. O script registra dois usuários temporários, cria e lista a sala, emite os dois tickets, conecta ambos ao `/ws`, marca o participante como pronto e confirma que o host só consegue iniciar depois disso.
 
 ## Deploy automático no Render
 

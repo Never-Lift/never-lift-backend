@@ -22,15 +22,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.neverlift.backend.room.dto.ConnectionTicketResponse;
 import com.neverlift.backend.room.dto.CreateRoomRequest;
-import com.neverlift.backend.room.dto.JoinRoomRequest;
 import com.neverlift.backend.room.dto.LoadoutRequest;
 import com.neverlift.backend.room.dto.RoomResponse;
 import com.neverlift.backend.room.dto.RoomSettingsRequest;
-import com.neverlift.backend.security.LobbyAccess;
+import com.neverlift.backend.security.OnlineOnly;
 
 @RestController
 @RequestMapping("/api/rooms")
-@LobbyAccess
+@OnlineOnly
 public class RoomController {
 
     private final RoomManager roomManager;
@@ -47,7 +46,7 @@ public class RoomController {
             @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody(required = false) CreateRoomRequest request) {
         return roomManager.create(userId(jwt), request == null ? new CreateRoomRequest(
-                null, null, null, null, null, null, null) : request);
+                null, null, null, null, null, null) : request);
     }
 
     @GetMapping
@@ -64,10 +63,8 @@ public class RoomController {
     public RoomResponse join(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable String roomCode,
-            @Valid @RequestBody(required = false) JoinRoomRequest request,
             @RequestHeader(value = HttpHeaders.ORIGIN, required = false) String origin) {
-        RoomResponse response = roomManager.join(
-                userId(jwt), roomCode, request == null ? null : request.password(), origin);
+        RoomResponse response = roomManager.join(userId(jwt), roomCode, origin);
         roomWebSocketHandler.broadcastRoomState(roomCode);
         return response;
     }
@@ -122,6 +119,15 @@ public class RoomController {
     @PostMapping("/{roomCode}/start")
     public RoomResponse start(@AuthenticationPrincipal Jwt jwt, @PathVariable String roomCode) {
         RoomResponse response = roomManager.start(userId(jwt), roomCode);
+        roomWebSocketHandler.broadcastRoomState(roomCode);
+        return response;
+    }
+
+    @PostMapping("/{roomCode}/cancel-qualification")
+    public RoomResponse cancelQualification(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable String roomCode) {
+        RoomResponse response = roomManager.cancelQualification(userId(jwt), roomCode);
         roomWebSocketHandler.broadcastRoomState(roomCode);
         return response;
     }
