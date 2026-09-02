@@ -1,6 +1,7 @@
 package com.neverlift.backend.room;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -46,12 +47,25 @@ class RoomControllerTest {
     void disconnectsLeavingParticipantAndBroadcastsTheReleasedSlot() {
         RoomResponse response = mock(RoomResponse.class);
         when(roomManager.leave(userId, "1234")).thenReturn(response);
+        when(response.participantCount()).thenReturn(1);
 
         controller.leave(jwt, "1234");
 
         verify(roomWebSocketHandler).disconnectParticipant(
                 "1234", userId, "left_room", "Você saiu da sala.");
         verify(roomWebSocketHandler).broadcastRoomState("1234");
+    }
+
+    @Test
+    void doesNotBroadcastAnInvalidHostlessStateAfterTheLastParticipantLeaves() {
+        RoomResponse response = mock(RoomResponse.class);
+        when(roomManager.leave(userId, "1234")).thenReturn(response);
+
+        controller.leave(jwt, "1234");
+
+        verify(roomWebSocketHandler).disconnectParticipant(
+                "1234", userId, "left_room", "Você saiu da sala.");
+        verify(roomWebSocketHandler, never()).broadcastRoomState("1234");
     }
 
     @Test

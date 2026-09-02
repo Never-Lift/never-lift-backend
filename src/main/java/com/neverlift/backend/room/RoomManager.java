@@ -189,9 +189,6 @@ public class RoomManager {
         Room room = requireHost(userId, roomCode);
         requireLobby(room);
         RoomSettings current = room.getSettings();
-        if (current.settingsLocked()) {
-            throw settingsLocked();
-        }
         String trackId = request.trackId() == null || request.trackId().isBlank()
                 ? current.trackId() : request.trackId().trim();
         validateTrack(trackId);
@@ -260,7 +257,6 @@ public class RoomManager {
 
     public synchronized RoomResponse leave(UUID userId, String roomCode) {
         Room room = requireParticipant(userId, roomCode);
-        requireLobby(room);
         room.remove(userId, now());
         return RoomResponse.from(room);
     }
@@ -512,7 +508,4 @@ public class RoomManager {
         return new ApiException(HttpStatus.UNAUTHORIZED, "invalid_connection_ticket", "Connection ticket is invalid or expired");
     }
 
-    private static ApiException settingsLocked() {
-        return new ApiException(HttpStatus.CONFLICT, "room_settings_locked", "Room settings are locked");
-    }
 }

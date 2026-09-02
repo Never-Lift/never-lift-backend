@@ -133,10 +133,10 @@ A infraestrutura de lobby está implementada e aguarda nova validação manual i
 | `GET` | `/api/rooms` | Lista salas públicas ainda no lobby |
 | `POST` | `/api/rooms/{code}/join` | Entra pelo código e senha opcional |
 | `POST` | `/api/rooms/{code}/connection-ticket` | Emite ticket opaco válido por 60 s para o usuário autenticado |
-| `PATCH` | `/api/rooms/{code}/settings` | Host altera pista, grid, bots, dificuldade, visibilidade e senha enquanto desbloqueado |
-| `POST` | `/api/rooms/{code}/ready` | Define `ready=true/false`; o primeiro pronto trava as configurações |
+| `PATCH` | `/api/rooms/{code}/settings` | Host altera pista, grid, bots, dificuldade, visibilidade e senha durante todo o lobby sem limpar estados de pronto |
+| `POST` | `/api/rooms/{code}/ready` | Define `ready=true/false`; a confirmação é reversível e não trava as configurações |
 | `POST` | `/api/rooms/{code}/start` | Host inicia a fase de qualificação quando todos os humanos estão prontos |
-| `POST` | `/api/rooms/{code}/leave` | Sai e transfere o host automaticamente quando necessário |
+| `POST` | `/api/rooms/{code}/leave` | Host ou participante sai em qualquer fase e transfere o host automaticamente quando necessário |
 | `DELETE` | `/api/rooms/{code}/players/{playerId}` | Host remove um participante enquanto a sala está no lobby |
 | `POST` | `/api/rooms/{code}/close` | Host fecha a sala no lobby |
 
