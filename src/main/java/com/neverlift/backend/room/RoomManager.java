@@ -12,7 +12,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.neverlift.backend.error.ApiException;
 import com.neverlift.backend.room.dto.ConnectionTicketResponse;
 import com.neverlift.backend.room.dto.CreateRoomRequest;
-import com.neverlift.backend.room.dto.JoinRoomRequest;
 import com.neverlift.backend.room.dto.RoomResponse;
 import com.neverlift.backend.room.dto.RoomSettingsRequest;
 import com.neverlift.backend.track.TrackRepository;
@@ -38,7 +36,6 @@ public class RoomManager {
     private static final String GENERIC_JOIN_CODE = "room_join_failed";
     private static final String GENERIC_JOIN_MESSAGE = "Unable to join that room";
 
-    private final PasswordEncoder passwordEncoder;
     private final TrackRepository trackRepository;
     private final UserRepository userRepository;
     private final Clock clock;
@@ -47,24 +44,23 @@ public class RoomManager {
     private final Map<String, Deque<Instant>> joinAttempts = new ConcurrentHashMap<>();
 
     @Autowired
-    public RoomManager(PasswordEncoder passwordEncoder, TrackRepository trackRepository, Clock clock,
+    public RoomManager(TrackRepository trackRepository, Clock clock,
             UserRepository userRepository) {
-        this.passwordEncoder = passwordEncoder;
         this.trackRepository = trackRepository;
         this.clock = clock;
         this.userRepository = userRepository;
     }
 
-    public RoomManager(PasswordEncoder passwordEncoder, TrackRepository trackRepository, Clock clock) {
-        this(passwordEncoder, trackRepository, clock, null);
+    public RoomManager(TrackRepository trackRepository, Clock clock) {
+        this(trackRepository, clock, null);
     }
 
-    public RoomManager(PasswordEncoder passwordEncoder, Clock clock) {
-        this(passwordEncoder, null, clock, null);
+    public RoomManager(Clock clock) {
+        this(null, clock, null);
     }
 
-    public RoomManager(PasswordEncoder passwordEncoder) {
-        this(passwordEncoder, Clock.systemUTC());
+    public RoomManager() {
+        this(Clock.systemUTC());
     }
 
     @Transactional(readOnly = true)
@@ -83,12 +79,11 @@ public class RoomManager {
         boolean botsEnabled = Boolean.TRUE.equals(request.botsEnabled());
         BotDifficulty botDifficulty = parseDifficulty(request.botDifficulty());
         RoomVisibility visibility = parseVisibility(request.visibility());
-        String passwordHash = hashPassword(request.password());
 
         Room room = new Room(code, name, userId, displayName(userId), now(),
                 new RoomSettings(trackId, RoomSettings.TRACK_CATALOG_VERSION,
                         RoomSettings.PHYSICS_CONTRACT_VERSION, gridSize, botsEnabled,
-                        botDifficulty, visibility, false), passwordHash);
+                        botDifficulty, visibility, false));
         rooms.put(code, room);
         return RoomResponse.from(room);
     }
@@ -108,7 +103,7 @@ public class RoomManager {
         return RoomResponse.from(requireRoom(roomCode));
     }
 
-    public synchronized RoomResponse join(UUID userId, String roomCode, String password, String origin) {
+    public synchronized RoomResponse join(UUID userId, String roomCode, String origin) {
         requireUser(userId);
         if (!recordJoinAttempt(userId, origin)) {
             throw new ApiException(HttpStatus.TOO_MANY_REQUESTS, GENERIC_JOIN_CODE, GENERIC_JOIN_MESSAGE);
@@ -116,10 +111,6 @@ public class RoomManager {
         String normalizedCode = normalizeCode(roomCode);
         Room room = rooms.get(normalizedCode);
         if (room == null || room.getState() != RoomState.LOBBY) {
-            throw genericJoinFailure();
-        }
-        if (room.hasPassword() && !passwordEncoder.matches(password == null ? "" : password,
-                room.getPasswordHash())) {
             throw genericJoinFailure();
         }
         if (!room.containsUser(userId) && room.isFull()) {
@@ -202,8 +193,6 @@ public class RoomManager {
                 ? current.botDifficulty() : parseDifficulty(request.botDifficulty());
         RoomVisibility visibility = request.visibility() == null
                 ? current.visibility() : parseVisibility(request.visibility());
-        String passwordHash = currentPasswordHash(room, request.password());
-        room.setPasswordHash(passwordHash);
         room.setSettings(new RoomSettings(trackId, current.trackCatalogVersion(),
                 current.physicsContractVersion(), gridSize, botsEnabled, difficulty, visibility, false));
         return RoomResponse.from(room);
@@ -212,6 +201,10 @@ public class RoomManager {
     public synchronized RoomResponse setReady(UUID userId, String roomCode, boolean ready) {
         Room room = requireParticipant(userId, roomCode);
         requireLobby(room);
+        if (userId.equals(room.getHostId())) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "host_does_not_ready",
+                    "The host controls the start and does not set ready");
+        }
         room.ready(userId, ready);
         return RoomResponse.from(room);
     }
@@ -231,8 +224,8 @@ public class RoomManager {
     public synchronized RoomResponse start(UUID userId, String roomCode) {
         Room room = requireHost(userId, roomCode);
         requireLobby(room);
-        if (!room.allHumansReady()) {
-            throw new ApiException(HttpStatus.CONFLICT, "players_not_ready", "All human players must be ready");
+        if (!room.allNonHostHumansReady()) {
+            throw new ApiException(HttpStatus.CONFLICT, "players_not_ready", "All non-host human players must be ready");
         }
         room.fillWithBotsIfEnabled(now());
         if (!room.hasMinimumGrid()) {
@@ -240,6 +233,31 @@ public class RoomManager {
         }
         room.start();
         return RoomResponse.from(room);
+    }
+
+    /** Returns a qualification to the editable lobby until the first car starts moving. */
+    public synchronized RoomResponse cancelQualification(UUID userId, String roomCode) {
+        Room room = requireHost(userId, roomCode);
+        if (room.getState() != RoomState.QUALIFYING) {
+            throw new ApiException(HttpStatus.CONFLICT, "qualification_not_active",
+                    "Qualification is not active");
+        }
+        if (room.hasDrivingStarted()) {
+            throw new ApiException(HttpStatus.CONFLICT, "qualification_already_driving",
+                    "Qualification cannot be cancelled after driving starts");
+        }
+        room.cancelQualification(now());
+        return RoomResponse.from(room);
+    }
+
+    /** Internal transition reserved for the authoritative race engine in Parts 3b/3c. */
+    public synchronized void markDrivingStarted(String roomCode) {
+        Room room = requireRoom(roomCode);
+        if (room.getState() != RoomState.QUALIFYING) {
+            throw new ApiException(HttpStatus.CONFLICT, "qualification_not_active",
+                    "Qualification is not active");
+        }
+        room.markDrivingStarted();
     }
 
     public synchronized RoomResponse remove(UUID hostId, String roomCode, UUID participantId) {
@@ -361,31 +379,6 @@ public class RoomManager {
         while (!attempts.isEmpty() && !attempts.peekFirst().isAfter(cutoff)) {
             attempts.removeFirst();
         }
-    }
-
-    private String currentPasswordHash(Room room, String requestedPassword) {
-        if (requestedPassword == null) {
-            return room.getPasswordHash();
-        }
-        if (requestedPassword.isBlank()) {
-            return null;
-        }
-        if (requestedPassword.length() < 6 || requestedPassword.length() > 100) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "invalid_room_password",
-                    "Room password must contain at least 6 characters");
-        }
-        return passwordEncoder.encode(requestedPassword);
-    }
-
-    private String hashPassword(String password) {
-        if (password == null || password.isBlank()) {
-            return null;
-        }
-        if (password.length() < 6 || password.length() > 100) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "invalid_room_password",
-                    "Room password must contain at least 6 characters");
-        }
-        return passwordEncoder.encode(password);
     }
 
     private void validateTrack(String trackId) {

@@ -39,13 +39,13 @@ class RoomIntegrationTest {
         String roomJson = mockMvc.perform(post("/api/rooms")
                         .header(HttpHeaders.AUTHORIZATION, bearer(hostToken))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("name", "Sprint Lobby", "gridSize", 2,
-                                "password", "secret6"))))
+                        .content(json(Map.of("name", "Sprint Lobby", "gridSize", 2))))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.code").value(startsWith("")))
                 .andExpect(jsonPath("$.limit").value(2))
                 .andExpect(jsonPath("$.participantCount").value(1))
-                .andExpect(jsonPath("$.hasPassword").value(true))
+                .andExpect(jsonPath("$.hasPassword").doesNotExist())
+                .andExpect(jsonPath("$.hostName").exists())
                 .andExpect(jsonPath("$.settings.trackCatalogVersion").value("2026.12"))
                 .andReturn().getResponse().getContentAsString();
         String roomCode = objectMapper.readTree(roomJson).get("code").asText();
@@ -55,17 +55,7 @@ class RoomIntegrationTest {
                 .andExpect(jsonPath("$[?(@.code == '" + roomCode + "')].name").value("Sprint Lobby"));
 
         mockMvc.perform(post("/api/rooms/{code}/join", roomCode)
-                        .header(HttpHeaders.AUTHORIZATION, bearer(guestToken))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("password", "wrong"))))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value("room_join_failed"))
-                .andExpect(jsonPath("$.message").value("Unable to join that room"));
-
-        mockMvc.perform(post("/api/rooms/{code}/join", roomCode)
-                        .header(HttpHeaders.AUTHORIZATION, bearer(guestToken))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("password", "secret6"))))
+                        .header(HttpHeaders.AUTHORIZATION, bearer(guestToken)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.participantCount").value(2));
 
@@ -84,47 +74,40 @@ class RoomIntegrationTest {
     }
 
     @Test
-    void shouldRateLimitWrongJoinAttemptsAndKeepSettingsEditableAfterReady() throws Exception {
+    void shouldRateLimitInvalidJoinAttemptsAndKeepSettingsLiveUntilStart() throws Exception {
         String hostToken = registerToken("ready-host-" + UUID.randomUUID());
         String secondToken = registerToken("ready-driver-" + UUID.randomUUID());
         String roomJson = mockMvc.perform(post("/api/rooms")
                         .header(HttpHeaders.AUTHORIZATION, bearer(hostToken))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("gridSize", 2, "password", "secret6"))))
+                        .content(json(Map.of("gridSize", 2))))
                 .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
         String roomCode = objectMapper.readTree(roomJson).get("code").asText();
 
         for (int attempt = 0; attempt < 5; attempt++) {
-            mockMvc.perform(post("/api/rooms/{code}/join", roomCode)
-                            .header(HttpHeaders.AUTHORIZATION, bearer(secondToken))
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(json(Map.of("password", "wrong"))))
+            mockMvc.perform(post("/api/rooms/{code}/join", "9999")
+                            .header(HttpHeaders.AUTHORIZATION, bearer(secondToken)))
                     .andExpect(status().isNotFound());
         }
         mockMvc.perform(post("/api/rooms/{code}/join", roomCode)
-                        .header(HttpHeaders.AUTHORIZATION, bearer(secondToken))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("password", "secret6"))))
+                        .header(HttpHeaders.AUTHORIZATION, bearer(secondToken)))
                 .andExpect(status().isTooManyRequests());
 
         mockMvc.perform(post("/api/rooms/{code}/join", roomCode)
                         .header(HttpHeaders.AUTHORIZATION, bearer(secondToken))
-                        .header(HttpHeaders.ORIGIN, "http://localhost:5173")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("password", "secret6"))))
+                        .header(HttpHeaders.ORIGIN, "http://localhost:5173"))
                 .andExpect(status().isOk());
         mockMvc.perform(post("/api/rooms/{code}/ready", roomCode)
                         .header(HttpHeaders.AUTHORIZATION, bearer(hostToken)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.settingsLocked").value(false));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("host_does_not_ready"));
         mockMvc.perform(patch("/api/rooms/{code}/settings", roomCode)
                         .header(HttpHeaders.AUTHORIZATION, bearer(hostToken))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json(Map.of("gridSize", 3))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.limit").value(3))
-                .andExpect(jsonPath("$.settingsLocked").value(false))
-                .andExpect(jsonPath("$.players[0].ready").value(true));
+                .andExpect(jsonPath("$.settingsLocked").value(false));
 
         mockMvc.perform(post("/api/rooms/{code}/ready", roomCode)
                         .header(HttpHeaders.AUTHORIZATION, bearer(secondToken)))
@@ -133,6 +116,12 @@ class RoomIntegrationTest {
                         .header(HttpHeaders.AUTHORIZATION, bearer(hostToken)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.state").value("qualifying"));
+
+        mockMvc.perform(post("/api/rooms/{code}/cancel-qualification", roomCode)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(hostToken)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.state").value("lobby"))
+                .andExpect(jsonPath("$.settingsLocked").value(false));
     }
 
     @Test
@@ -150,9 +139,6 @@ class RoomIntegrationTest {
                         .header(HttpHeaders.AUTHORIZATION, bearer(secondToken))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
-                .andExpect(status().isOk());
-        mockMvc.perform(post("/api/rooms/{code}/ready", roomCode)
-                        .header(HttpHeaders.AUTHORIZATION, bearer(hostToken)))
                 .andExpect(status().isOk());
         mockMvc.perform(post("/api/rooms/{code}/ready", roomCode)
                         .header(HttpHeaders.AUTHORIZATION, bearer(secondToken)))
@@ -175,17 +161,16 @@ class RoomIntegrationTest {
     }
 
     @Test
-    void shouldAllowAuthenticatedGuestInRoomEndpoints() throws Exception {
+    void shouldRejectAuthenticatedGuestInRoomEndpoints() throws Exception {
         String guestToken = tokenFrom(mockMvc.perform(post("/api/auth/guest"))
                 .andExpect(status().isOk()).andReturn());
         mockMvc.perform(get("/api/rooms").header(HttpHeaders.AUTHORIZATION, bearer(guestToken)))
-                .andExpect(status().isOk());
+                .andExpect(status().isForbidden());
         mockMvc.perform(post("/api/rooms")
                         .header(HttpHeaders.AUTHORIZATION, bearer(guestToken))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json(Map.of("name", "Guest room"))))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value("Guest room"));
+                .andExpect(status().isForbidden());
     }
 
     private String registerToken(String gamertag) throws Exception {

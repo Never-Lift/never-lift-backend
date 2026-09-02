@@ -20,25 +20,24 @@ public final class Room {
     private final Instant createdAt;
     private final Map<UUID, RoomParticipant> participants = new LinkedHashMap<>();
     private RoomSettings settings;
-    private String passwordHash;
     private UUID hostId;
     private RoomState state = RoomState.LOBBY;
+    private boolean drivingStarted;
     private Instant emptySince;
 
     Room(String code, String name, UUID hostId, Instant createdAt,
-            RoomSettings settings, String passwordHash) {
-        this(code, name, hostId, hostId.toString(), createdAt, settings, passwordHash);
+            RoomSettings settings) {
+        this(code, name, hostId, hostId.toString(), createdAt, settings);
     }
 
     Room(String code, String name, UUID hostId, String hostDisplayName, Instant createdAt,
-            RoomSettings settings, String passwordHash) {
+            RoomSettings settings) {
         this.code = code;
         this.name = name;
         this.createdBy = hostId;
         this.createdAt = createdAt;
         this.hostId = hostId;
         this.settings = settings;
-        this.passwordHash = passwordHash;
         participants.put(hostId, RoomParticipant.human(hostId, hostDisplayName, createdAt));
     }
 
@@ -62,24 +61,17 @@ public final class Room {
         return hostId;
     }
 
+    public String getHostDisplayName() {
+        RoomParticipant host = participantForUser(hostId);
+        return host == null ? null : host.getDisplayName();
+    }
+
     public RoomState getState() {
         return state;
     }
 
     public RoomSettings getSettings() {
         return settings;
-    }
-
-    public boolean hasPassword() {
-        return passwordHash != null;
-    }
-
-    String getPasswordHash() {
-        return passwordHash;
-    }
-
-    void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
     }
 
     void setSettings(RoomSettings settings) {
@@ -184,9 +176,10 @@ public final class Room {
         }
     }
 
-    boolean allHumansReady() {
+    boolean allNonHostHumansReady() {
         return participants.values().stream()
                 .filter(participant -> !participant.isBot())
+                .filter(participant -> !participant.getUserId().equals(hostId))
                 .allMatch(RoomParticipant::isReady);
     }
 
@@ -203,9 +196,33 @@ public final class Room {
         }
     }
 
+    void removeBots(Instant now) {
+        participants.values().stream()
+                .filter(RoomParticipant::isBot)
+                .map(RoomParticipant::getId)
+                .toList()
+                .forEach(participantId -> remove(participantId, now));
+    }
+
     void start() {
         state = RoomState.QUALIFYING;
+        drivingStarted = false;
         settings = settings.lock();
+    }
+
+    void markDrivingStarted() {
+        drivingStarted = true;
+    }
+
+    boolean hasDrivingStarted() {
+        return drivingStarted;
+    }
+
+    void cancelQualification(Instant now) {
+        removeBots(now);
+        state = RoomState.LOBBY;
+        drivingStarted = false;
+        settings = settings.unlock();
     }
 
     void close() {

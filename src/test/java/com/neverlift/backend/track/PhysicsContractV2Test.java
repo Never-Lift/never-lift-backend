@@ -119,7 +119,8 @@ class PhysicsContractV2Test {
         assertThat(protocol.at("/$defs/readyEnvelope/properties/payload/required").toString())
                 .contains("ready");
         assertThat(protocol.at("/$defs/roomStateEnvelope/properties/payload/required").toString())
-                .contains("code", "name", "participantCount", "limit", "hasPassword");
+                .contains("code", "name", "hostName", "participantCount", "limit")
+                .doesNotContain("hasPassword");
         assertThat(protocol.at("/$defs/roomStateEnvelope/properties/payload/properties/players/maxItems").asInt())
                 .isEqualTo(22);
         assertThat(protocol.at("/$defs/stateSnapshotEnvelope/properties/payload/properties/cars/maxItems").asInt())
