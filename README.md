@@ -98,7 +98,7 @@ Resultados de corridas simuladas localmente pelo frontend são enviados para `PO
 {
   "trackId": "interlagos",
   "trackCatalogVersion": "2026.12",
-  "physicsContractVersion": "2.0.0",
+  "physicsContractVersion": "2.0.1",
   "mode": "local",
   "results": [
     {
@@ -121,7 +121,7 @@ Resultados de corridas simuladas localmente pelo frontend são enviados para `PO
 
 O backend valida pista, versão, modo, posições e tempos antes de persistir tudo atomicamente. Para um JWT de usuário, exatamente um item deve usar o `subject` autenticado; nenhum outro UUID é aceito. Resultados de guest e bot usam `null`. A consulta pública do histórico permanece reservada ao Módulo 8.
 
-O backend exige `physicsContractVersion=2.0.0` junto do catálogo `2026.12` e persiste a versão em cada resultado; versões físicas incompatíveis não são comparadas diretamente. A Parte 2d e o Módulo 2 foram implementados e validados manualmente de forma integrada em 31/08/2026. A especificação e as fontes estão em [`docs/contracts/module-2-physics-v2-proposal.md`](docs/contracts/module-2-physics-v2-proposal.md), e a revisão atual das pistas está registrada em [`docs/module-2-track-safety-audit-2026.10.md`](docs/module-2-track-safety-audit-2026.10.md).
+O backend exige `physicsContractVersion=2.0.1` junto do catálogo `2026.12` e persiste a versão em cada resultado; versões físicas incompatíveis não são comparadas diretamente. A base `2.0.0` da Parte 2d e do Módulo 2 foi validada manualmente de forma integrada em 31/08/2026; a revisão `2.0.1` torna impactos leves menos destrutivos e reduz o dano de direção a um desvio sutil, com validação automatizada concluída e confirmação manual pendente. A especificação e as fontes estão em [`docs/contracts/module-2-physics-v2-proposal.md`](docs/contracts/module-2-physics-v2-proposal.md), e a revisão atual das pistas está registrada em [`docs/module-2-track-safety-audit-2026.10.md`](docs/module-2-track-safety-audit-2026.10.md).
 
 ## Salas online — Módulo 3, Parte 3a
 
@@ -141,7 +141,7 @@ A infraestrutura de lobby está implementada e aguarda nova validação manual i
 | `DELETE` | `/api/rooms/{code}/players/{playerId}` | Host remove um participante enquanto a sala está no lobby |
 | `POST` | `/api/rooms/{code}/close` | Host fecha a sala no lobby |
 
-O WebSocket é `ws(s)://SEU_BACKEND/ws?ticket=...`; o ticket, e nunca o JWT, autentica o handshake. O primeiro envelope deve ser `join_room` com `roomCode`, `trackCatalogVersion=2026.12` e `physicsContractVersion=2.0.0`. Em seguida, `select_loadout`, `ready { ready }` e `ping` são aceitos; o servidor envia `room_state`, `pong` e erros. Entrada, saída, remoção, reconexão e mudanças no lobby disparam um novo `room_state` imediatamente. Heartbeat de transporte ocorre a cada 10 s, e três falhas consecutivas marcam o jogador desconectado; o mesmo ticket pode reconectar esse slot por até 30 s após a queda. Se não retornar, o participante é removido e a vaga é liberada.
+O WebSocket é `ws(s)://SEU_BACKEND/ws?ticket=...`; o ticket, e nunca o JWT, autentica o handshake. O primeiro envelope deve ser `join_room` com `roomCode`, `trackCatalogVersion=2026.12` e `physicsContractVersion=2.0.1`. Em seguida, `select_loadout`, `ready { ready }` e `ping` são aceitos; o servidor envia `room_state`, `pong` e erros. Entrada, saída, remoção, reconexão e mudanças no lobby disparam um novo `room_state` imediatamente. Heartbeat de transporte ocorre a cada 10 s, e três falhas consecutivas marcam o jogador desconectado; o mesmo ticket pode reconectar esse slot por até 30 s após a queda. Se não retornar, o participante é removido e a vaga é liberada.
 
 ## Testes
 

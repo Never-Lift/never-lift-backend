@@ -23,7 +23,7 @@ class PhysicsContractV2Test {
         JsonNode scenarios = readContract("physics-reference-scenarios.json");
         JsonNode protocol = readContract("realtime-race-protocol.schema.json");
 
-        assertThat(constants.path("version").asText()).isEqualTo("2.0.0");
+        assertThat(constants.path("version").asText()).isEqualTo("2.0.1");
         assertThat(constants.path("calibrationStatus").asText()).isEqualTo("initial");
         assertThat(constants.path("simulation").path("physicsStepSeconds").asDouble())
                 .isEqualTo(1.0 / 120.0);
@@ -100,6 +100,13 @@ class PhysicsContractV2Test {
         assertThat(constants.path("collision").has("tangentialFriction")).isFalse();
         assertThat(constants.path("environment").path("gravityMetersPerSecondSquared").asDouble())
                 .isEqualTo(9.80665);
+        JsonNode damage = constants.path("damage");
+        assertThat(damage.path("minimumDeltaVMetersPerSecond").asDouble()).isEqualTo(5.0);
+        assertThat(damage.path("mediumDeltaVMetersPerSecond").asDouble()).isEqualTo(10.0);
+        assertThat(damage.path("combinedDeltaVMetersPerSecond").asDouble()).isEqualTo(18.0);
+        assertThat(damage.path("totalLossDeltaVMetersPerSecond").asDouble()).isEqualTo(30.0);
+        assertThat(damage.path("healthDamagePerDeltaV").asDouble()).isEqualTo(1.5);
+        assertThat(damage.path("steeringPullStrength").asDouble()).isEqualTo(0.005);
 
         assertThat(decisions.path("boostPolicy").asText()).isEqualTo("removed");
         assertThat(decisions.path("shiftKeyPolicy").asText()).isEqualTo("unassigned");
