@@ -98,7 +98,7 @@ Resultados de corridas simuladas localmente pelo frontend são enviados para `PO
 {
   "trackId": "interlagos",
   "trackCatalogVersion": "2026.12",
-  "physicsContractVersion": "2.0.2",
+  "physicsContractVersion": "2.0.3",
   "mode": "local",
   "results": [
     {
@@ -121,11 +121,11 @@ Resultados de corridas simuladas localmente pelo frontend são enviados para `PO
 
 O backend valida pista, versão, modo, posições e tempos antes de persistir tudo atomicamente. Para um JWT de usuário, exatamente um item deve usar o `subject` autenticado; nenhum outro UUID é aceito. Resultados de guest e bot usam `null`. A consulta pública do histórico permanece reservada ao Módulo 8.
 
-O backend exige `physicsContractVersion=2.0.2` junto do catálogo `2026.12` e persiste a versão em cada resultado; versões físicas incompatíveis não são comparadas diretamente. A base `2.0.0` da Parte 2d e do Módulo 2 foi validada manualmente de forma integrada em 31/08/2026; a revisão `2.0.1` torna impactos leves menos destrutivos e reduz o dano de direção a um desvio sutil, com validação automatizada concluída e confirmação manual pendente. A especificação e as fontes estão em [`docs/contracts/module-2-physics-v2-proposal.md`](docs/contracts/module-2-physics-v2-proposal.md), e a revisão atual das pistas está registrada em [`docs/module-2-track-safety-audit-2026.10.md`](docs/module-2-track-safety-audit-2026.10.md).
+O backend exige `physicsContractVersion=2.0.3` junto do catálogo `2026.12` e persiste a versão em cada resultado; versões físicas incompatíveis não são comparadas diretamente. A base `2.0.0` da Parte 2d e do Módulo 2 foi validada manualmente de forma integrada em 31/08/2026; a revisão `2.0.1` torna impactos leves menos destrutivos e reduz o dano de direção a um desvio sutil, com validação automatizada concluída e confirmação manual pendente. A especificação e as fontes estão em [`docs/contracts/module-2-physics-v2-proposal.md`](docs/contracts/module-2-physics-v2-proposal.md), e a revisão atual das pistas está registrada em [`docs/module-2-track-safety-audit-2026.10.md`](docs/module-2-track-safety-audit-2026.10.md).
 
 ## Salas online — Módulo 3, Parte 3a
 
-A infraestrutura de lobby foi validada manualmente em dois navegadores e a Parte 3a está pronta desde 03/09/2026; a Parte 3b (motor físico Java) está pronta com cenários de paridade passando; o fluxo de corrida da Parte 3c permanece pendente. Somente usuários registrados podem acessar o online; o frontend mantém a vitrine visível para guests, mas bloqueada até o login. Salas são efêmeras em memória, públicas por padrão, usam código numérico de quatro dígitos e comportam de 2 a 22 carros (grid padrão 22). Não existem senhas de sala: públicas aceitam entrada direta pela listagem e privadas dependem exclusivamente do código. Entradas inválidas, código errado e sala cheia compartilham uma mensagem genérica, com no máximo cinco tentativas por minuto por usuário e origem.
+A infraestrutura de lobby foi validada manualmente em dois navegadores e a Parte 3a está pronta desde 03/09/2026; a Parte 3b (motor físico Java) está implementada com paridade passando, e a revisão 2.0.3 aguarda teste manual curto; o fluxo de corrida da Parte 3c permanece pendente. Somente usuários registrados podem acessar o online; o frontend mantém a vitrine visível para guests, mas bloqueada até o login. Salas são efêmeras em memória, públicas por padrão, usam código numérico de quatro dígitos e comportam de 2 a 22 carros (grid padrão 22). Não existem senhas de sala: públicas aceitam entrada direta pela listagem e privadas dependem exclusivamente do código. Entradas inválidas, código errado e sala cheia compartilham uma mensagem genérica, com no máximo cinco tentativas por minuto por usuário e origem.
 
 | Método | Endpoint | Descrição |
 |---|---|---|
@@ -141,7 +141,7 @@ A infraestrutura de lobby foi validada manualmente em dois navegadores e a Parte
 | `DELETE` | `/api/rooms/{code}/players/{playerId}` | Host remove um participante enquanto a sala está no lobby |
 | `POST` | `/api/rooms/{code}/close` | Host fecha a sala no lobby |
 
-O WebSocket é `ws(s)://SEU_BACKEND/ws?ticket=...`; o ticket, e nunca o JWT, autentica o handshake. O primeiro envelope deve ser `join_room` com `roomCode`, `trackCatalogVersion=2026.12` e `physicsContractVersion=2.0.2`. Em seguida, `select_loadout`, `ready { ready }` e `ping` são aceitos; o servidor envia `room_state`, `pong` e erros. Entrada, saída, remoção, reconexão e mudanças no lobby disparam um novo `room_state` imediatamente. Heartbeat de transporte ocorre a cada 10 s, e três falhas consecutivas marcam o jogador desconectado; o mesmo ticket pode reconectar esse slot por até 30 s após a queda. Se não retornar, o participante é removido e a vaga é liberada.
+O WebSocket é `ws(s)://SEU_BACKEND/ws?ticket=...`; o ticket, e nunca o JWT, autentica o handshake. O primeiro envelope deve ser `join_room` com `roomCode`, `trackCatalogVersion=2026.12` e `physicsContractVersion=2.0.3`. Em seguida, `select_loadout`, `ready { ready }` e `ping` são aceitos; o servidor envia `room_state`, `pong` e erros. Entrada, saída, remoção, reconexão e mudanças no lobby disparam um novo `room_state` imediatamente. Heartbeat de transporte ocorre a cada 10 s, e três falhas consecutivas marcam o jogador desconectado; o mesmo ticket pode reconectar esse slot por até 30 s após a queda. Se não retornar, o participante é removido e a vaga é liberada.
 
 ## Testes
 
@@ -180,9 +180,16 @@ Os contratos implementados pelo Módulo 2 estão em [`docs/contracts/module-2-sh
 - [`docs/game-design-guide.md`](docs/game-design-guide.md) — direção compartilhada e fase de cada decisão.
 - [`AGENTS.md`](AGENTS.md) — regras de arquitetura, testes e status dos módulos.
 
-## Parte 3b — contrato 2.0.2 e motor autoritativo
+## Parte 3b — contrato 2.0.3 e motor autoritativo
 
 A correção aprovada do dano por impulso normal e os campos completos de snapshot
 estão documentados em [docs/module-3b-authoritative-physics.md](docs/module-3b-authoritative-physics.md).
 Não há boost/Shift nem antecipação da classificação/fluxo/reconciliação da Parte 3c.
-Backend e frontend devem usar a mesma revisão 2.0.2; versões anteriores são recusadas.
+Backend e frontend devem usar a mesma revisão 2.0.3; versões anteriores são recusadas.
+
+A validação manual básica da Parte 3b foi confirmada pelo autor. A revisão
+sincronizada **2.0.3**, autorizada para eliminar divergências entre Java e navegadores,
+não muda tuning e já tem paridade automatizada. Antes da 3c falta somente o teste
+manual curto descrito em [docs/module-3b-portability.md](docs/module-3b-portability.md).
+Geradores de referência exigem Node 24.x; os verificadores de runtime/navegador
+conferem portabilidade sem regravar resultados. PRs desta rodada vão somente à develop.

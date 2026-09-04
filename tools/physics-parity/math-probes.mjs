@@ -1,6 +1,6 @@
 // Diagnostic only: compare platform transcendental functions before changing physics.
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
-const reference = JSON.parse(await readFile('src/test/resources/physics/typescript-reference-2.0.2.json', 'utf8'))
+const reference = JSON.parse(await readFile('src/test/resources/physics/typescript-reference-2.0.3.json', 'utf8'))
 const probes = []
 for (const scenario of reference.scenarios) for (const { state } of scenario.states) {
   const values = [state.angle, state.yawRate, state.longitudinalAcceleration, state.frontWheelAngularSpeed / 100]

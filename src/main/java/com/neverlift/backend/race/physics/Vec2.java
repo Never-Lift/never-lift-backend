@@ -10,6 +10,6 @@ public record Vec2(double x, double y) {
     public double length() { return VehicleIntegrator.scaledHypot(x, y); }
     public Vec2 left() { return new Vec2(-y, x); }
     public Vec2 unit() { double size = length(); return size <= Math.ulp(1.0) ? ZERO : scale(1 / size); }
-    public Vec2 rotate(double angle) { return new Vec2(x * StrictMath.cos(angle) - y * StrictMath.sin(angle), x * StrictMath.sin(angle) + y * StrictMath.cos(angle)); }
+    public Vec2 rotate(double angle) { return new Vec2(x * PortableMath.cos(angle) - y * PortableMath.sin(angle), x * PortableMath.sin(angle) + y * PortableMath.cos(angle)); }
     public double distanceSquared(Vec2 b) { double dx = x - b.x, dy = y - b.y; return dx * dx + dy * dy; }
 }

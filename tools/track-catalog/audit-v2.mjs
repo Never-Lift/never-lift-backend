@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 import { readdir, readFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { normalizeReferenceText } from '../physics-parity/reference-support.mjs'
 
 const toolDirectory = dirname(fileURLToPath(import.meta.url))
 const repositoryRoot = resolve(toolDirectory, '..', '..')
@@ -12,7 +13,7 @@ const mirrorDirectory =
 
 const VERSION = '2.0.0'
 const CATALOG_VERSION = '2026.12'
-const PHYSICS_VERSION = '2.0.2'
+const PHYSICS_VERSION = '2.0.3'
 const TRACK_COUNT = 24
 const sharedFiles = [
   'README.md',
@@ -1389,11 +1390,12 @@ async function validateMirror() {
   if (!mirrorDirectory) return
   for (const relativePath of sharedFiles) {
     const [canonical, mirror] = await Promise.all([
-      readFile(resolve(contractDirectory, relativePath)),
-      readFile(resolve(mirrorDirectory, relativePath)),
+      readFile(resolve(contractDirectory, relativePath), 'utf8'),
+      readFile(resolve(mirrorDirectory, relativePath), 'utf8'),
     ])
-    const canonicalHash = createHash('sha256').update(canonical).digest('hex')
-    const mirrorHash = createHash('sha256').update(mirror).digest('hex')
+    // Git text checkouts may differ only by LF/CRLF; all content is still hashed.
+    const canonicalHash = createHash('sha256').update(normalizeReferenceText(canonical)).digest('hex')
+    const mirrorHash = createHash('sha256').update(normalizeReferenceText(mirror)).digest('hex')
     invariant(canonicalHash === mirrorHash, `mirror differs: ${relativePath}`)
   }
   const mirrorTracks = await readdir(resolve(mirrorDirectory, 'tracks')).catch(() => [])

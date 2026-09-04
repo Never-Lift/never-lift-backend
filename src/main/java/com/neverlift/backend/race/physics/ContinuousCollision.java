@@ -21,7 +21,7 @@ public final class ContinuousCollision {
     double radius(Motion m) { double result=0;for(Shape s:m.shapes)result=max(result,radius(s,m.position));return result; }
     Bounds motionBounds(Shape s,Motion m,double time) {
         double angle=abs(m.yaw)*time;
-        return sweptBounds(s,m.velocity,time).expand(angle<=PI ? 2*radius(s,m.position)*sin(angle/2):2*radius(s,m.position));
+        return sweptBounds(s,m.velocity,time).expand(angle<=PI ? 2*radius(s,m.position)*PortableMath.sin(angle/2):2*radius(s,m.position));
     }
     Shape at(Shape s,Motion m,double time) {
         if (time<=timeEpsilon || (m.yaw==0 && m.velocity.x()==0 && m.velocity.y()==0)) return s;

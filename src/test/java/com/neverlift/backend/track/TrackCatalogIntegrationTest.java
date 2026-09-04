@@ -41,7 +41,7 @@ class TrackCatalogIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.schemaVersion").value("2.0.0"))
                 .andExpect(jsonPath("$.catalogVersion").value("2026.12"))
-                .andExpect(jsonPath("$.physicsContractVersion").value("2.0.2"))
+                .andExpect(jsonPath("$.physicsContractVersion").value("2.0.3"))
                 .andExpect(jsonPath("$.seasonReference").value(2026))
                 .andExpect(jsonPath("$.calendarPolicy").value("original-24-round-freeze"))
                 .andExpect(jsonPath("$.tracks.length()").value(24))
@@ -64,7 +64,7 @@ class TrackCatalogIntegrationTest {
             JsonNode definition = objectMapper.readTree(track.getDefinitionJson());
             assertThat(definition.path("schemaVersion").asText()).isEqualTo("2.0.0");
             assertThat(definition.path("catalogVersion").asText()).isEqualTo("2026.12");
-            assertThat(definition.path("physicsContractVersion").asText()).isEqualTo("2.0.2");
+            assertThat(definition.path("physicsContractVersion").asText()).isEqualTo("2.0.3");
             assertThat(definition.path("id").asText()).isEqualTo(track.getId());
             assertThat(definition.path("lengthMeters").asInt()).isEqualTo(track.getLengthMeters());
 
