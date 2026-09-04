@@ -9,7 +9,7 @@ import static com.neverlift.backend.race.physics.CollisionGeometry.*;
 class TrackGeometryParityTest {
     final PhysicsContract c=new PhysicsContract();
     @TestFactory Stream<DynamicTest> allPublishedCircuitsAndBotDecisionsMatchTypeScript() throws Exception {
-        JsonNode reference=new ObjectMapper().readTree(getClass().getResourceAsStream("/physics/typescript-geometry-2.0.2.json"));
+        JsonNode reference=new ObjectMapper().readTree(getClass().getResourceAsStream("/physics/typescript-geometry-2.0.3.json"));
         assertThat(reference.path("tracks")).hasSize(24);
         return StreamSupport.stream(reference.path("tracks").spliterator(),false).map(t->DynamicTest.dynamicTest(t.path("id").asText(),()->{
             TrackGeometry geometry=new TrackGeometry(c,PhysicsContract.resource("tracks/"+t.path("id").asText()+".json"));

@@ -67,7 +67,7 @@ class LocalRaceResultIntegrationTest {
         assertThat(stored).hasSize(2);
         assertThat(stored).extracting(RaceResult::getTrackId).containsOnly("interlagos");
         assertThat(stored).extracting(RaceResult::getTrackCatalogVersion).containsOnly("2026.12");
-        assertThat(stored).extracting(RaceResult::getPhysicsContractVersion).containsOnly("2.0.2");
+        assertThat(stored).extracting(RaceResult::getPhysicsContractVersion).containsOnly("2.0.3");
         assertThat(stored).extracting(RaceResult::getMode).containsOnly(RaceMode.LOCAL);
         assertThat(stored).extracting(RaceResult::getPosition).containsExactlyInAnyOrder(1, 2);
         assertThat(stored).extracting(RaceResult::getUserId)
@@ -267,7 +267,7 @@ class LocalRaceResultIntegrationTest {
         return objectMapper.writeValueAsString(Map.of(
                 "trackId", trackId,
                 "trackCatalogVersion", catalogVersion,
-                "physicsContractVersion", "2.0.2",
+                "physicsContractVersion", "2.0.3",
                 "mode", mode,
                 "results", entries));
     }

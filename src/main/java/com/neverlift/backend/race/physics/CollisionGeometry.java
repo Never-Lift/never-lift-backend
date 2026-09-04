@@ -26,7 +26,7 @@ public final class CollisionGeometry {
         public Vec2 center(){return center;}
         public Shape transform(Vec2 origin,double angle){return pose(Vec2.ZERO,origin,angle);}
         public Shape pose(Vec2 from,Vec2 to,double angle){
-            double cosine=StrictMath.cos(angle),sine=StrictMath.sin(angle);List<Vec2> result=new ArrayList<>(vertices.size());
+            double cosine=PortableMath.cos(angle),sine=PortableMath.sin(angle);List<Vec2> result=new ArrayList<>(vertices.size());
             for(Vec2 v:vertices){double x=v.x()-from.x(),y=v.y()-from.y();result.add(new Vec2(to.x()+(x*cosine-y*sine),to.y()+(x*sine+y*cosine)));}
             return new Shape(id,material,result);
         }

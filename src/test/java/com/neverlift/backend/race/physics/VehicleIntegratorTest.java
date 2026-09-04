@@ -19,7 +19,7 @@ class VehicleIntegratorTest {
     @TestFactory
     Stream<DynamicTest> reproducesEveryTypeScriptScenario() throws Exception {
         JsonNode golden;
-        try (var stream = getClass().getResourceAsStream("/physics/typescript-reference-2.0.2.json")) {
+        try (var stream = getClass().getResourceAsStream("/physics/typescript-reference-2.0.3.json")) {
             golden = new ObjectMapper().readTree(stream);
         }
         assertThat(golden.path("physicsContractVersion").asText()).isEqualTo(contract.version());

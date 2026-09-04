@@ -31,7 +31,7 @@ class AuthoritativeRaceIntegrationTest {
     @Test void twoClientsReceiveIdenticalTrajectoryAndCollisionsAndRejectVersionMismatch() throws Exception {
         String host=register("physics-host"),other=register("physics-driver");String code=request("/api/rooms",host,Map.of("gridSize",2,"trackId","monaco")).path("code").asText();
         request("/api/rooms/"+code+"/join",other,Map.of());
-        try(Client a=connect(host,code,"2.0.2");Client b=connect(other,code,"2.0.2")) {
+        try(Client a=connect(host,code,"2.0.3");Client b=connect(other,code,"2.0.3")) {
             await(()->a.messages.stream().anyMatch(m->m.path("type").asText().equals("room_state")) && b.messages.stream().anyMatch(m->m.path("type").asText().equals("room_state")),5);
             request("/api/rooms/"+code+"/ready",other,Map.of("ready",true));
             JsonNode room=request("/api/rooms/"+code+"/start",host,Map.of());
@@ -52,7 +52,7 @@ class AuthoritativeRaceIntegrationTest {
             // Light contacts must not be mistaken for mandatory damage: 2.0.2 intentionally ignores low delta-v.
             assertThat(handler.resolvedContacts(code)).as("real authoritative contacts occurred while both clients received the same trajectories").isPositive();
             JsonNode last=a.snapshots.get(Collections.max(a.snapshots.keySet()));
-            assertThat(last.path("trackId").asText()).isEqualTo("monaco");assertThat(last.path("physicsContractVersion").asText()).isEqualTo("2.0.2");
+            assertThat(last.path("trackId").asText()).isEqualTo("monaco");assertThat(last.path("physicsContractVersion").asText()).isEqualTo("2.0.3");
             a.send("input",Map.of("throttle",1,"brake",0,"steer",0,"clientSeq",999,"clientTimestamp",0,"x",99999));
             await(()->a.messages.stream().anyMatch(m->m.path("type").asText().equals("error")&&m.path("payload").path("code").asText().equals("invalid_message")),5);
             // Only read snapshots after the last valid command has expired; the applied control ramps down.

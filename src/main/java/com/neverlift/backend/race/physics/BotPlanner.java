@@ -19,12 +19,12 @@ public final class BotPlanner {
         var projection=geometry.project(new Vec2(car.x,car.y),distance);
         double ahead=p("steeringLookAheadBaseMeters")+speed*p("steeringLookAheadSpeedSeconds")+max(0,p("steeringLookAheadReactionReferenceSeconds")-requiredNumber(d,"steeringLookAheadPenaltySeconds"))*p("steeringLookAheadReactionGainMetersPerSecond");
         var target=geometry.racingPoint(projection.distance()+ahead);
-        double heading=VehicleCollisions.angleDelta(car.angle,StrictMath.atan2(target.position().y()-car.y,target.position().x()-car.x));
-        int seed=car.id.chars().sum();double noise=StrictMath.sin(time*p("steeringNoiseFrequencyRadiansPerSecond")+seed)*requiredNumber(d,"steeringNoise");
+        double heading=VehicleCollisions.angleDelta(car.angle,PortableMath.atan2(target.position().y()-car.y,target.position().x()-car.x));
+        int seed=car.id.chars().sum();double noise=PortableMath.sin(time*p("steeringNoiseFrequencyRadiansPerSecond")+seed)*requiredNumber(d,"steeringNoise");
         double horizon=p("brakingLookAheadBaseMeters")+speed*(p("brakingLookAheadSpeedSeconds")+requiredNumber(d,"recoveryMultiplier")*p("brakingLookAheadRecoveryGainSeconds"));
         double factor=target.speedFactor();int count=(int)p("brakingPreviewSampleCount");
         for(int sample=1;sample<=count;sample++)factor=min(factor,geometry.racingPoint(projection.distance()+horizon*sample/count).speedFactor());
-        double targetSpeed=terminalSpeed*pow(factor,p("racingLineSpeedFactorExponent"))*requiredNumber(d,"paceMultiplier")*p("terminalSpeedTargetMultiplier");
+        double targetSpeed=terminalSpeed*PortableMath.pow(factor,p("racingLineSpeedFactorExponent"))*requiredNumber(d,"paceMultiplier")*p("terminalSpeedTargetMultiplier");
         double safe=targetSpeed/requiredNumber(d,"brakingSafetyMultiplier");
         boolean recovery=car.surface.equals("grass")||car.surface.equals("gravel"),braking=speed>safe||abs(heading)>p("brakeHeadingErrorThresholdRadians");
         double maxBrake=p("maximumBrakeBase")+requiredNumber(d,"recoveryMultiplier")*p("maximumBrakeRecoveryGain");

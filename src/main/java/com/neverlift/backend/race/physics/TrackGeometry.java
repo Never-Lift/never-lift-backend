@@ -160,6 +160,6 @@ public final class TrackGeometry {
         double lateral=vector(slots.get(0).path("position")).sub(vector(slots.get(1).path("position"))).length()/2;
         double distance=length-(index/2+1)*contract.number("race","gridGapMeters");
         Vec2 tangent=tangent(distance);Vec2 at=centerPoint(distance).position.add(tangent.left().scale(index%2==0?-lateral:lateral));
-        return new Spawn(at,StrictMath.atan2(tangent.y(),tangent.x()));
+        return new Spawn(at,PortableMath.atan2(tangent.y(),tangent.x()));
     }
 }

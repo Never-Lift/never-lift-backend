@@ -83,8 +83,8 @@ Mesma numeração e dependências do plano de backend.
 
 ### Módulo 2 — Motor de corrida local (sem rede)
 **Depende de:** Módulo 0 (frontend) + Módulo 2 (backend, catálogo versionado de pistas e persistência de resultado).
-**Contrato de entrada atual:** `contracts/module-2/v2/` define `TrackDefinition` `2.0.0`, catálogo `2026.12`, constantes físicas `2.0.2`, colliders compostos, faces canônicas de barreira, aberturas físicas de pit, face traseira `pitLane.garageBarrier` das garagens, placas métricas de frenagem e perfis visuais métricos de infraestrutura. O frontend consome as 24 geometrias pela API e mantém localmente somente os artefatos comuns do contrato; `contracts/module-2/v1/` preserva o runtime `1.3.0` como histórico imutável.
-**Estado da entrega:** pronto. As Partes 2a, 2b, 2c e 2d, a física `2.0.0` e o catálogo `2026.12` foram validados manualmente de forma integrada em 31/08/2026. A revisão `2.0.1` recalibra somente dano e desvio de direção, tem validação automatizada e aguarda confirmação manual. A simplificação para F1 único/condução única, o refinamento de câmera 2.5D/F1 multidirecional e a revisão de segurança visual das 24 pistas estão concluídos. A Parte 2d e o Módulo 2 permanecem prontos; a Parte 3a foi validada manualmente em dois navegadores e está pronta desde 03/09/2026, enquanto a Parte 3b Java está pronta com paridade passando e a Parte 3c permanece pendente.
+**Contrato de entrada atual:** `contracts/module-2/v2/` define `TrackDefinition` `2.0.0`, catálogo `2026.12`, constantes físicas `2.0.3`, colliders compostos, faces canônicas de barreira, aberturas físicas de pit, face traseira `pitLane.garageBarrier` das garagens, placas métricas de frenagem e perfis visuais métricos de infraestrutura. O frontend consome as 24 geometrias pela API e mantém localmente somente os artefatos comuns do contrato; `contracts/module-2/v1/` preserva o runtime `1.3.0` como histórico imutável.
+**Estado da entrega:** pronto. As Partes 2a, 2b, 2c e 2d, a física `2.0.0` e o catálogo `2026.12` foram validados manualmente de forma integrada em 31/08/2026. A revisão `2.0.1` recalibra somente dano e desvio de direção, tem validação automatizada e aguarda confirmação manual. A simplificação para F1 único/condução única, o refinamento de câmera 2.5D/F1 multidirecional e a revisão de segurança visual das 24 pistas estão concluídos. A Parte 2d e o Módulo 2 permanecem prontos; a Parte 3a foi validada manualmente em dois navegadores e está pronta desde 03/09/2026, enquanto a Parte 3b Java está implementada e a nova revisão 2.0.3 aguarda teste manual curto antes da Parte 3c, que permanece pendente.
 
 **Simplificação implementada em 24/08/2026 (frontend #90 / backend #72):** o produto tem somente o F1 e uma configuração fixa de condução que preserva os valores do antigo perfil Normal. A seleção Normal/Drift, os perfis visuais Supercarro/Drift e qualquer dimensão competitiva baseada em modelo ou handling foram removidos. O contrato físico incompatível `1.3.0` foi publicado de forma sincronizada nos dois repositórios.
 
@@ -124,7 +124,7 @@ Mesma numeração e dependências do plano de backend.
 ### Módulo 3 — Motor autoritativo online (núcleo)
 **Depende de:** Módulo 1, Módulo 2, Módulo 3 do backend.
 **Cobre features:** 4 (lobby online), 8.
-**Estado da entrega:** Parte 3a (ticket, sala e lobby, incluindo o refinamento de acesso/configuração de 02/09/2026) validada manualmente em dois navegadores e pronta desde 03/09/2026; Parte 3b Java pronta com paridade passando; Parte 3c pendente.
+**Estado da entrega:** Parte 3a (ticket, sala e lobby, incluindo o refinamento de acesso/configuração de 02/09/2026) validada manualmente em dois navegadores e pronta desde 03/09/2026; Parte 3b Java implementada com paridade passando; revisão 2.0.3 aguardando teste manual curto; Parte 3c pendente.
 **Escopo:**
 - Antes do WebSocket, obter ticket opaco de uso único, vinculado ao usuário e à sala e válido por 60 s; o JWT principal nunca aparece na URL. A reconexão usa backoff simples e preserva o slot por aproximadamente 30 s.
 - O online exige usuário registrado. Guest vê a vitrine escurecida/desfocada e um convite para login, mas não consulta nem entra em salas. A criação solicita somente nome e visibilidade, sem senhas. Públicas aceitam entrada direta; privadas não aparecem na lista e usam o código de quatro dígitos como único segredo.
@@ -141,7 +141,7 @@ Mesma numeração e dependências do plano de backend.
 
 
 
-### Transporte da Parte 3b — revisão 2.0.2
+### Transporte da Parte 3b — revisão 2.0.3
 
 O detalhamento implementado está em [module-3b-authoritative-physics.md](module-3b-authoritative-physics.md).
 O loop executa 30 ticks/s com quatro subpassos de 1/120 s; um agendamento independente
@@ -157,7 +157,13 @@ O snapshot inclui `trackId`, `trackCatalogVersion`, `physicsContractVersion`,
 `lap`, `isGhost` e `inPit` são opcionais no schema e só serão produzidos na 3c.
 Incompatibilidade envia `race_event type=version_mismatch` e fecha o socket (1008).
 A sessão técnica de física da 3b não implementa classificação, largada, voltas,
-resultado, predição ou reconciliação da 3c. Backend e frontend devem promover 2.0.2 juntos.
+resultado, predição ou reconciliação da 3c. Backend e frontend devem promover 2.0.3 juntos.
+
+A portabilidade 2.0.3 foi autorizada pelo autor e implementada nos dois motores
+com `portable-f64-v1`, sem recalibrar os parâmetros de condução/dano. As funções
+transcendentais nativas não devem ser reintroduzidas na física da 3c.
+A validação manual básica da 3b anterior está confirmada; esta revisão exige
+o teste curto de [module-3b-portability.md](module-3b-portability.md) antes da 3c.
 
 ### Módulo 4 — Ambiente e modo caos
 **Depende de:** Módulo 3.

@@ -22,7 +22,7 @@ const checkOnly = process.argv.includes('--check')
 
 const SCHEMA_VERSION = '2.0.0'
 const CATALOG_VERSION = '2026.12'
-const PHYSICS_CONTRACT_VERSION = '2.0.2'
+const PHYSICS_CONTRACT_VERSION = '2.0.3'
 const ROUND_DECIMALS = 3
 const CHUNK_LENGTH_METERS = 250
 const BARRIER_TRANSITION_RADIUS_METERS = 24

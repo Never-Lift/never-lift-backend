@@ -11,7 +11,7 @@ public final class PhysicsContract {
 
     public PhysicsContract() {
         constants = resource("physics-constants.json");
-        if (!"2.0.2".equals(version())) throw new IllegalStateException("Unsupported physics contract");
+        if (!"2.0.3".equals(version())) throw new IllegalStateException("Unsupported physics contract");
         if (number("simulation", "serverPhysicsSubstepsPerTick") * stepSeconds()
                 != number("simulation", "serverTickSeconds")) {
             throw new IllegalStateException("Inconsistent server substep clock");

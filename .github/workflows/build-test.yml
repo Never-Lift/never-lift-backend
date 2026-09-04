@@ -27,5 +27,13 @@ jobs:
       - name: Run tests
         run: ./mvnw --batch-mode test
 
+      - name: Set up reference tooling runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Test reference portability checks
+        run: node --test tools/physics-parity/reference-support.test.mjs tools/physics-parity/compare-reference.test.mjs
+
       - name: Package application
         run: ./mvnw --batch-mode package

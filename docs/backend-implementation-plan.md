@@ -112,8 +112,8 @@ Cada módulo é uma unidade que pode virar um prompt isolado pro Codex. A ordem 
 
 ### Módulo 2 — Suporte a corrida local (sem rede)
 **Depende de:** Módulo 0.
-**Contrato de entrada atual:** `contracts/module-2/v2/` contém o schema de pista `2.0.0`, catálogo `2026.12`, contrato físico `2.0.2`, faces canônicas de barreira, aberturas físicas de entrada/saída do pit, placas métricas de frenagem, perfis visuais métricos de infraestrutura e as 24 definições geradas de forma reproduzível. `contracts/module-2/v1/` permanece histórico e imutável.
-**Estado da Parte 2d:** implementação e validação manual integrada concluídas em 31/08/2026 para a física `2.0.0`. A revisão `2.0.1` recalibra somente dano e desvio de direção, tem validação automatizada e aguarda confirmação manual. O backend publica/importa o catálogo v2, empacota os artefatos comuns byte a byte, persiste `physicsContractVersion` e audita zebras, proteções contínuas, placas regressivas, largadas/orientações corrigidas, aberturas de `pit-entry`/`pit-exit` e 22 vagas visuais opacas. O catálogo `2026.12` remove o corredor provisório de escape do Rettifilo de Monza, reposiciona a largada oficial de Silverstone e orienta Marina Bay no sentido anti-horário. O Módulo 2 permanece pronto; no Módulo 3, a Parte 3a (sala, ticket, lobby) foi validada manualmente em dois navegadores e está pronta desde 03/09/2026, enquanto a Parte 3b Java está pronta com paridade passando e a Parte 3c permanece pendente.
+**Contrato de entrada atual:** `contracts/module-2/v2/` contém o schema de pista `2.0.0`, catálogo `2026.12`, contrato físico `2.0.3`, faces canônicas de barreira, aberturas físicas de entrada/saída do pit, placas métricas de frenagem, perfis visuais métricos de infraestrutura e as 24 definições geradas de forma reproduzível. `contracts/module-2/v1/` permanece histórico e imutável.
+**Estado da Parte 2d:** implementação e validação manual integrada concluídas em 31/08/2026 para a física `2.0.0`. A revisão `2.0.1` recalibra somente dano e desvio de direção, tem validação automatizada e aguarda confirmação manual. O backend publica/importa o catálogo v2, empacota os artefatos comuns byte a byte, persiste `physicsContractVersion` e audita zebras, proteções contínuas, placas regressivas, largadas/orientações corrigidas, aberturas de `pit-entry`/`pit-exit` e 22 vagas visuais opacas. O catálogo `2026.12` remove o corredor provisório de escape do Rettifilo de Monza, reposiciona a largada oficial de Silverstone e orienta Marina Bay no sentido anti-horário. O Módulo 2 permanece pronto; no Módulo 3, a Parte 3a (sala, ticket, lobby) foi validada manualmente em dois navegadores e está pronta desde 03/09/2026, enquanto a Parte 3b Java está implementada e a nova revisão 2.0.3 aguarda teste manual curto antes da Parte 3c, que permanece pendente.
 **Simplificação implementada em 24/08/2026 (backend #72 / frontend #90):** o produto tem somente o F1 e uma configuração fixa de condução baseada nos valores do antigo perfil Normal. `carModel`, `handlingMode`/`driftMode`, os perfis Supercarro/Drift e as dimensões de recorde associadas foram removidos do contrato físico `1.3.0`, publicado de forma sincronizada nos dois repositórios.
 **Cobre features:** parte de 3 (registrar resultado local, se o usuário estiver logado), 26.
 **Nota:** o motor de física solo/local roda **inteiramente no frontend**. Nesta revisão, o backend publica o catálogo v2, empacota o contrato físico idêntico e persiste a versão física; não simula a corrida local. O Java autoritativo só entra no Módulo 3 depois que os cenários TypeScript da Parte 2d estiverem congelados.
@@ -133,7 +133,7 @@ Cada módulo é uma unidade que pode virar um prompt isolado pro Codex. A ordem 
 **Decisões aprovadas:** o registro completo das 80 decisões desta rodada está
 em `docs/module-3-online-decisions.md` e é normativo para a implementação.
 A Parte 3a (sala, ticket e lobby, incluindo o refinamento de acesso e configuração de 02/09/2026) foi validada
-manualmente em dois navegadores e está pronta desde 03/09/2026; a Parte 3b (motor físico Java) está pronta com cenários de paridade passando;
+manualmente em dois navegadores e está pronta desde 03/09/2026; a Parte 3b (motor físico Java) está implementada com paridade passando, e a revisão 2.0.3 aguarda teste manual curto;
 a Parte 3c (classificação e fluxo de corrida) permanece pendente.
 **Escopo:**
 - Sessão WebSocket por conexão (`/ws`), autenticada por ticket de uso único vinculado à sala e ao usuário (validade de 60 s); o JWT principal não é exposto na URL.
@@ -151,7 +151,7 @@ a Parte 3c (classificação e fluxo de corrida) permanece pendente.
 
 
 
-### Transporte da Parte 3b — revisão 2.0.2
+### Transporte da Parte 3b — revisão 2.0.3
 
 O detalhamento implementado está em [module-3b-authoritative-physics.md](module-3b-authoritative-physics.md).
 O loop executa 30 ticks/s com quatro subpassos de 1/120 s; um agendamento independente
@@ -167,7 +167,13 @@ O snapshot inclui `trackId`, `trackCatalogVersion`, `physicsContractVersion`,
 `lap`, `isGhost` e `inPit` são opcionais no schema e só serão produzidos na 3c.
 Incompatibilidade envia `race_event type=version_mismatch` e fecha o socket (1008).
 A sessão técnica de física da 3b não implementa classificação, largada, voltas,
-resultado, predição ou reconciliação da 3c. Backend e frontend devem promover 2.0.2 juntos.
+resultado, predição ou reconciliação da 3c. Backend e frontend devem promover 2.0.3 juntos.
+
+A portabilidade 2.0.3 foi autorizada pelo autor e implementada nos dois motores
+com `portable-f64-v1`, sem recalibrar os parâmetros de condução/dano. As funções
+transcendentais nativas não devem ser reintroduzidas na física da 3c.
+A validação manual básica da 3b anterior está confirmada; esta revisão exige
+o teste curto de [module-3b-portability.md](module-3b-portability.md) antes da 3c.
 
 ### Módulo 4 — Ambiente e modo caos
 **Depende de:** Módulo 3.

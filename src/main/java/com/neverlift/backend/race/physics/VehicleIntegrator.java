@@ -60,7 +60,7 @@ public final class VehicleIntegrator {
         s.steeringAngle = moveTowards(s.steeringAngle, steer,
                 c(abs(steer) < abs(s.steeringAngle) ? "steeringReturnRadiansPerSecond" : "steeringActuationRadiansPerSecond") * dt);
         stage.accept(3);
-        double cosine = cos(s.angle), sine = sin(s.angle);
+        double cosine = PortableMath.cos(s.angle), sine = PortableMath.sin(s.angle);
         // Transmission road RPM needs this projection before the tire step; u/v are never stored.
         double roadSpeed = s.velocityX * cosine + s.velocityY * sine;
         boolean reversing = s.appliedBrake > p("reverseInputThreshold") && s.appliedThrottle < p("reverseInputThreshold")
@@ -83,8 +83,8 @@ public final class VehicleIntegrator {
         double frontLoad = max(0, staticFront - transfer + downforce * v("aeroBalanceFront"));
         double rearLoad = max(0, staticRear + transfer + downforce * (1 - v("aeroBalanceFront")));
         stage.accept(7);
-        double frontSlipAngle = atan2(lateral + v("frontAxleDistanceFromComMeters") * s.yawRate, slipReference) - s.steeringAngle;
-        double rearSlipAngle = atan2(lateral - v("rearAxleDistanceFromComMeters") * s.yawRate, slipReference);
+        double frontSlipAngle = PortableMath.atan2(lateral + v("frontAxleDistanceFromComMeters") * s.yawRate, slipReference) - s.steeringAngle;
+        double rearSlipAngle = PortableMath.atan2(lateral - v("rearAxleDistanceFromComMeters") * s.yawRate, slipReference);
         double frontSlip = (s.frontWheelAngularSpeed * v("wheelRadiusMeters") - u) / slipReference;
         double rearSlip = (s.rearWheelAngularSpeed * v("wheelRadiusMeters") - u) / slipReference;
         stage.accept(8);
@@ -92,7 +92,7 @@ public final class VehicleIntegrator {
         double[] rear = pureTire(rearLoad, staticRear, rearSlip, rearSlipAngle, t("rearCorneringStiffnessNPerRadian"), ground);
         stage.accept(9);
         combine(front); combine(rear);
-        double steerCos = cos(s.steeringAngle), steerSin = sin(s.steeringAngle);
+        double steerCos = PortableMath.cos(s.steeringAngle), steerSin = PortableMath.sin(s.steeringAngle);
         double frontFx = front[0] * steerCos - front[1] * steerSin;
         double frontFy = front[0] * steerSin + front[1] * steerCos;
         stage.accept(10);
@@ -128,10 +128,10 @@ public final class VehicleIntegrator {
     }
     private double[] pureTire(double load, double reference, double slip, double slipAngle, double stiffness, JsonNode ground) {
         double peak = t("referenceFrictionCoefficient") * requiredNumber(ground, "gripMultiplier") * reference
-                * Math.pow(max(0, load) / reference, t("loadSensitivityExponent"));
+                * PortableMath.pow(max(0, load) / reference, t("loadSensitivityExponent"));
         if (peak <= ulp(1.0)) return new double[] {0, 0, 0};
-        return new double[] {peak * tanh(t("longitudinalStiffnessNPerSlip") * slip / peak),
-                -peak * tanh(stiffness * requiredNumber(ground, "corneringMultiplier") * slipAngle / peak), peak};
+        return new double[] {peak * PortableMath.tanh(t("longitudinalStiffnessNPerSlip") * slip / peak),
+                -peak * PortableMath.tanh(stiffness * requiredNumber(ground, "corneringMultiplier") * slipAngle / peak), peak};
     }
     private void combine(double[] tire) {
         if (tire[2] <= ulp(1.0)) return;
