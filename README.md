@@ -125,7 +125,7 @@ O backend exige `physicsContractVersion=2.0.2` junto do catálogo `2026.12` e pe
 
 ## Salas online — Módulo 3, Parte 3a
 
-A infraestrutura de lobby foi validada manualmente em dois navegadores e a Parte 3a está pronta desde 03/09/2026; o motor físico e o fluxo de corrida das Partes 3b/3c ainda não estão implementados. Somente usuários registrados podem acessar o online; o frontend mantém a vitrine visível para guests, mas bloqueada até o login. Salas são efêmeras em memória, públicas por padrão, usam código numérico de quatro dígitos e comportam de 2 a 22 carros (grid padrão 22). Não existem senhas de sala: públicas aceitam entrada direta pela listagem e privadas dependem exclusivamente do código. Entradas inválidas, código errado e sala cheia compartilham uma mensagem genérica, com no máximo cinco tentativas por minuto por usuário e origem.
+A infraestrutura de lobby foi validada manualmente em dois navegadores e a Parte 3a está pronta desde 03/09/2026; a Parte 3b (motor físico Java) está pronta com cenários de paridade passando; o fluxo de corrida da Parte 3c permanece pendente. Somente usuários registrados podem acessar o online; o frontend mantém a vitrine visível para guests, mas bloqueada até o login. Salas são efêmeras em memória, públicas por padrão, usam código numérico de quatro dígitos e comportam de 2 a 22 carros (grid padrão 22). Não existem senhas de sala: públicas aceitam entrada direta pela listagem e privadas dependem exclusivamente do código. Entradas inválidas, código errado e sala cheia compartilham uma mensagem genérica, com no máximo cinco tentativas por minuto por usuário e origem.
 
 | Método | Endpoint | Descrição |
 |---|---|---|
