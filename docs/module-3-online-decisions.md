@@ -108,6 +108,7 @@ Esta revisão é normativa e detalha as decisões atualizadas acima:
 - O host pode cancelar a classificação e retornar ao lobby enquanto nenhum participante tiver começado a dirigir. Depois disso, o cancelamento é recusado.
 - A lista pública mostra somente nome da sala, nome de exibição do host e ocupação/capacidade. O código aparece apenas dentro da sala.
 - O frontend apresenta mensagens transitórias no canto superior direito por cinco segundos, com fechamento manual. Atualizar a lista de salas recarrega somente os dados do card.
+- O seletor de dificuldade e o controle numérico do grid reutilizam o mesmo padrão visual e de interação de solo/local. O adaptador humano compensa o esterço na ré antes de enviar `input` ao servidor; a predição recebe exatamente esse mesmo comando. Na corrida online da Parte 3c, `Esc` deve acionar o fluxo normal de saída, com a confirmação aplicável.
 - O seletor de pista usa cards roláveis com o desenho do circuito, e o limite de carros é sempre normalizado para o intervalo inclusivo de 2 a 22.
 
 ## Limites e dependências
@@ -116,7 +117,7 @@ Esta revisão é normativa e detalha as decisões atualizadas acima:
   Parte 3a foi validada manualmente em dois navegadores e está pronta desde 03/09/2026, e as
   Parte 3b Java está implementada, com validação manual básica confirmada pelo autor.
   A correção numérica 2.0.3 foi autorizada separadamente, está testada automaticamente
-  e aguarda confirmação manual curta; somente a Parte 3c permanece não implementada.
+  e foi validada manualmente pelo autor em 04/09/2026; somente a Parte 3c permanece não implementada.
 - Antes da 3c, seguir [module-3b-portability.md](module-3b-portability.md): os dois
   motores usam `portable-f64-v1`, sem chamadas transcendentais nativas na física.
 - O M3 precisa reproduzir o contrato físico v2 e os cenários congelados antes de aceitar partidas online.

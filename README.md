@@ -125,7 +125,7 @@ O backend exige `physicsContractVersion=2.0.3` junto do catálogo `2026.12` e pe
 
 ## Salas online — Módulo 3, Parte 3a
 
-A infraestrutura de lobby foi validada manualmente em dois navegadores e a Parte 3a está pronta desde 03/09/2026; a Parte 3b (motor físico Java) está implementada com paridade passando, e a revisão 2.0.3 aguarda teste manual curto; o fluxo de corrida da Parte 3c permanece pendente. Somente usuários registrados podem acessar o online; o frontend mantém a vitrine visível para guests, mas bloqueada até o login. Salas são efêmeras em memória, públicas por padrão, usam código numérico de quatro dígitos e comportam de 2 a 22 carros (grid padrão 22). Não existem senhas de sala: públicas aceitam entrada direta pela listagem e privadas dependem exclusivamente do código. Entradas inválidas, código errado e sala cheia compartilham uma mensagem genérica, com no máximo cinco tentativas por minuto por usuário e origem.
+A infraestrutura de lobby foi validada manualmente em dois navegadores e a Parte 3a está pronta desde 03/09/2026; a Parte 3b (motor físico Java) está implementada com paridade passando, e a revisão 2.0.3 foi validada manualmente pelo autor em 04/09/2026; o fluxo de corrida da Parte 3c permanece pendente. Somente usuários registrados podem acessar o online; o frontend mantém a vitrine visível para guests, mas bloqueada até o login. Salas são efêmeras em memória, públicas por padrão, usam código numérico de quatro dígitos e comportam de 2 a 22 carros (grid padrão 22). Não existem senhas de sala: públicas aceitam entrada direta pela listagem e privadas dependem exclusivamente do código. Entradas inválidas, código errado e sala cheia compartilham uma mensagem genérica, com no máximo cinco tentativas por minuto por usuário e origem.
 
 | Método | Endpoint | Descrição |
 |---|---|---|
@@ -189,7 +189,8 @@ Backend e frontend devem usar a mesma revisão 2.0.3; versões anteriores são r
 
 A validação manual básica da Parte 3b foi confirmada pelo autor. A revisão
 sincronizada **2.0.3**, autorizada para eliminar divergências entre Java e navegadores,
-não muda tuning e já tem paridade automatizada. Antes da 3c falta somente o teste
-manual curto descrito em [docs/module-3b-portability.md](docs/module-3b-portability.md).
+não muda tuning, tem paridade automatizada e teve sua validação manual confirmada
+pelo autor em 04/09/2026; ver [docs/module-3b-portability.md](docs/module-3b-portability.md).
+A Parte 3c permanece pendente, aguardando a rodada solicitada de controles e lobby.
 Geradores de referência exigem Node 24.x; os verificadores de runtime/navegador
 conferem portabilidade sem regravar resultados. PRs desta rodada vão somente à develop.
