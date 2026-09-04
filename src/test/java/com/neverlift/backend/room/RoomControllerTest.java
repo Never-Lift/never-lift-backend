@@ -65,6 +65,7 @@ class RoomControllerTest {
         verify(roomWebSocketHandler).disconnectParticipant(
                 "1234", userId, "left_room", "Você saiu da sala.");
         verify(roomWebSocketHandler, never()).broadcastRoomState("1234");
+        verify(roomWebSocketHandler).stopRace("1234");
     }
 
     @Test

@@ -12,7 +12,7 @@ const mirrorDirectory =
 
 const VERSION = '2.0.0'
 const CATALOG_VERSION = '2026.12'
-const PHYSICS_VERSION = '2.0.1'
+const PHYSICS_VERSION = '2.0.2'
 const TRACK_COUNT = 24
 const sharedFiles = [
   'README.md',

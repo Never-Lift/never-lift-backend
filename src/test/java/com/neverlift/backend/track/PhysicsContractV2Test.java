@@ -23,7 +23,7 @@ class PhysicsContractV2Test {
         JsonNode scenarios = readContract("physics-reference-scenarios.json");
         JsonNode protocol = readContract("realtime-race-protocol.schema.json");
 
-        assertThat(constants.path("version").asText()).isEqualTo("2.0.1");
+        assertThat(constants.path("version").asText()).isEqualTo("2.0.2");
         assertThat(constants.path("calibrationStatus").asText()).isEqualTo("initial");
         assertThat(constants.path("simulation").path("physicsStepSeconds").asDouble())
                 .isEqualTo(1.0 / 120.0);

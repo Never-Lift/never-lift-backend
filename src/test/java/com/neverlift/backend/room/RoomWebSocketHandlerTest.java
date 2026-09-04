@@ -84,7 +84,7 @@ class RoomWebSocketHandlerTest {
         handler.afterConnectionEstablished(session);
 
         handler.handleMessage(session, new org.springframework.web.socket.TextMessage("""
-                {"type":"join_room","payload":{"roomCode":"1234","trackCatalogVersion":"2026.12","physicsContractVersion":"2.0.1"}}
+                {"type":"join_room","payload":{"roomCode":"1234","trackCatalogVersion":"2026.12","physicsContractVersion":"2.0.2"}}
                 """));
         handler.handleMessage(session, new org.springframework.web.socket.TextMessage("""
                 {"type":"ready","payload":{"ready":false}}
@@ -108,8 +108,8 @@ class RoomWebSocketHandlerTest {
     }
 
     private RoomResponse room(String code, UUID hostId) {
-        return new RoomResponse(code, "Test", hostId, "Host", "albert-park", "2026.12", "2.0.1", 1, 22,
-                new RoomResponse.RoomResponseSettings("albert-park", "2026.12", "2.0.1", 22,
+        return new RoomResponse(code, "Test", hostId, "Host", "albert-park", "2026.12", "2.0.2", 1, 22,
+                new RoomResponse.RoomResponseSettings("albert-park", "2026.12", "2.0.2", 22,
                         false, "normal", "public", false), "lobby", false, java.util.List.of(), Map.of());
     }
 }

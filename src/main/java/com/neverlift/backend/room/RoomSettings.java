@@ -12,7 +12,7 @@ public record RoomSettings(
 
     public static final String DEFAULT_TRACK_ID = "albert-park";
     public static final String TRACK_CATALOG_VERSION = "2026.12";
-    public static final String PHYSICS_CONTRACT_VERSION = "2.0.1";
+    public static final String PHYSICS_CONTRACT_VERSION = "2.0.2";
     public static final int DEFAULT_GRID_SIZE = 22;
     public static final int MIN_GRID_SIZE = 2;
     public static final int MAX_GRID_SIZE = 22;
