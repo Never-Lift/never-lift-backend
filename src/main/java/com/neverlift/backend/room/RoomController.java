@@ -152,6 +152,8 @@ public class RoomController {
                 roomCode, leavingUserId, "left_room", "Você saiu da sala.");
         if (response.participantCount() > 0) {
             roomWebSocketHandler.broadcastRoomState(roomCode);
+        } else {
+            roomWebSocketHandler.stopRace(roomCode);
         }
         return response;
     }

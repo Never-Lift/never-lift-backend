@@ -24,7 +24,7 @@ public class TrackCatalogImporter implements ApplicationRunner {
 
     public static final String SCHEMA_VERSION = "2.0.0";
     public static final String CATALOG_VERSION = "2026.12";
-    public static final String PHYSICS_CONTRACT_VERSION = "2.0.1";
+    public static final String PHYSICS_CONTRACT_VERSION = "2.0.2";
     public static final int SEASON_REFERENCE = 2026;
     public static final String CALENDAR_POLICY = "original-24-round-freeze";
 

@@ -33,7 +33,7 @@ function connect(ticket, roomCode, label) {
     const timer = setTimeout(() => reject(new Error(`${label} WebSocket timed out`)), 10_000);
     socket.addEventListener("open", () => {
       socket.send(JSON.stringify({ type: "join_room", payload: {
-        roomCode, trackCatalogVersion: "2026.12", physicsContractVersion: "2.0.1"
+        roomCode, trackCatalogVersion: "2026.12", physicsContractVersion: "2.0.2"
       }}));
     });
     socket.addEventListener("message", event => {
