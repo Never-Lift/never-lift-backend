@@ -33,10 +33,10 @@ Detalhe completo de cada payload: `docs/backend-implementation-plan.md`, seção
 - Identificadores de código sempre em **inglês** (classes, campos, endpoints, eventos), mesmo com a documentação em português.
 
 ## Regra fixa: seleção de modelo e esforço
-- Antes de executar qualquer ação solicitada em um novo prompt, informar de forma breve qual modelo e esforço oferecem a melhor relação entre qualidade, desempenho e consumo para aquela tarefa.
+- Antes de executar uma tarefa não trivial solicitada em um novo prompt, informar de forma breve qual modelo e esforço oferecem a melhor relação entre qualidade, desempenho e consumo. Em perguntas rápidas e correções simples, manter a escolha atual do usuário e prosseguir sem recomendação.
 - Usar `GPT-5.6 Sol` como recomendação padrão para implementação rotineira, testes, documentação, APIs, manutenção de Git e correções localizadas. Reservar `GPT-6 Astra` para arquitetura de alto risco, física/paridade entre repositórios, concorrência/WebSocket, otimização difícil, investigação ambígua ou refatoração ampla.
 - Ajustar o esforço proporcionalmente: `low` para tarefas simples, `medium` como equilíbrio padrão, `high`/`xhigh` para problemas complexos e `max` somente quando a dificuldade comprovadamente justificar o consumo adicional.
-- Não pedir confirmação da recomendação nem interromper o trabalho por causa dela. Se o ambiente oferecer troca automática do modelo e do esforço da tarefa ativa, aplicá-la; caso contrário, apenas registrar a recomendação e prosseguir com a configuração selecionada pelo usuário.
+- Nas tarefas não triviais, não pedir confirmação da recomendação nem interromper o trabalho por causa dela. Se o ambiente oferecer troca automática do modelo e do esforço da tarefa ativa, aplicá-la; caso contrário, apenas registrar a recomendação e prosseguir com a configuração selecionada pelo usuário.
 
 ## Regras de arquitetura
 - O motor de corrida (`RaceEngine`, Módulo 3) roda num loop de passo fixo dedicado (ex. `ScheduledExecutorService`), nunca atrelado a thread de request HTTP.
