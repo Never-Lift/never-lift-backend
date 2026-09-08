@@ -2,7 +2,6 @@ package com.neverlift.backend.track;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -68,11 +67,9 @@ public class TrackCatalogImporter implements ApplicationRunner {
     }
 
     private Track toTrack(CatalogDocument catalog, CatalogEntry entry) {
-        String definitionJson;
         JsonNode definition;
         try (InputStream input = resource(entry.definitionPath()).getInputStream()) {
-            definitionJson = new String(input.readAllBytes(), StandardCharsets.UTF_8);
-            definition = objectMapper.readTree(definitionJson);
+            definition = objectMapper.readTree(input);
         } catch (IOException exception) {
             throw new IllegalStateException("Unable to load track definition " + entry.id(), exception);
         }
@@ -88,8 +85,7 @@ public class TrackCatalogImporter implements ApplicationRunner {
                 entry.lengthMeters(),
                 entry.definitionPath(),
                 catalog.schemaVersion(),
-                catalog.catalogVersion(),
-                definitionJson);
+                catalog.catalogVersion());
     }
 
     private void validateCatalog(CatalogDocument catalog) {

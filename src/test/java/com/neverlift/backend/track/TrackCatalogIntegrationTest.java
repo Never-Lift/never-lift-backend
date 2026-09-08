@@ -2,7 +2,9 @@ package com.neverlift.backend.track;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -11,11 +13,11 @@ import java.util.Set;
 import java.util.stream.StreamSupport;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest(properties = "app.version=module-2-test")
@@ -33,12 +35,16 @@ class TrackCatalogIntegrationTest {
     private TrackRepository trackRepository;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private TrackService trackService;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Test
     void shouldExposeTheCanonicalPublicCatalogInRoundOrder() throws Exception {
         mockMvc.perform(get("/api/tracks"))
                 .andExpect(status().isOk())
+                .andExpect(header().string("Cache-Control", containsString("max-age=300")))
                 .andExpect(jsonPath("$.schemaVersion").value("2.0.0"))
                 .andExpect(jsonPath("$.catalogVersion").value("2026.12"))
                 .andExpect(jsonPath("$.physicsContractVersion").value("2.0.3"))
@@ -52,8 +58,13 @@ class TrackCatalogIntegrationTest {
     }
 
     @Test
-    void shouldPersistAndValidateAllCanonicalTrackDefinitions() throws Exception {
+    void shouldPersistOnlyTrackMetadataAndValidateCanonicalResourceDefinitions() throws Exception {
         assertThat(trackRepository.count()).isEqualTo(24);
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS "
+                        + "WHERE TABLE_NAME = 'TRACKS' AND COLUMN_NAME = 'DEFINITION_JSON'",
+                Integer.class))
+                .isZero();
         assertThat(trackRepository.findAllByOrderByRoundNumberAsc())
                 .extracting(Track::getRoundNumber)
                 .containsExactly(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
@@ -61,7 +72,7 @@ class TrackCatalogIntegrationTest {
 
         boolean foundOptionalFence = false;
         for (Track track : trackRepository.findAll()) {
-            JsonNode definition = objectMapper.readTree(track.getDefinitionJson());
+            JsonNode definition = trackService.getDefinition(track.getId());
             assertThat(definition.path("schemaVersion").asText()).isEqualTo("2.0.0");
             assertThat(definition.path("catalogVersion").asText()).isEqualTo("2026.12");
             assertThat(definition.path("physicsContractVersion").asText()).isEqualTo("2.0.3");
@@ -206,6 +217,7 @@ class TrackCatalogIntegrationTest {
     void shouldExposeAuditedUrbanAndPermanentCircuitEnvironments() throws Exception {
         mockMvc.perform(get("/api/tracks/monaco"))
                 .andExpect(status().isOk())
+                .andExpect(header().string("Cache-Control", containsString("max-age=3600")))
                 .andExpect(jsonPath("$.sceneryLayout.landmarks").isEmpty())
                 .andExpect(jsonPath("$.startFinish.position.x").value(org.hamcrest.Matchers.closeTo(-479.319, 0.01)))
                 .andExpect(jsonPath("$.startFinish.position.y").value(org.hamcrest.Matchers.closeTo(-493.069, 0.01)))
@@ -271,7 +283,7 @@ class TrackCatalogIntegrationTest {
     void shouldExposeCanonicalBarrierFacesWithoutCrossingElevationLayers() throws Exception {
         boolean foundOverpassBarrierLayer = false;
         for (Track track : trackRepository.findAll()) {
-            JsonNode definition = objectMapper.readTree(track.getDefinitionJson());
+            JsonNode definition = trackService.getDefinition(track.getId());
             JsonNode trackLimits = definition.path("trackLimits").path("segments");
             JsonNode barriers = definition.path("barrierGeometry").path("segments");
             assertThat(barriers.size()).isGreaterThanOrEqualTo(trackLimits.size() * 2);
@@ -373,8 +385,7 @@ class TrackCatalogIntegrationTest {
     }
 
     private int[] fenceCoverage(String trackId) throws Exception {
-        Track track = trackRepository.findById(trackId).orElseThrow();
-        JsonNode segments = objectMapper.readTree(track.getDefinitionJson())
+        JsonNode segments = trackService.getDefinition(trackId)
                 .path("trackLimits")
                 .path("segments");
         int fencedSides = 0;

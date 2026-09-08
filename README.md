@@ -85,12 +85,14 @@ O gamertag é único e não aceita espaços. Senhas devem ter pelo menos quatro 
 
 ## Pistas e resultados locais
 
- O catálogo público `2026.12` contém as 24 definições métricas canônicas do schema de pista `2.0.0`. Cada definição usa centerline fechada suavizada e amostrada a cada aproximadamente 5 m e inclui zebras externas autorais por curva, zonas ordenadas de asfalto, grama ou brita, pit lane navegável, cercas, placas regressivas e faces explícitas das barreiras. A face voltada à pista é simultaneamente visual e física; a cerca externa e as placas permanecem apenas visuais. Muros e grades usam transições limitadas para não criar laços ou quinas. As entradas e saídas do pit são aberturas físicas publicadas no mesmo contrato, enquanto a face traseira opaca das 22 garagens (duas vagas por equipe) também possui collider, sem bloquear o corredor. Monza voltou à configuração canônica da pista principal, sem o corredor de escape provisório do Rettifilo nem abertura de barreira adicional. Os perfis guardam as fontes consultadas e são validados e importados no banco ao iniciar a aplicação; os endpoints não exigem autenticação:
+ O catálogo público `2026.12` contém as 24 definições métricas canônicas do schema de pista `2.0.0`. Cada definição usa centerline fechada suavizada e amostrada a cada aproximadamente 5 m e inclui zebras externas autorais por curva, zonas ordenadas de asfalto, grama ou brita, pit lane navegável, cercas, placas regressivas e faces explícitas das barreiras. A face voltada à pista é simultaneamente visual e física; a cerca externa e as placas permanecem apenas visuais. Muros e grades usam transições limitadas para não criar laços ou quinas. As entradas e saídas do pit são aberturas físicas publicadas no mesmo contrato, enquanto a face traseira opaca das 22 garagens (duas vagas por equipe) também possui collider, sem bloquear o corredor. Monza voltou à configuração canônica da pista principal, sem o corredor de escape provisório do Rettifilo nem abertura de barreira adicional. Os perfis guardam as fontes consultadas e são validados a partir dos recursos canônicos empacotados. O PostgreSQL persiste somente os metadados pequenos necessários às chaves e aos resultados; as geometrias completas não são armazenadas nem lidas do banco. Os endpoints não exigem autenticação:
 
 | Método | Endpoint | Descrição |
 |---|---|---|
 | `GET` | `/api/tracks` | Versão do catálogo e metadados das 24 pistas |
 | `GET` | `/api/tracks/{id}` | Definição métrica completa da pista |
+
+As respostas públicas possuem cache HTTP e o backend mantém um cache LRU limitado a quatro definições. Essa separação impede que a listagem do catálogo transfira todas as geometrias pelo provedor PostgreSQL. O diagnóstico, a migração e a verificação de consumo estão documentados em [`docs/neon-network-transfer.md`](docs/neon-network-transfer.md).
 
 Resultados de corridas simuladas localmente pelo frontend são enviados para `POST /api/races/local-result`. O endpoint aceita JWT de usuário ou guest e persiste uma linha por participante, com no máximo quatro resultados:
 

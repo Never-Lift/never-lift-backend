@@ -23,6 +23,7 @@ Detalhe completo de cada payload: `docs/backend-implementation-plan.md`, seção
 - `docs/game-design-guide.md` — fonte compartilhada das decisões de jogo e apresentação. O backend implementa somente unidades, metadados e contratos explicitamente atribuídos a ele.
 - `docs/module-3b-authoritative-physics.md` — entrega da Parte 3b, paridade, snapshot completo e limites em relação à 3c.
 - `docs/module-3b-portability.md` — revisão aprovada 2.0.3, kernel numérico compartilhado, evidências e teste manual curto antes da 3c.
+- `docs/neon-network-transfer.md` — política de armazenamento das pistas, causa do incidente de egress e roteiro de migração gratuita.
 - `docs/module-3-online-decisions.md` — registro aprovado das 80 decisões de produto e arquitetura para o online; manter sincronizado com o plano do frontend antes de implementar o Módulo 3.
 - `docs/contracts/module-2-shared-contracts.md`, `docs/contracts/module-2-physics-v2-proposal.md` e `contracts/module-2/v1/`/`v2/` — decisões e contratos publicados do Módulo 2. O `v1` é histórico imutável; o `v2` é a linha executável da Parte 2d.
 
@@ -39,6 +40,7 @@ Detalhe completo de cada payload: `docs/backend-implementation-plan.md`, seção
 - Física, pistas, checkpoints e snapshots usam **1 unidade de mundo = 1 metro**, velocidades em metros por segundo e ângulos na convenção compartilhada do plano. Pixels e escala de câmera nunca entram no domínio do backend.
 - O catálogo de pistas é versionado. Uma sala fixa `trackId` e `trackCatalogVersion`; nunca simular clientes com geometrias divergentes.
 - As 24 definições geradas em `contracts/module-2/v2/tracks/` são a fonte canônica do runtime atual, com catálogo próprio e faces canônicas de barreira. O `v1` permanece histórico; não redesenhar pistas na migration nem misturar versões.
+- O PostgreSQL guarda somente os metadados de `Track` usados por chaves e resultados. Catálogo e geometrias completas são servidos dos recursos canônicos empacotados; nunca recolocar esses payloads grandes em uma coluna ou consulta do banco.
 - No contrato v2, boost/nitro não existe e `Shift` fica sem função: input, protocolo e testes não carregam a reserva histórica do v1.3.
 
 ## Regra fixa: design e fase

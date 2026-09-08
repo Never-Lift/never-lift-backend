@@ -1,6 +1,10 @@
 package com.neverlift.backend.track;
 
+import java.time.Duration;
+
 import com.fasterxml.jackson.databind.JsonNode;
+import org.springframework.http.CacheControl;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,12 +23,16 @@ public class TrackController {
     }
 
     @GetMapping
-    TrackCatalogResponse getCatalog() {
-        return trackService.getCatalog();
+    ResponseEntity<TrackCatalogResponse> getCatalog() {
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(Duration.ofMinutes(5)).cachePublic())
+                .body(trackService.getCatalog());
     }
 
     @GetMapping("/{id}")
-    JsonNode getDefinition(@PathVariable String id) {
-        return trackService.getDefinition(id);
+    ResponseEntity<JsonNode> getDefinition(@PathVariable String id) {
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(Duration.ofHours(1)).cachePublic())
+                .body(trackService.getDefinition(id));
     }
 }

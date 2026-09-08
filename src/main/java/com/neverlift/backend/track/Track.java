@@ -40,9 +40,6 @@ public class Track {
     @Column(name = "catalog_version", nullable = false, length = 30)
     private String catalogVersion;
 
-    @Column(name = "definition_json", nullable = false, columnDefinition = "TEXT")
-    private String definitionJson;
-
     protected Track() {
     }
 
@@ -56,8 +53,7 @@ public class Track {
             int lengthMeters,
             String definitionPath,
             String schemaVersion,
-            String catalogVersion,
-            String definitionJson) {
+            String catalogVersion) {
         this.id = id;
         this.roundNumber = roundNumber;
         this.name = name;
@@ -68,7 +64,6 @@ public class Track {
         this.definitionPath = definitionPath;
         this.schemaVersion = schemaVersion;
         this.catalogVersion = catalogVersion;
-        this.definitionJson = definitionJson;
     }
 
     public String getId() {
@@ -111,7 +106,4 @@ public class Track {
         return catalogVersion;
     }
 
-    public String getDefinitionJson() {
-        return definitionJson;
-    }
 }
