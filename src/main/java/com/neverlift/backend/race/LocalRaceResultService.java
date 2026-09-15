@@ -59,6 +59,7 @@ public class LocalRaceResultService {
         validateRaceEntries(request.results());
         UUID authenticatedUserId = validateIdentity(jwt, request.results());
         RaceMode mode = RaceMode.fromWireValue(request.mode());
+        if(mode==RaceMode.ONLINE)throw new ApiException(HttpStatus.BAD_REQUEST,"invalid_mode","Online results are server-owned");
 
         List<RaceResult> results = request.results().stream()
                 .map(entry -> new RaceResult(

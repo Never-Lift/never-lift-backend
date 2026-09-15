@@ -28,7 +28,7 @@ class AuthoritativeRaceIntegrationTest {
     String register(String name) throws Exception {
         return request("/api/auth/register",null,Map.of("gamertag",name+UUID.randomUUID(),"displayName",name,"password","p@ss")).path("token").asText();
     }
-    @Test void twoClientsReceiveIdenticalTrajectoryAndCollisionsAndRejectVersionMismatch() throws Exception {
+    @Test void twoClientsReceiveIsolatedQualifyingTrajectoriesAndRejectVersionMismatch() throws Exception {
         String host=register("physics-host"),other=register("physics-driver");String code=request("/api/rooms",host,Map.of("gridSize",2,"trackId","monaco")).path("code").asText();
         request("/api/rooms/"+code+"/join",other,Map.of());
         try(Client a=connect(host,code,"2.0.3");Client b=connect(other,code,"2.0.3")) {
@@ -46,7 +46,12 @@ class AuthoritativeRaceIntegrationTest {
             await(()->a.snapshots.size()>=30 && b.snapshots.size()>=30,5);
             Set<Long> common=new TreeSet<>(a.snapshots.keySet());common.retainAll(b.snapshots.keySet());
             assertThat(common.size()).isGreaterThan(30);
-            for(long tick:common) assertThat(a.snapshots.get(tick)).as("same authoritative tick %s",tick).isEqualTo(b.snapshots.get(tick));
+            for(long tick:common) {
+                assertThat(a.snapshots.get(tick).path("serverTime")).isEqualTo(b.snapshots.get(tick).path("serverTime"));
+                assertThat(a.snapshots.get(tick).path("cars")).hasSize(1);
+                assertThat(b.snapshots.get(tick).path("cars")).hasSize(1);
+                assertThat(a.snapshots.get(tick).path("cars").get(0).path("playerId")).isNotEqualTo(b.snapshots.get(tick).path("cars").get(0).path("playerId"));
+            }
             assertThat(a.snapshots.values().stream().flatMap(s->java.util.stream.StreamSupport.stream(s.path("cars").spliterator(),false)))
                     .anyMatch(car->car.path("speed").doubleValue()>1);
             // Light contacts must not be mistaken for mandatory damage: 2.0.2 intentionally ignores low delta-v.
@@ -61,7 +66,7 @@ class AuthoritativeRaceIntegrationTest {
             b.send("input",Map.of("physicsContractVersion","obsolete"));
             await(()->b.closeCode!=null,5);assertThat(b.closeCode).isEqualTo(1008);
             assertThat(b.messages).anyMatch(m->m.path("type").asText().equals("race_event") && m.path("payload").path("type").asText().equals("version_mismatch"));
-            System.out.println("M3B TWO-CLIENT PROOF: "+common.size()+" identical snapshots; trajectory and collision observed; version mismatch closed");
+            System.out.println("M3C QUALIFYING PROOF: "+common.size()+" synchronized isolated snapshots; trajectory and barrier collision observed; version mismatch closed");
         } finally {request("/api/rooms/"+code+"/leave",host,Map.of());request("/api/rooms/"+code+"/leave",other,Map.of());}
     }
     Client connect(String token,String code,String version) throws Exception {

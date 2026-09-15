@@ -192,6 +192,39 @@ class RoomManagerTest {
     }
 
     @Test
+    void activeRaceRetainsDisconnectedSlotButRejectsReconnectAtThirtySeconds() {
+        var room=manager.create(host,new CreateRoomRequest(null,null,2,false,null,null));
+        manager.join(second,room.code(),"origin");
+        var ticket=manager.issueTicket(second,room.code());manager.consumeTicket(ticket.ticket(),second,room.code());
+        clock.advanceSeconds(120);manager.cleanupExpiredRooms();
+        manager.setReady(second,room.code(),true);manager.start(host,room.code());
+        manager.synchronizeRacePhase(room.code(),"race",true);
+        manager.markDisconnected(second,room.code());clock.advanceSeconds(29);
+        manager.consumeTicket(ticket.ticket(),second,room.code());
+        assertThat(manager.get(room.code()).players()).filteredOn(p->p.id().equals(second)).allMatch(p->p.connected());
+        manager.markDisconnected(second,room.code());clock.advanceSeconds(30);
+        assertThatThrownBy(()->manager.consumeTicket(ticket.ticket(),second,room.code())).isInstanceOf(ApiException.class);
+        assertThat(manager.removeDisconnectedIfExpired(second,room.code())).isFalse();
+        assertThat(manager.get(room.code()).participantCount()).isEqualTo(2);
+    }
+
+    @Test
+    void raceConfigurationAndLoadoutAreValidatedAndLockedAtCorrectPhase() {
+        var room=manager.create(host,new CreateRoomRequest(null,null,2,false,null,null));
+        manager.join(second,room.code(),"origin");
+        assertThat(manager.updateSettings(host,room.code(),new RoomSettingsRequest(null,null,null,null,null,2)).settings().laps()).isEqualTo(2);
+        assertThatThrownBy(()->manager.updateSettings(host,room.code(),new RoomSettingsRequest(null,null,null,null,null,0))).isInstanceOf(ApiException.class);
+        manager.setReady(second,room.code(),true);
+        assertThatThrownBy(()->manager.setLoadoutColor(second,room.code(),"#365f82")).isInstanceOf(ApiException.class);
+        manager.start(host,room.code());
+        assertThatThrownBy(()->manager.updateSettings(host,room.code(),new RoomSettingsRequest(null,null,null,null,null,5))).isInstanceOf(ApiException.class);
+        manager.synchronizeRacePhase(room.code(),"qualifying_results",true);
+        assertThat(manager.get(room.code()).readyStates().values()).containsOnly(false);
+        manager.setReady(host,room.code(),true);manager.setReady(second,room.code(),true);
+        assertThat(manager.get(room.code()).readyStates().values()).containsOnly(true);
+    }
+
+    @Test
     void fillsConfiguredGridWithReadyBotsOnlyWhenHostStarts() {
         RoomResponse room = manager.create(host,
                 new CreateRoomRequest(null, null, 4, true, "hard", null));

@@ -53,7 +53,7 @@ public final class ConnectionTicket {
             return now.isBefore(expiresAt);
         }
         return disconnectedAt != null
-                && !now.isAfter(disconnectedAt.plus(RECONNECT_WINDOW));
+                && now.isBefore(disconnectedAt.plus(RECONNECT_WINDOW));
     }
 
     void consume() {

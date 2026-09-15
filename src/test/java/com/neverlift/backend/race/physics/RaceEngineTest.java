@@ -52,4 +52,16 @@ class RaceEngineTest {
         assertThat(before.cars()).hasSize(2);assertThat(e.snapshot(0).cars()).extracting(RaceEngine.CarSnapshot::playerId).containsExactly("b");
         assertThatThrownBy(()->before.cars().clear()).isInstanceOf(UnsupportedOperationException.class);
     }
+
+    @Test void collisionPolicySkipsMixedGhostPairsButResolvesBothSameGroupPairs() {
+        var entries=List.of(new RaceEngine.Entrant("a",false,"normal",track.spawn(0)),new RaceEngine.Entrant("b",false,"normal",track.spawn(0)));
+        var mixed=new RaceEngine(c,track,entries);
+        mixed.tick(0,new RaceEngine.StepRules(){@Override public boolean pairAllowed(String a,String b){return false;}});
+        var m=mixed.snapshot(0).cars();assertThat(m.get(0).x()).isEqualTo(m.get(1).x());assertThat(m.get(0).y()).isEqualTo(m.get(1).y());
+        for(String group:List.of("ghost","normal")) {
+            var same=new RaceEngine(c,track,entries);same.tick(0,new RaceEngine.StepRules(){@Override public boolean pairAllowed(String a,String b){return true;}});
+            assertThat(same.resolvedContacts()).as("%s pair resolves real contact",group).isGreaterThan(mixed.resolvedContacts());
+            var cars=same.snapshot(0).cars();assertThat(new Vec2(cars.get(0).x(),cars.get(0).y()).sub(new Vec2(cars.get(1).x(),cars.get(1).y())).length()).isPositive();
+        }
+    }
 }

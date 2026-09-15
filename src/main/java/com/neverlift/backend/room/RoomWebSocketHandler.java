@@ -26,6 +26,7 @@ import com.neverlift.backend.room.dto.RoomResponse;
 import com.neverlift.backend.room.dto.RoomStatePayload;
 import com.neverlift.backend.race.physics.DriverInput;
 import com.neverlift.backend.race.physics.RaceEngine;
+import com.neverlift.backend.race.online.*;
 
 /** Ticket-authenticated lobby and Part 3b authoritative input/snapshot transport. */
 @Component
@@ -38,8 +39,12 @@ public class RoomWebSocketHandler extends AbstractWebSocketHandler implements Di
 
     private final RoomManager roomManager;
     private final ObjectMapper objectMapper;
+    private final OnlineRaceSessionFactory raceFactory;
+    private final OnlineRaceResultService resultService;
     private final Map<String, Connection> connections = new ConcurrentHashMap<>();
     private final Map<String, RoomRaceRuntime> races = new ConcurrentHashMap<>();
+    private record Replay(OnlineRaceSession.Snapshot snapshot, Map<String,OnlineRaceSession.Event> events) {}
+    private final Map<String,Replay> replay=new ConcurrentHashMap<>();
     private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RoomWebSocketHandler.class);
     private final ScheduledExecutorService heartbeatExecutor = Executors.newSingleThreadScheduledExecutor(runnable -> {
         Thread thread = new Thread(runnable, "never-lift-room-heartbeat");
@@ -47,10 +52,17 @@ public class RoomWebSocketHandler extends AbstractWebSocketHandler implements Di
         return thread;
     });
 
-    public RoomWebSocketHandler(RoomManager roomManager, ObjectMapper objectMapper) {
+    @org.springframework.beans.factory.annotation.Autowired
+    public RoomWebSocketHandler(RoomManager roomManager, ObjectMapper objectMapper,
+            OnlineRaceSessionFactory raceFactory, OnlineRaceResultService resultService) {
         this.roomManager = roomManager;
         this.objectMapper = objectMapper;
+        this.raceFactory=raceFactory;this.resultService=resultService;
         heartbeatExecutor.scheduleAtFixedRate(this::runHeartbeatCycle, 10, 10, TimeUnit.SECONDS);
+    }
+
+    public RoomWebSocketHandler(RoomManager roomManager,ObjectMapper mapper) {
+        this(roomManager,mapper,new OnlineRaceSessionFactory(),null);
     }
 
     @Override
@@ -61,6 +73,13 @@ public class RoomWebSocketHandler extends AbstractWebSocketHandler implements Di
             return;
         }
         UUID userId = ticket.getUserId();
+        connections.entrySet().stream().toList().forEach(entry->{
+            Connection previous=entry.getValue();
+            if(previous.userId.equals(userId) && previous.roomCode.equals(ticket.getRoomCode())) {
+                connections.remove(entry.getKey(),previous);
+                closeQuietly(previous.session,CloseStatus.NORMAL.withReason("session_replaced"));
+            }
+        });
         connections.put(session.getId(), new Connection(session, userId, ticket.getRoomCode()));
         session.getAttributes().put(USER_ID_ATTRIBUTE, userId);
         session.getAttributes().put(ROOM_CODE_ATTRIBUTE, ticket.getRoomCode());
@@ -80,13 +99,15 @@ public class RoomWebSocketHandler extends AbstractWebSocketHandler implements Di
                 case "join_room" -> joinRoom(session, connection, payload);
                 case "select_loadout" -> {
                     requireJoined(connection);
+                    if(!payload.isObject() || payload.size()!=1 || !payload.path("color").isTextual())throw new IllegalArgumentException("Only color is allowed");
                     roomManager.setLoadoutColor(connection.userId, connection.roomCode,
                             payload.path("color").asText(null));
                     broadcastRoomState(connection.roomCode);
                 }
                 case "ready" -> {
                     requireJoined(connection);
-                    boolean ready = !payload.has("ready") || payload.path("ready").asBoolean();
+                    if(!payload.isObject() || payload.size()!=1 || !payload.path("ready").isBoolean())throw new IllegalArgumentException("ready must be boolean");
+                    boolean ready = payload.path("ready").asBoolean();
                     roomManager.setReady(connection.userId, connection.roomCode, ready);
                     broadcastRoomState(connection.roomCode);
                 }
@@ -122,6 +143,20 @@ public class RoomWebSocketHandler extends AbstractWebSocketHandler implements Di
         }
         connection.joined = true;
         broadcastRoomState(connection.roomCode);
+        Replay state=replay.get(connection.roomCode);
+        if(state!=null) {
+            String phase=state.snapshot().phase();
+            for(String event:java.util.List.of("session_phase","qualifying_start","qualifying_result","countdown","start_light","race_result")) {
+                boolean relevant=event.equals("session_phase") || phase.equals("qualifying")&&event.equals("qualifying_start")
+                        || phase.equals("qualifying_results")&&event.equals("qualifying_result")
+                        || phase.equals("countdown")&&(event.equals("countdown")||event.equals("start_light"))
+                        || phase.equals("results")&&event.equals("race_result");
+                if(relevant&&state.events().containsKey(event)) {
+                    var saved=state.events().get(event);sendEnvelope(session,saved.type(),saved.payload());
+                }
+            }
+            sendSnapshot(connection,state.snapshot());
+        }
     }
 
     private void rejectVersion(WebSocketSession session, Connection connection, RoomResponse room) throws IOException {
@@ -167,28 +202,79 @@ public class RoomWebSocketHandler extends AbstractWebSocketHandler implements Di
     }
 
     private void synchronizeRace(RoomResponse room) {
-        boolean hasHumans = room.players().stream().anyMatch(player -> !player.bot());
-        if ((!room.state().equals("qualifying") && !room.state().equals("race")) || !hasHumans) {
+        if (room.state().equals("lobby") || room.state().equals("closed")) {
             stopRace(room.code()); return;
         }
-        RoomRaceRuntime runtime = races.computeIfAbsent(room.code(), ignored -> new RoomRaceRuntime(room,
-                snapshot -> broadcastSnapshot(room.code(), snapshot), error -> {
-                    LOG.error("Authoritative physics stopped for room {}", room.code(), error);
-                    connections.values().stream().filter(c -> room.code().equals(c.roomCode) && c.joined)
-                            .forEach(c -> sendEnvelopeQuietly(c.session, "error", Map.of("code", "physics_failed", "message", "A sessão física foi interrompida. Nenhum resultado foi registrado.")));
-                }));
+        RoomRaceRuntime runtime = races.computeIfAbsent(room.code(), ignored -> createRuntime(room));
         runtime.retain(room);
     }
 
-    private void broadcastSnapshot(String roomCode, RaceEngine.Snapshot snapshot) {
+    private RoomRaceRuntime createRuntime(RoomResponse room) {
+        var owner=new java.util.concurrent.atomic.AtomicReference<RoomRaceRuntime>();
+        var runtime=new RoomRaceRuntime(room,raceFactory,frame->publishRace(room.code(),frame),error->{
+            LOG.error("Authoritative session stopped for room {}",room.code(),error);
+            RoomRaceRuntime failed=owner.get();
+            if(failed==null || !races.remove(room.code(),failed))return;
+            replay.remove(room.code());
+            RoomResponse state=roomManager.cancelFailedRace(room.code());
+            connections.values().stream().filter(c->room.code().equals(c.roomCode)&&c.joined).forEach(c->{
+                sendEnvelopeQuietly(c.session,"error",Map.of("code","race_cancelled","message","A sessão foi interrompida. Resultados parciais não são oficiais."));
+                sendEnvelopeQuietly(c.session,"room_state",RoomStatePayload.from(state));
+            });
+        });
+        owner.set(runtime);return runtime;
+    }
+
+    private void publishRace(String roomCode,RoomRaceRuntime.Publication frame) {
+        RoomRaceRuntime owner=races.get(roomCode);
+        if(owner==null || owner.isClosed() || !owner.owns(frame.snapshot().sessionId()))return;
+        RoomResponse before=roomManager.get(roomCode);
+        if(before.state().equals("lobby") || before.state().equals("closed"))return;
+        Map<String,OnlineRaceSession.Event> saved=new java.util.LinkedHashMap<>();
+        Replay previous=replay.get(roomCode);
+        if(previous!=null&&previous.snapshot().sessionId().equals(frame.snapshot().sessionId()))saved.putAll(previous.events());
+        for(var event:frame.events()) {
+            if(event.type().equals("race_result")) {
+                if(resultService==null)throw new IllegalStateException("Missing result persistence");
+                resultService.save((OnlineRaceSession.Result)event.payload());
+            }
+            String key=event.type().equals("race_event")?String.valueOf(((Map<?,?>)event.payload()).get("type")):event.type();
+            if(java.util.Set.of("session_phase","qualifying_start","qualifying_result","countdown","start_light","race_result").contains(key))saved.put(key,event);
+            connections.values().stream().filter(c->c.joined && roomCode.equals(c.roomCode))
+                    .forEach(c->sendEnvelopeQuietly(c.session,event.type(),event.payload()));
+        }
+        replay.put(roomCode,new Replay(frame.snapshot(),Map.copyOf(saved)));
+        RoomResponse after=roomManager.synchronizeRacePhase(roomCode,frame.snapshot().phase(),frame.driving());
+        RoomRaceRuntime runtime=races.get(roomCode);
+        if(runtime!=null)runtime.retain(after);
+        if(!before.state().equals(after.state())) {
+            connections.values().stream().filter(c->c.joined && roomCode.equals(c.roomCode))
+                    .forEach(c->sendEnvelopeQuietly(c.session,"room_state",RoomStatePayload.from(after)));
+        }
+        broadcastSnapshot(roomCode,frame.snapshot());
+        if(after.state().equals("lobby"))stopRace(roomCode);
+    }
+
+    private void broadcastSnapshot(String roomCode, OnlineRaceSession.Snapshot snapshot) {
         connections.values().stream().filter(c -> c.joined && roomCode.equals(c.roomCode))
                 .sorted(java.util.Comparator.comparing(c -> c.session.getId()))
-                .forEach(c -> sendEnvelopeQuietly(c.session, "state_snapshot", snapshot));
+                .forEach(c -> sendSnapshot(c,snapshot));
+    }
+    private void sendSnapshot(Connection c,OnlineRaceSession.Snapshot snapshot) {
+        OnlineRaceSession.Snapshot visible=snapshot;
+        if(snapshot.phase().equals("qualifying"))visible=new OnlineRaceSession.Snapshot(snapshot.sessionId(),snapshot.tick(),snapshot.substep(),snapshot.physicsSubstep(),snapshot.serverTime(),snapshot.trackId(),snapshot.trackCatalogVersion(),snapshot.physicsContractVersion(),snapshot.phase(),snapshot.totalLaps(),snapshot.raceTimeMs(),
+                snapshot.cars().stream().filter(car->car.playerId().equals(c.userId.toString())).toList());
+        sendEnvelopeQuietly(c.session,"state_snapshot",visible);
     }
 
     void stopRace(String roomCode) {
         RoomRaceRuntime race = races.remove(roomCode);
+        replay.remove(roomCode);
         if (race != null) race.close();
+    }
+    RoomResponse cancelQualification(UUID userId,String roomCode) {
+        RoomRaceRuntime runtime=races.get(roomCode);
+        return runtime==null?roomManager.cancelQualification(userId,roomCode):runtime.cancelQualification(roomManager,userId,roomCode);
     }
     long resolvedContacts(String roomCode) {
         RoomRaceRuntime race=races.get(roomCode);return race==null?0:race.resolvedContacts();
@@ -233,8 +319,9 @@ public class RoomWebSocketHandler extends AbstractWebSocketHandler implements Di
             if (session.isOpen()) {
                 sendEnvelope(session, type, payload);
             }
-        } catch (IOException ignored) {
-            // A closing client is handled by the transport callback.
+        } catch (IOException | IllegalStateException ignored) {
+            // The peer can close between isOpen() and sendMessage(). Its transport
+            // callback handles disconnection; a peer closing must not cancel a race.
         }
     }
 
@@ -272,7 +359,7 @@ public class RoomWebSocketHandler extends AbstractWebSocketHandler implements Di
                 synchronized (connection.session) {
                     connection.session.sendMessage(new org.springframework.web.socket.PingMessage());
                 }
-            } catch (IOException exception) {
+            } catch (IOException | IllegalStateException exception) {
                 missed = true;
             }
             if (missed) {

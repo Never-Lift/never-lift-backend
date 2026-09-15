@@ -46,6 +46,20 @@ Envelope: `{ "type": "...", "payload": {...} }`.
 Nos snapshots, `x` e `y` são metros num plano cartesiano com `+X` para a direita e `+Y` para cima; `velocityX`/`velocityY` e `speed` usam metros por segundo; `angle` usa radianos no sentido anti-horário a partir de `+X`. Dentro de `physicsState`, `yawRate` usa radianos por segundo, `steeringAngle` é o ângulo físico das rodas dianteiras e as velocidades angulares usam radianos por segundo. Controles aplicados, rodas, marcha, RPM e transição de troca são estado autoritativo necessário à reconciliação. O frontend não converte esses valores em pixels até o estágio de câmera/renderização.
 
 ### Como o cliente usa `state_snapshot`
+
+**Contrato da Parte 3c (15/09/2026):** ver
+[module-3c-race-flow.md](module-3c-race-flow.md) e o schema compartilhado v2.
+Além da base 3b acima, snapshots incluem `sessionId`, `phase`, `substep`,
+`physicsSubstep`, `totalLaps`, `raceTimeMs`, progresso/tempos por carro,
+`isGhost`, `falseStart` e `inPit`. A classificação tem duas tentativas sem
+cronômetro, melhor válida para o grid e visão isolada por piloto. Todos os
+humanos, inclusive host, confirmam novamente em `qualifying_results` antes do
+semáforo; em `results`, confirmação de todos ou 60 s devolve ao lobby.
+O cliente preserva `clientSeq` crescente ao reconectar, restaura fase/eventos
+relevantes/snapshot e descarta predição antiga quando `physicsSubstep` reinicia
+na preparação do grid. `sessionId` continua o mesmo até o próximo ciclo.
+Resultado completo é enviado somente depois do commit no banco. A penalidade
+de queima dura 600 subpassos (5 s); o cliente envia throttle mesmo no semáforo.
 - **Carro do próprio jogador:** já foi desenhado localmente no instante do input (predição). Quando chega o snapshot, comparar posição prevista com a posição real; se divergir, corrigir suavemente (não teleportar) ao longo de alguns frames.
 - **Carros dos outros:** nunca desenhar direto na posição recebida. Manter um pequeno buffer dos últimos 2 snapshots e interpolar entre eles, renderizando ~100ms no passado — é o que substitui o `interpolateRemote()` ingênuo do protótipo.
 
@@ -129,7 +143,7 @@ Mesma numeração e dependências do plano de backend.
 - Antes do WebSocket, obter ticket opaco de uso único, vinculado ao usuário e à sala e válido por 60 s; o JWT principal nunca aparece na URL. A reconexão usa backoff simples e preserva o slot por aproximadamente 30 s.
 - O online exige usuário registrado. Guest vê a vitrine escurecida/desfocada e um convite para login, mas não consulta nem entra em salas. A criação solicita somente nome e visibilidade, sem senhas. Públicas aceitam entrada direta; privadas não aparecem na lista e usam o código de quatro dígitos como único segredo.
 - Pista, grid de 2 a 22 carros e bots/dificuldade são configurados ao vivo pelo host dentro do lobby sem botão de salvar nem apagar estados de pronto; os ajustes ficam bloqueados somente quando a classificação começa. O seletor de pista usa cards com traçado e o grid usa controle limitado de 2 a 22.
-- O socket pertence à sessão online do aplicativo, não à página: navegar pelo shell mantém a conexão. Host e participantes comuns podem sair por ação explícita, inclusive após o avanço do lobby, com confirmação que identifica a sala e transferência automática do host; após 30 s desconectado sem retorno, o servidor remove o participante e libera a vaga.
+- O socket pertence à sessão online do aplicativo, não à página: navegar pelo shell mantém a conexão. Host e participantes comuns podem sair por ação explícita, inclusive após o avanço do lobby, com confirmação que identifica a sala e transferência automática do host. Após 30 s desconectado sem retorno, o servidor remove o participante somente no lobby; durante classificação/corrida, o bot substituto continua no mesmo carro e preserva a associação do resultado ao usuário.
 - Lobby: lista em tempo real de jogadores, conexão e host identificados; pronto reversível somente por participante não-host; remoção pelo host; host só pode iniciar quando todos os demais humanos estão `ready` e pode cancelar a classificação antes de alguém dirigir. Toda entrada, saída, reconexão, remoção ou mutação transmite imediatamente o novo `room_state`.
 - **Predição:** ao apertar uma tecla, o `RaceEngine` do Módulo 2 já simula o carro do próprio jogador imediatamente e envia `input` pro servidor.
 - **Compatibilidade:** `join_room` envia `physicsContractVersion`; servidor rejeita cliente com física incompatível antes da corrida.
@@ -163,7 +177,9 @@ A portabilidade 2.0.3 foi autorizada pelo autor e implementada nos dois motores
 com `portable-f64-v1`, sem recalibrar os parâmetros de condução/dano. As funções
 transcendentais nativas não devem ser reintroduzidas na física da 3c.
 A validação manual da revisão 2.0.3 foi confirmada pelo autor em 04/09/2026,
-conforme [module-3b-portability.md](module-3b-portability.md). A Parte 3c não foi iniciada.
+conforme [module-3b-portability.md](module-3b-portability.md). O contrato estendido
+da Parte 3c está em [module-3c-race-flow.md](module-3c-race-flow.md); o estado da
+implementação frontend deve ser consultado no seu próprio repositório.
 
 ### Módulo 4 — Ambiente e modo caos
 **Depende de:** Módulo 3.

@@ -147,10 +147,12 @@ public class RoomManager {
         RoomParticipant participant = room == null ? null : room.participantForUser(userId);
         Instant disconnectedAt = participant == null ? null : participant.getDisconnectedAt();
         Instant now = now();
-        if (room == null || room.getState() == RoomState.CLOSED || !ticket.canConsume(now, disconnectedAt)) {
+        if (room == null || participant == null || room.getState() == RoomState.CLOSED || !ticket.canConsume(now, disconnectedAt)) {
             throw invalidTicket();
         }
         ticket.consume();
+        tickets.entrySet().removeIf(entry->!entry.getKey().equals(value)
+                && entry.getValue().getUserId().equals(userId) && entry.getValue().getRoomCode().equals(ticket.getRoomCode()));
         room.markConnected(userId);
         return ticket;
     }
@@ -168,10 +170,12 @@ public class RoomManager {
         RoomParticipant participant = room == null ? null : room.participantForUser(ticket.getUserId());
         Instant disconnectedAt = participant == null ? null : participant.getDisconnectedAt();
         Instant now = now();
-        if (room == null || room.getState() == RoomState.CLOSED || !ticket.canConsume(now, disconnectedAt)) {
+        if (room == null || participant == null || room.getState() == RoomState.CLOSED || !ticket.canConsume(now, disconnectedAt)) {
             throw invalidTicket();
         }
         ticket.consume();
+        tickets.entrySet().removeIf(entry->!entry.getKey().equals(value)
+                && entry.getValue().getUserId().equals(ticket.getUserId()) && entry.getValue().getRoomCode().equals(ticket.getRoomCode()));
         room.markConnected(ticket.getUserId());
         return ticket;
     }
@@ -193,15 +197,18 @@ public class RoomManager {
                 ? current.botDifficulty() : parseDifficulty(request.botDifficulty());
         RoomVisibility visibility = request.visibility() == null
                 ? current.visibility() : parseVisibility(request.visibility());
+        int laps=request.laps()==null?current.laps():request.laps();
+        if(laps<1 || laps>99)
+            throw new ApiException(HttpStatus.BAD_REQUEST,"invalid_race_settings","Invalid race duration or lap count");
         room.setSettings(new RoomSettings(trackId, current.trackCatalogVersion(),
-                current.physicsContractVersion(), gridSize, botsEnabled, difficulty, visibility, false));
+                current.physicsContractVersion(), gridSize, botsEnabled, difficulty, visibility, false, laps));
         return RoomResponse.from(room);
     }
 
     public synchronized RoomResponse setReady(UUID userId, String roomCode, boolean ready) {
         Room room = requireParticipant(userId, roomCode);
-        requireLobby(room);
-        if (userId.equals(room.getHostId())) {
+        if(room.getState()!=RoomState.QUALIFYING_RESULTS && room.getState()!=RoomState.RESULTS)requireLobby(room);
+        if (room.getState()==RoomState.LOBBY && userId.equals(room.getHostId())) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "host_does_not_ready",
                     "The host controls the start and does not set ready");
         }
@@ -212,6 +219,8 @@ public class RoomManager {
     public synchronized RoomResponse setLoadoutColor(UUID userId, String roomCode, String color) {
         Room room = requireParticipant(userId, roomCode);
         requireLobby(room);
+        if(room.participantForUser(userId).isReady())
+            throw new ApiException(HttpStatus.CONFLICT,"loadout_locked","Withdraw ready before changing color");
         String normalizedColor = color == null ? null : color.trim().toLowerCase(java.util.Locale.ROOT);
         if (normalizedColor == null || !ALLOWED_COLORS.contains(normalizedColor)) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "invalid_loadout", "A valid color is required");
@@ -258,6 +267,22 @@ public class RoomManager {
                     "Qualification is not active");
         }
         room.markDrivingStarted();
+    }
+
+    public synchronized RoomResponse synchronizeRacePhase(String roomCode, String phase, boolean driving) {
+        Room room=requireRoom(roomCode);
+        if(room.getState()==RoomState.LOBBY || room.getState()==RoomState.CLOSED)return RoomResponse.from(room);
+        RoomState next=RoomState.valueOf(phase.toUpperCase(java.util.Locale.ROOT));
+        if(next==RoomState.LOBBY) {
+            room.returnToLobby(now());
+            room.getParticipants().stream().filter(p->!p.isConnected()).map(RoomParticipant::getId).toList().forEach(id->room.remove(id,now()));
+        } else if(next!=room.getState())room.racePhase(next);
+        if(driving)room.markDrivingStarted();
+        return RoomResponse.from(room);
+    }
+
+    public synchronized RoomResponse cancelFailedRace(String roomCode) {
+        Room room=requireRoom(roomCode);room.returnToLobby(now());return RoomResponse.from(room);
     }
 
     public synchronized RoomResponse remove(UUID hostId, String roomCode, UUID participantId) {
@@ -313,6 +338,7 @@ public class RoomManager {
         if (now().isBefore(reconnectDeadline)) {
             return false;
         }
+        if(room.getState()!=RoomState.LOBBY && room.getState()!=RoomState.CLOSED)return false;
         room.remove(participant.getId(), now());
         return true;
     }
@@ -364,9 +390,10 @@ public class RoomManager {
         if (!ticket.isConsumed()) {
             return !ticket.getExpiresAt().isAfter(now);
         }
-        if (participant == null || participant.isConnected()) {
+        if (participant == null) {
             return true;
         }
+        if(participant.isConnected())return false;
         Instant disconnectedAt = participant.getDisconnectedAt();
         return disconnectedAt == null || !now.isBefore(disconnectedAt.plus(ConnectionTicket.RECONNECT_WINDOW));
     }
