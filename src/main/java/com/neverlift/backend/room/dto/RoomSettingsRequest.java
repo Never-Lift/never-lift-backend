@@ -8,5 +8,9 @@ public record RoomSettingsRequest(
         @Min(2) @Max(22) Integer gridSize,
         Boolean botsEnabled,
         String botDifficulty,
-        String visibility) {
+        String visibility,
+        @Min(1) @Max(99) Integer laps) {
+    public RoomSettingsRequest(String trackId, Integer gridSize, Boolean botsEnabled, String botDifficulty, String visibility) {
+        this(trackId, gridSize, botsEnabled, botDifficulty, visibility, null);
+    }
 }

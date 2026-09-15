@@ -8,7 +8,13 @@ public record RoomSettings(
         boolean botsEnabled,
         BotDifficulty botDifficulty,
         RoomVisibility visibility,
-        boolean settingsLocked) {
+        boolean settingsLocked,
+        int laps) {
+
+    public RoomSettings(String trackId, String trackCatalogVersion, String physicsContractVersion,
+            int gridSize, boolean botsEnabled, BotDifficulty botDifficulty, RoomVisibility visibility, boolean settingsLocked) {
+        this(trackId, trackCatalogVersion, physicsContractVersion, gridSize, botsEnabled, botDifficulty, visibility, settingsLocked, 3);
+    }
 
     public static final String DEFAULT_TRACK_ID = "albert-park";
     public static final String TRACK_CATALOG_VERSION = "2026.12";
@@ -30,21 +36,21 @@ public record RoomSettings(
                 nextBotsEnabled,
                 nextBotDifficulty,
                 visibility,
-                settingsLocked);
+                settingsLocked, laps);
     }
 
     public RoomSettings lock() {
         return new RoomSettings(trackId, trackCatalogVersion, physicsContractVersion,
-                gridSize, botsEnabled, botDifficulty, visibility, true);
+                gridSize, botsEnabled, botDifficulty, visibility, true, laps);
     }
 
     public RoomSettings unlock() {
         return new RoomSettings(trackId, trackCatalogVersion, physicsContractVersion,
-                gridSize, botsEnabled, botDifficulty, visibility, false);
+                gridSize, botsEnabled, botDifficulty, visibility, false, laps);
     }
 
     public RoomSettings withVisibility(RoomVisibility nextVisibility) {
         return new RoomSettings(trackId, trackCatalogVersion, physicsContractVersion,
-                gridSize, botsEnabled, botDifficulty, nextVisibility, settingsLocked);
+                gridSize, botsEnabled, botDifficulty, nextVisibility, settingsLocked, laps);
     }
 }

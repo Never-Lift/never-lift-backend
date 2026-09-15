@@ -161,6 +161,41 @@ class RoomIntegrationTest {
     }
 
     @Test
+    void shouldAcceptOnlyColorInLoadoutAndLockItWhileReady() throws Exception {
+        String host = registerToken("color-host-" + UUID.randomUUID());
+        String driver = registerToken("color-driver-" + UUID.randomUUID());
+        String response = mockMvc.perform(post("/api/rooms")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(host))
+                        .contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        String code = objectMapper.readTree(response).path("code").asText();
+        mockMvc.perform(post("/api/rooms/{code}/join", code)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(driver)))
+                .andExpect(status().isOk());
+        for (String forbidden : java.util.List.of("model", "carModelId", "x")) {
+            mockMvc.perform(post("/api/rooms/{code}/loadout", code)
+                            .header(HttpHeaders.AUTHORIZATION, bearer(driver))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(Map.of("color", "#365f82", forbidden, "client-controlled"))))
+                    .andExpect(status().isBadRequest());
+        }
+        mockMvc.perform(post("/api/rooms/{code}/loadout", code)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(driver))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("color", "#365f82"))))
+                .andExpect(status().isOk());
+        mockMvc.perform(post("/api/rooms/{code}/ready", code)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(driver)))
+                .andExpect(status().isOk());
+        mockMvc.perform(post("/api/rooms/{code}/loadout", code)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(driver))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("color", "#3f704f"))))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("loadout_locked"));
+    }
+
+    @Test
     void shouldRejectAuthenticatedGuestInRoomEndpoints() throws Exception {
         String guestToken = tokenFrom(mockMvc.perform(post("/api/auth/guest"))
                 .andExpect(status().isOk()).andReturn());

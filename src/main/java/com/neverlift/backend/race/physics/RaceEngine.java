@@ -6,6 +6,15 @@ import java.util.function.BiConsumer;
 
 /** One authoritative owner per room. No HTTP, socket, wall-clock or race-rule work in a substep. */
 public final class RaceEngine {
+    /** Race rules run on the physics owner, around (never inside) the canonical integrator. */
+    public interface StepRules {
+        default void beforeStep() {}
+        default boolean moves(String id) { return true; }
+        default DriverInput input(VehicleState car, DriverInput requested) { return requested; }
+        default boolean pairAllowed(String first, String second) { return true; }
+        default void afterStep(Map<String, VehicleState> cars) {}
+    }
+    private static final StepRules PHYSICS_ONLY = new StepRules() {};
     // Approved M3 networking policy (online decisions #24), not a physical tuning constant.
     public static final long INPUT_HOLD_NANOS = java.time.Duration.ofMillis(200).toNanos();
     public record Entrant(String id, boolean bot, String difficulty, TrackGeometry.Spawn spawn) {}
@@ -35,6 +44,7 @@ public final class RaceEngine {
     private final Map<String, Long> processed = new TreeMap<>();
     private final Map<String, Command> commands = new ConcurrentHashMap<>();
     private volatile Set<String> retained;
+    private final Set<String> substitutes = ConcurrentHashMap.newKeySet();
     private final BiConsumer<String, Integer> trace;
     private long tick;
     private long resolvedContacts;
@@ -59,26 +69,40 @@ public final class RaceEngine {
         Entrant e=entrants.get(id);
         if(e==null || e.bot || !retained.contains(id) || sequence<0)return false;
         Command normalized=new Command(new DriverInput(input.throttle(),input.brake(),input.steer()),sequence,receivedNanos);
-        commands.compute(id,(ignored,old)->old==null||sequence>old.sequence?normalized:old);
-        return true;
+        java.util.concurrent.atomic.AtomicBoolean accepted = new java.util.concurrent.atomic.AtomicBoolean();
+        commands.compute(id,(ignored,old)->{
+            if(old==null || sequence>old.sequence) { accepted.set(true); return normalized; }
+            return old;
+        });
+        return accepted.get();
     }
     public void clearInput(String id) { commands.remove(id); }
     public void retainParticipants(Set<String> ids) { retained=Set.copyOf(ids); }
+    public void substitute(String id, boolean enabled) {
+        if(enabled) { substitutes.add(id); clearInput(id); } else substitutes.remove(id);
+    }
     public void tick(long nowNanos) {
+        tick(nowNanos, PHYSICS_ONLY);
+    }
+    public void tick(long nowNanos, StepRules rules) {
         cars.keySet().removeIf(id->!retained.contains(id));
-        for(int substep=0;substep<(int)contract.number("simulation","serverPhysicsSubstepsPerTick");substep++) step(nowNanos);
+        for(int substep=0;substep<(int)contract.number("simulation","serverPhysicsSubstepsPerTick");substep++) step(nowNanos, rules);
         tick++;
     }
-    private void step(long nowNanos) {
+    private void step(long nowNanos, StepRules rules) {
+        rules.beforeStep();
         List<Impact> impacts=new ArrayList<>();
         for(VehicleState car:cars.values()) {
             Entrant e=entrants.get(car.id);Command command=commands.get(car.id);
-            DriverInput input=e.bot?bots.plan(car,track,distances.get(car.id),simulationTime,e.difficulty):command!=null && nowNanos-command.receivedNanos<=INPUT_HOLD_NANOS?command.input:DriverInput.NEUTRAL;
+            DriverInput input=e.bot || substitutes.contains(car.id)?bots.plan(car,track,distances.get(car.id),simulationTime,e.bot?e.difficulty:"normal"):command!=null && nowNanos-command.receivedNanos<=INPUT_HOLD_NANOS?command.input:DriverInput.NEUTRAL;
             if(!e.bot && command!=null)processed.put(car.id,command.sequence);
+            input=rules.input(car,input);
+            if(!rules.moves(car.id))continue;
             integrator.integrate(car,input,track.surface(new Vec2(car.x,car.y),distances.get(car.id)),stage->trace.accept(car.id,stage));
         }
         // Stage 14: walls, stable car pairs, then overlap-only wall cleanup after pair impulses.
         for(VehicleState car:cars.values()) {
+            if(!rules.moves(car.id))continue;
             trace.accept(car.id,14);
             if(collisions.againstBarriers(car,contract.stepSeconds(),bounds->track.barriers(layers.get(car.id),bounds),(c,v)->impacts.add(new Impact(c,v))))resolvedContacts++;
             var p=track.project(new Vec2(car.x,car.y),distances.get(car.id));distances.put(car.id,p.distance());layers.put(car.id,p.layer());
@@ -86,15 +110,16 @@ public final class RaceEngine {
         List<VehicleState> ordered=List.copyOf(cars.values());
         for(int i=0;i<ordered.size();i++) for(int j=i+1;j<ordered.size();j++) {
             VehicleState a=ordered.get(i),b=ordered.get(j);
-            if(layers.get(a.id).equals(layers.get(b.id)) && collisions.pair(a,b,contract.stepSeconds(),(c,v)->impacts.add(new Impact(c,v))))resolvedContacts++;
+            if(rules.moves(a.id) && rules.moves(b.id) && rules.pairAllowed(a.id,b.id) && layers.get(a.id).equals(layers.get(b.id)) && collisions.pair(a,b,contract.stepSeconds(),(c,v)->impacts.add(new Impact(c,v))))resolvedContacts++;
         }
-        for(VehicleState car:ordered)collisions.againstBarriers(car,0,bounds->track.barriers(layers.get(car.id),bounds),(c,v)->impacts.add(new Impact(c,v)));
+        for(VehicleState car:ordered)if(rules.moves(car.id))collisions.againstBarriers(car,0,bounds->track.barriers(layers.get(car.id),bounds),(c,v)->impacts.add(new Impact(c,v)));
         // Stage 15 preserves ordered contact damage; friction never contributes to its delta-v.
         for(VehicleState car:ordered) {
             trace.accept(car.id,15);
             for(Impact impact:impacts)if(impact.car==car)integrator.recordNormalImpact(car,impact.deltaV);
         }
         simulationTime+=contract.stepSeconds();
+        rules.afterStep(Collections.unmodifiableMap(cars));
     }
     /** Called only by the simulation owner; records contain no mutable state. */
     public Snapshot snapshot(long epochMillis) {

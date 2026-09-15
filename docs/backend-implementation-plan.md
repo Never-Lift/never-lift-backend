@@ -47,7 +47,7 @@ Envelope de toda mensagem WebSocket: `{ "type": "...", "payload": {...} }`.
 |---|---|---|
 | `join_room` | `{ roomCode, trackCatalogVersion, physicsContractVersion }` | ao entrar numa sala; rejeita geometria ou física incompatível antes da corrida |
 | `select_loadout` | `{ color }` | antes de ficar ready; o modelo é sempre F1 e a condução é fixa |
-| `ready` | `{ ready }` | jogador confirma ou retira o pronto durante o lobby |
+| `ready` | `{ ready }` | não-host no lobby; todos os humanos, inclusive host, confirmam novamente em `qualifying_results` e em `results` |
 | `input` | `{ throttle, brake, steer, clientSeq, clientTimestamp }` | renovado a 30 Hz, mesmo sem mudança; boost/nitro não existe |
 
 **Importante:** o cliente nunca envia posição — só intenção (`input`). Isso é o que torna o servidor a única fonte de verdade.
@@ -64,6 +64,19 @@ Envelope de toda mensagem WebSocket: `{ "type": "...", "payload": {...} }`.
 | `error` | `{ code, message }` | falha de validação |
 
 `state_snapshot` é usado pelo frontend pra reconciliação (carro do próprio jogador) e interpolação (carros dos outros) — ver plano de frontend, seção do Módulo 3.
+
+**Extensão da Parte 3c (15/09/2026):** a tabela preserva a base 3b. O contrato
+completo atualizado está em [module-3c-race-flow.md](module-3c-race-flow.md) e no
+schema `contracts/module-2/v2/realtime-race-protocol.schema.json`. Snapshot 3c
+acrescenta `sessionId`, `phase`, `substep`, `physicsSubstep`, `totalLaps`,
+`raceTimeMs`; cada carro inclui progresso, tempos, `isGhost`, `falseStart` e
+`inPit`. `countdown` também inclui `sessionId`. `race_event` acrescenta fases,
+classificação e estágios do semáforo; eventos de serviço de pit continuam fora
+da 3c. `race_result` inclui a identidade da sessão, versões e standings completos
+e só é publicado após persistência atômica. Classificação permite duas tentativas
+sem cronômetro e isola cada piloto. Reconexão recupera fase, resultado pertinente
+e snapshot; `clientSeq` permanece crescente na mesma sessão. O relógio global
+não reinicia ao restaurar os carros no grid; somente `physicsSubstep` reinicia.
 
 `x`/`y` estão em metros, `velocityX`/`velocityY` em metros por segundo e `speed` é a magnitude da velocidade. Em `physicsState`, `yawRate` e velocidades angulares usam radianos por segundo; controles aplicados, esterço, rodas, marcha, RPM e transição de troca são estado autoritativo para reconciliação. O vetor de velocidade continua necessário para a câmera dinâmica sem confundir movimento com carroceria durante perda de aderência.
 
@@ -135,18 +148,19 @@ Cada módulo é uma unidade que pode virar um prompt isolado pro Codex. A ordem 
 em `docs/module-3-online-decisions.md` e é normativo para a implementação.
 A Parte 3a (sala, ticket e lobby, incluindo o refinamento de acesso e configuração de 02/09/2026) foi validada
 manualmente em dois navegadores e está pronta desde 03/09/2026; a Parte 3b (motor físico Java) está implementada com paridade passando, e a revisão 2.0.3 foi validada manualmente pelo autor em 04/09/2026;
-a Parte 3c (classificação e fluxo de corrida) permanece pendente.
+a Parte 3c backend (regras de corrida) está pronta; aguardando frontend 3c.
+Decisões confirmadas, protocolo e evidências em `docs/module-3c-race-flow.md`.
 **Escopo:**
 - Sessão WebSocket por conexão (`/ws`), autenticada por ticket de uso único vinculado à sala e ao usuário (validade de 60 s); o JWT principal não é exposto na URL.
 - `RoomManager`: cria/lista salas públicas e privadas, usa código numérico de 4 dígitos sem senha, atribui `hostId`/`hostName` e suporta até 22 carros (humanos e bots) por sala. Públicas aceitam entrada direta; privadas não aparecem na listagem e dependem exclusivamente do código. A criação usa os padrões de pista/grid/bots; o host os configura dentro do lobby. O grid é configurável de 2 a 22, bots ficam desativados por padrão e o host pode remover participantes somente no lobby. Todos os endpoints de sala e ticket exigem `role: user`; guest não participa do online.
 - O host escolhe a pista, o sentido oficial e a dificuldade única dos bots. Durante todo o lobby ele pode alterar configurações sem limpar o pronto dos participantes; as configurações travam somente quando a classificação começa. O host não possui estado de pronto e inicia quando todos os humanos não-host confirmarem. Pode também cancelar a classificação e voltar ao lobby enquanto nenhum carro tiver começado a dirigir. Host e participantes comuns podem sair explicitamente em qualquer fase, com transferência automática do host quando necessário. Salas vazias expiram em 10 minutos e o host pode encerrar a sala apenas no lobby.
-- A classificação ocorre simultaneamente em instâncias isoladas, com uma tentativa por participante, contagem de 3 s e limite de 3 minutos. Humanos e bots usam a mesma física e condições secas; volta inválida vai para o fim por seed determinística. O grid usa duas colunas em 11 fileiras e tempos autoritativos.
+- A classificação ocorre simultaneamente em instâncias isoladas, com duas voltas cronometradas por participante, contagem de 3 s e sem limite de tempo (revisão aprovada 15/09/2026). Melhor volta válida define grid; inválida consome tentativa. Humanos e bots usam a mesma física e condições secas; sem volta válida, fim do grid por seed determinística. O grid usa duas colunas em 11 fileiras e tempos autoritativos.
 - `RaceEngine` por sala escrito do zero em Java, reproduzindo o contrato físico 2.0 e os vetores congelados do TypeScript: corpo rígido 2D, modelo de bicicleta dinâmico, pneus não lineares/combined slip, transferência de carga, drag/downforce, tração traseira, câmbio automático, patinagem e travamento. Todo participante usa o mesmo F1 e nenhuma dificuldade recebe física privilegiada.
 - O loop externo roda a `30 ticks/segundo` e executa quatro subpassos de `1/120s` por tick, lendo o último input normalizado de cada jogador. Inputs chegam a 30 Hz; snapshots são enviados a 20 Hz; heartbeat ocorre a cada 10 s. O servidor mantém o último input por aproximadamente 150–250 ms e neutraliza gradualmente depois. Estado inclui vetor de velocidade, yaw, esterço e câmbio para snapshots e reconciliação.
 - A sala fixa `trackId`, `trackCatalogVersion` e `physicsContractVersion` antes da largada e rejeita incompatibilidade em vez de simular motores ou geometrias diferentes.
 - Colisão é resolvida somente no servidor com colliders convexos compostos, faces canônicas de barreira, broadphase, CCD, manifold, impulso no ponto de contato, torque e solver iterativo determinístico. Dano cumulativo usa o delta-v normal efetivo do contato, sem velocidade absoluta nem desaceleração tangencial.
-- Toda mutação REST ou WebSocket do lobby transmite imediatamente um `room_state`. O ticket WebSocket é de uso único, dura 60 s e fica vinculado ao usuário e à sala; queda de conexão permite cerca de 30 s de reconexão no mesmo slot. Sem retorno, o participante desconectado é removido e a vaga é liberada. Duas ou três falhas de heartbeat iniciam o fluxo de desconexão, mas ping alto isolado só gera aviso. O broadcast de `state_snapshot` a cada ~50ms (20/s) entra na Parte 3b.
-- Cada corrida avulsa tem três voltas, largada com cinco luzes, penalidade de 5 s por queima de largada, sem entrada tardia, pausa ou reinício manual. O pit lane é navegável sem limite de velocidade ou serviço no M3. Checkpoints e limites validam cortes; não há penalidade de tempo nessa etapa. Falha do servidor cancela a prova sem resultado oficial.
+- Toda mutação REST ou WebSocket do lobby transmite imediatamente um `room_state`. O ticket WebSocket é de uso único, dura 60 s e fica vinculado ao usuário e à sala; queda de conexão permite 30 s de reconexão no mesmo slot com o mesmo ticket consumido. Sem retorno, remoção ocorre somente no lobby; em classificação/corrida o bot permanece e o resultado mantém a associação original. Duas ou três falhas de heartbeat iniciam o fluxo de desconexão, mas ping alto isolado só gera aviso. O broadcast de `state_snapshot` ocorre a 20/s.
+- Cada corrida avulsa tem voltas configuráveis pelo host (1–99, padrão3), largada com cinco luzes e penalidade de 600 subpassos (5 s) por throttle >0 antes de lights-out. Sem entrada tardia, pausa ou reinício manual. O pit lane é navegável sem limite de velocidade ou serviço no M3. Checkpoints e limites validam cortes; não há penalidade de tempo nessa etapa. Falha do servidor cancela a prova sem resultado oficial.
 - Resultados completos são persistidos, com concluídos à frente dos `DNF`; entre `DNF`, maior progresso válido e depois timestamp do servidor. A tela permanece até confirmação de todos ou 60 s antes do retorno ao lobby.
 **Critério de pronto:** o Java reproduz todos os cenários físicos TypeScript dentro das tolerâncias; dois clientes compatíveis convergem em trajetória, perda de aderência e colisões; um cliente com versão incompatível é recusado; contatos no bico, roda ou muro não atravessam, enroscam nem acontecem antes da geometria visível.
 
@@ -174,7 +188,9 @@ A portabilidade 2.0.3 foi autorizada pelo autor e implementada nos dois motores
 com `portable-f64-v1`, sem recalibrar os parâmetros de condução/dano. As funções
 transcendentais nativas não devem ser reintroduzidas na física da 3c.
 A validação manual da revisão 2.0.3 foi confirmada pelo autor em 04/09/2026,
-conforme [module-3b-portability.md](module-3b-portability.md). A Parte 3c não foi iniciada.
+conforme [module-3b-portability.md](module-3b-portability.md). O estado atual da
+Parte 3c está em [module-3c-race-flow.md](module-3c-race-flow.md); os parágrafos
+acima descrevem a base histórica da 3b, não limitam o protocolo estendido da 3c.
 
 ### Módulo 4 — Ambiente e modo caos
 **Depende de:** Módulo 3.
@@ -188,7 +204,7 @@ conforme [module-3b-portability.md](module-3b-portability.md). A Parte 3c não f
 **Escopo:**
 - `damageState` por carro: `{ health, engineDamaged, steeringDamaged, steeringPull, totalLoss }`, cumulativo e calculado pelo impulso/energia ou `delta-v` do contato no `RaceEngine`: fraco afeta direção, médio afeta motor, alto combina ambos e crítico causa perda total; colisões menores repetidas também zeram a vida. Este módulo acrescenta a integração completa com pits, eventos, resultado e demais regras de corrida.
 - Vácuo: redução moderada de arrasto no modelo aerodinâmico v2 quando um carro está atrás e próximo de outro, calculada no tick da física; não existe boost/nitro ou força extra independente.
-- Ao cruzar a linha, carro vira `isGhost: true`; regra de colisão do Módulo 3 passa a ignorar par (ghost, não-ghost) e (não-ghost, não-ghost-diferente-de-ghost) — só `(ghost, ghost)` e `(normal, normal)` colidem.
+- A Parte 3c já assume ghost ao completar todas as voltas: somente `(ghost, ghost)` e `(normal, normal)` colidem. O Módulo 5 preserva essa regra, sem duplicar a orquestração de término.
 - `pit_enter`/`pit_exit`: ao sobrepor a zona de pit com vida abaixo do máximo ou alguma falha mecânica, servidor assume o carro por 2s (ignora `input` do jogador), restaura vida e dano, e emite os dois eventos.
 - Loadout: somente `color` é selecionada antes do `ready` e validada no `select_loadout` do Módulo 3. O modelo é sempre F1 e nunca é enviado pelo cliente.
 **Critério de pronto:** uma batida forte aplica dano persistente coerente com o impulso, vácuo reduz somente o arrasto nas condições válidas, reparo em pits restaura os estados previstos e carro com perda total fica parado até o fim.

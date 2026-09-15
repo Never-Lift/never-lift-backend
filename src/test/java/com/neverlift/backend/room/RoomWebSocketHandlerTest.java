@@ -74,6 +74,41 @@ class RoomWebSocketHandlerTest {
     }
 
     @Test
+    void closedSocketRaceDoesNotInterruptBroadcastToOtherPlayers() throws Exception {
+        UUID hostId = UUID.randomUUID();
+        when(roomManager.get("1234")).thenReturn(room("1234", hostId));
+        WebSocketSession closing = mockSession(new ConnectionTicket("closing", hostId, "1234", Instant.now()));
+        WebSocketSession healthy = mockSession(new ConnectionTicket("healthy", UUID.randomUUID(), "1234", Instant.now()));
+        when(closing.isOpen()).thenReturn(true);
+        when(healthy.isOpen()).thenReturn(true);
+        handler.afterConnectionEstablished(closing);
+        handler.afterConnectionEstablished(healthy);
+        doThrow(new IllegalStateException("WebSocket session has been closed"))
+                .when(closing).sendMessage(any(WebSocketMessage.class));
+
+        org.assertj.core.api.Assertions.assertThatCode(() -> handler.broadcastRoomState("1234"))
+                .doesNotThrowAnyException();
+        verify(healthy).sendMessage(any(WebSocketMessage.class));
+    }
+
+    @Test
+    void closedSocketRaceCountsAsHeartbeatFailureInsteadOfStoppingScheduler() throws Exception {
+        UUID userId = UUID.randomUUID();
+        WebSocketSession session = mockSession(new ConnectionTicket("closing", userId, "1234", Instant.now()));
+        when(session.isOpen()).thenReturn(true);
+        when(roomManager.get("1234")).thenReturn(room("1234", userId));
+        handler.afterConnectionEstablished(session);
+        doThrow(new IllegalStateException("WebSocket session has been closed"))
+                .when(session).sendMessage(any(WebSocketMessage.class));
+
+        handler.runHeartbeatCycle();
+        handler.runHeartbeatCycle();
+        handler.runHeartbeatCycle();
+        verify(roomManager).markDisconnected(userId, "1234");
+        verify(session).close(CloseStatus.SESSION_NOT_RELIABLE);
+    }
+
+    @Test
     void broadcastsJoinAndSupportsReadyCancellationAndHostStart() throws Exception {
         UUID userId = UUID.randomUUID();
         String roomCode = "1234";

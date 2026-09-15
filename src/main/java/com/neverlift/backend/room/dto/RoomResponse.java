@@ -52,7 +52,14 @@ public record RoomResponse(
             boolean botsEnabled,
             String botDifficulty,
             String visibility,
-            boolean settingsLocked) {
+            boolean settingsLocked,
+            int laps,
+            int qualifyingLaps) {
+
+        public RoomResponseSettings(String trackId,String trackCatalogVersion,String physicsContractVersion,
+                int gridSize,boolean botsEnabled,String botDifficulty,String visibility,boolean settingsLocked) {
+            this(trackId,trackCatalogVersion,physicsContractVersion,gridSize,botsEnabled,botDifficulty,visibility,settingsLocked,3,2);
+        }
 
         static RoomResponseSettings from(Room room) {
             var settings = room.getSettings();
@@ -64,7 +71,7 @@ public record RoomResponse(
                     settings.botsEnabled(),
                     settings.botDifficulty().name().toLowerCase(),
                     settings.visibility().name().toLowerCase(),
-                    settings.settingsLocked());
+                    settings.settingsLocked(), settings.laps(), 2);
         }
     }
 }

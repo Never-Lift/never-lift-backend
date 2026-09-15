@@ -58,6 +58,7 @@ class RoomControllerTest {
     @Test
     void doesNotBroadcastAnInvalidHostlessStateAfterTheLastParticipantLeaves() {
         RoomResponse response = mock(RoomResponse.class);
+        when(response.state()).thenReturn("lobby");
         when(roomManager.leave(userId, "1234")).thenReturn(response);
 
         controller.leave(jwt, "1234");
@@ -85,7 +86,7 @@ class RoomControllerTest {
     @Test
     void broadcastsQualificationCancellation() {
         RoomResponse response = mock(RoomResponse.class);
-        when(roomManager.cancelQualification(userId, "1234")).thenReturn(response);
+        when(roomWebSocketHandler.cancelQualification(userId, "1234")).thenReturn(response);
 
         controller.cancelQualification(jwt, "1234");
 

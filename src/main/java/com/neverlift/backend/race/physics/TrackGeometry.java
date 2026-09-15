@@ -141,16 +141,20 @@ public final class TrackGeometry {
     public Point centerPoint(double distance) { return point(centerline,distance); }
     public Vec2 tangent(double distance) { int i=upper(centerline,wrap(distance));return centerline.get(i).position.sub(centerline.get(i-1).position).unit(); }
     public String surface(Vec2 position,Double preferred) {
-        JsonNode pit=definition.path("pitLane").path("path");
-        for(int i=0;i<pit.size()-1;i++) {
-            Vec2 a=vector(pit.get(i)),b=vector(pit.get(i+1));
-            if(position.sub(a.add(b.sub(a).scale(alpha(position,a,b)))).length()<=contract.number("race","pitLaneHalfWidthMeters")) return definition.path("surfaceModel").path("pitLane").asText();
-        }
+        if(inPit(position))return definition.path("surfaceModel").path("pitLane").asText();
         Projection p=project(position,preferred);String side=tangent(p.distance).cross(position.sub(p.point))>=0?"left":"right";
         for(JsonNode curb:definition.path("curbs")) if(curb.path("side").asText().equals(side) && p.distance>=n(curb,"fromDistanceMeters") && p.distance<=n(curb,"toDistanceMeters") && p.offset>=p.halfWidth && p.offset<=p.halfWidth+n(curb,"widthMeters")) return "curb";
         String material=definition.path("surfaceModel").path("onTrack").asText();double beyond=max(0,p.offset-p.halfWidth),end=0;
         if(beyond>0) for(JsonNode zone:limit(p.distance).path(side).path("zones")) { end+=n(zone,"widthMeters");material=zone.path("surface").asText();if(beyond<=end)break; }
         return material;
+    }
+    public boolean inPit(Vec2 position) {
+        JsonNode pit=definition.path("pitLane").path("path");
+        for(int i=0;i<pit.size()-1;i++) {
+            Vec2 a=vector(pit.get(i)),b=vector(pit.get(i+1));
+            if(position.sub(a.add(b.sub(a).scale(alpha(position,a,b)))).length()<=contract.number("race","pitLaneHalfWidthMeters")) return true;
+        }
+        return false;
     }
     /** Physics-only staging positions; qualification/pit-release rules remain Part 3c. */
     public Spawn spawn(int index) {

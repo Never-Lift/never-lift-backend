@@ -229,6 +229,17 @@ public final class Room {
         state = RoomState.CLOSED;
     }
 
+    void racePhase(RoomState phase) {
+        state=phase;
+        if(phase==RoomState.QUALIFYING_RESULTS || phase==RoomState.RESULTS)
+            participants.values().stream().filter(p->!p.isBot()).forEach(p->p.setReady(false));
+    }
+
+    void returnToLobby(Instant now) {
+        cancelQualification(now);
+        participants.values().forEach(p->p.setReady(false));
+    }
+
     UUID transferHost() {
         UUID previousHost = hostId;
         hostId = participants.values().stream()

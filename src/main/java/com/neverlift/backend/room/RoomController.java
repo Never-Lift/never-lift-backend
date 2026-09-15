@@ -127,7 +127,7 @@ public class RoomController {
     public RoomResponse cancelQualification(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable String roomCode) {
-        RoomResponse response = roomManager.cancelQualification(userId(jwt), roomCode);
+        RoomResponse response = roomWebSocketHandler.cancelQualification(userId(jwt), roomCode);
         roomWebSocketHandler.broadcastRoomState(roomCode);
         return response;
     }
@@ -150,7 +150,7 @@ public class RoomController {
         RoomResponse response = roomManager.leave(leavingUserId, roomCode);
         roomWebSocketHandler.disconnectParticipant(
                 roomCode, leavingUserId, "left_room", "Você saiu da sala.");
-        if (response.participantCount() > 0) {
+        if (response.participantCount() > 0 || !response.state().equals("lobby")) {
             roomWebSocketHandler.broadcastRoomState(roomCode);
         } else {
             roomWebSocketHandler.stopRace(roomCode);
