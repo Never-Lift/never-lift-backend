@@ -33,6 +33,17 @@ class RoomManagerTest {
     }
 
     @Test
+    void lastHumanCanLeaveAQualifyingRoomContainingBots() {
+        var room = manager.create(host, new CreateRoomRequest("Bots remaining", "suzuka", 3, true, "easy", "public"));
+        manager.start(host, room.code());
+        var remaining = manager.leave(host, room.code());
+        assertThat(remaining.hostId()).isNull();
+        assertThat(remaining.hostName()).isNull();
+        assertThat(remaining.players()).allMatch(player -> player.bot());
+        assertThat(manager.get(room.code()).hostId()).isNull();
+    }
+
+    @Test
     void createsTwentyTwoSlotPublicRoomAndSupportsJoinAndTicket() {
         RoomResponse created = manager.create(host,
                 new CreateRoomRequest(null, null, null, null, null, null));

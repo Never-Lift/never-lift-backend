@@ -13,11 +13,12 @@ import java.util.concurrent.*;
 import static org.assertj.core.api.Assertions.*;
 
 /** Two headless client scripts over real HTTP + WebSocket/Tomcat, no UI and no client physics. */
-@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT, properties="app.version=module-3b-test")
+@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT, properties={"app.version=module-3b-test", "spring.datasource.hikari.allow-pool-suspension=true"})
 class AuthoritativeRaceIntegrationTest {
     @LocalServerPort int port;
     @Autowired ObjectMapper mapper;
     @Autowired RoomWebSocketHandler handler;
+    @Autowired javax.sql.DataSource dataSource;
     final HttpClient http=HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
     JsonNode request(String path,String token,Object body) throws Exception {
         var builder=HttpRequest.newBuilder(URI.create("http://localhost:"+port+path)).timeout(Duration.ofSeconds(10)).header("Content-Type","application/json");
@@ -69,6 +70,37 @@ class AuthoritativeRaceIntegrationTest {
             System.out.println("M3C QUALIFYING PROOF: "+common.size()+" synchronized isolated snapshots; trajectory and barrier collision observed; version mismatch closed");
         } finally {request("/api/rooms/"+code+"/leave",host,Map.of());request("/api/rooms/"+code+"/leave",other,Map.of());}
     }
+    @Test void qualifyingInputsAndSnapshotsContinueWithDatabasePoolSuspended() throws Exception {
+        String host=register("storage-host"),other=register("storage-driver");
+        String code=request("/api/rooms",host,Map.of("gridSize",3,"trackId","suzuka","botsEnabled",true)).path("code").asText();
+        request("/api/rooms/"+code+"/join",other,Map.of());
+        var pool=dataSource.unwrap(com.zaxxer.hikari.HikariDataSource.class).getHikariPoolMXBean();
+        try(Client a=connect(host,code,"2.0.3");Client b=connect(other,code,"2.0.3")) {
+            await(()->a.messages.stream().anyMatch(m->m.path("type").asText().equals("room_state")) && b.messages.stream().anyMatch(m->m.path("type").asText().equals("room_state")),5);
+            request("/api/rooms/"+code+"/ready",other,Map.of("ready",true));
+            request("/api/rooms/"+code+"/start",host,Map.of());
+            await(()->a.snapshots.keySet().stream().anyMatch(t->t>=90) && b.snapshots.keySet().stream().anyMatch(t->t>=90),6);
+            long firstA=Collections.max(a.snapshots.keySet()),firstB=Collections.max(b.snapshots.keySet());
+            pool.suspendPool();
+            try {
+                for(int sequence=0;sequence<60;sequence++) {
+                    var input=Map.of("throttle",1,"brake",0,"steer",0,"clientSeq",sequence,"clientTimestamp",sequence*33);
+                    a.send("input",input);b.send("input",input);Thread.sleep(33);
+                }
+                await(()->a.snapshots.keySet().stream().filter(t->t>firstA).count()>=15 && b.snapshots.keySet().stream().filter(t->t>firstB).count()>=15,3);
+                for(Client client:List.of(a,b)) {
+                    var car=client.snapshots.get(Collections.max(client.snapshots.keySet())).path("cars").get(0);
+                    assertThat(car.path("lastProcessedClientSeq").asLong()).isGreaterThanOrEqualTo(50);
+                    assertThat(car.path("speed").asDouble()).isGreaterThan(1);
+                    assertThat(client.messages).noneMatch(m->m.path("type").asText().equals("error"));
+                }
+            } finally {pool.resumePool();}
+        } finally {
+            request("/api/rooms/"+code+"/leave",host,Map.of());
+            request("/api/rooms/"+code+"/leave",other,Map.of());
+        }
+    }
+
     Client connect(String token,String code,String version) throws Exception {
         String ticket=request("/api/rooms/"+code+"/connection-ticket",token,Map.of()).path("ticket").asText();
         Client client=new Client();client.socket=http.newWebSocketBuilder().buildAsync(URI.create("ws://localhost:"+port+"/ws?ticket="+ticket),client).get(5,TimeUnit.SECONDS);

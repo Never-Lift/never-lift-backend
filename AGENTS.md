@@ -24,6 +24,7 @@ Detalhe completo de cada payload: `docs/backend-implementation-plan.md`, seção
 - `docs/module-3b-authoritative-physics.md` — entrega da Parte 3b, paridade, snapshot completo e limites em relação à 3c.
 - `docs/module-3b-portability.md` — revisão aprovada 2.0.3, kernel numérico compartilhado, evidências e teste manual curto antes da 3c.
 - `docs/module-3c-race-flow.md` — decisões confirmadas da 3c, contrato de corrida, evidências de testes e pendências de revalidação. Não declara a Parte 3c pronta enquanto os critérios finais estiverem pendentes.
+- `docs/module-3c-online-stall-2026-09-16.md` — correção de acesso transacional indevido nas leituras de sala, continuidade sem JDBC e saída do último humano com bots; validação manual remota pendente.
 - `docs/neon-network-transfer.md` — política de armazenamento das pistas, causa do incidente de egress e roteiro de migração gratuita.
 - `docs/module-3-online-decisions.md` — registro aprovado das 80 decisões de produto e arquitetura para o online; manter sincronizado com o plano do frontend antes de implementar o Módulo 3.
 - `docs/contracts/module-2-shared-contracts.md`, `docs/contracts/module-2-physics-v2-proposal.md` e `contracts/module-2/v1/`/`v2/` — decisões e contratos publicados do Módulo 2. O `v1` é histórico imutável; o `v2` é a linha executável da Parte 2d.
