@@ -103,6 +103,9 @@ public final class Room {
     }
 
     public RoomParticipant participantForUser(UUID userId) {
+        // Bots have no account. After the final human leaves, there is no host
+        // to resolve; never match a bot or dereference the absent host ID.
+        if (userId == null) return null;
         return participants.values().stream()
                 .filter(participant -> userId.equals(participant.getUserId()))
                 .findFirst()

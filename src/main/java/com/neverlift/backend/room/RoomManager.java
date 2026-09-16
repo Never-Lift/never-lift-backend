@@ -88,7 +88,6 @@ public class RoomManager {
         return RoomResponse.from(room);
     }
 
-    @Transactional(readOnly = true)
     public synchronized List<RoomResponse> listPublic() {
         cleanupExpiredRooms();
         return rooms.values().stream()
@@ -98,7 +97,8 @@ public class RoomManager {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
+    // Called for every input and publication. Rooms are in memory: opening a
+    // JPA transaction here couples live racing to database latency/availability.
     public synchronized RoomResponse get(String roomCode) {
         return RoomResponse.from(requireRoom(roomCode));
     }
